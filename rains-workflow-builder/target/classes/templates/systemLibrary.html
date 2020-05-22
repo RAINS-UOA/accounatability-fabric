@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> 
+    <title>Accountability Framework</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+ <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container" id="firstpage-content">
+   <h3> <span class="glyphicon glyphicon-folder-open"> </span> System Library </h3>
+        <div class="list-group">
+ <!--
+  <a href="#" class="list-group-item list-group-item-action " onclick="loadSystemFromFabric('https://rainsproject.org/System#SampleSystem')">
+    Sample System
+  </a>
+  -->
+  <div th:if="${#maps.isEmpty(systems)}"> 
+   <div class="alert alert-primary" role="alert">
+  There are no stored systems in the fabric. Please add a system by clicking the button below.
+</div>
+</div>
+  
+  <div th:each="entry:${systems}">
+  <a href="#" class="list-group-item list-group-item-action "><span th:text="${entry.value}"></span></a>
+
+</div>
+  <br>
+<a href="/createSystemForm"  type="button" class="btn btn-primary" data-toggle="modal" >Add New System URI </a>
+</div>
+
+</div>   
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> 
+    <title>Accountability Framework</title> 
+   <title>Accountability Framework</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+ <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+
+
+<form action="#" th:action="@{/systems}"  th:object="${newSystem}" method='post'>
+  <div class="form-group">
+    <label for="iri">IRI</label>
+    <input type="text" class="form-control" th:field="*{iri}" aria-describedby="irilHelp" placeholder="Enter System IRI">
+    <small id="iriHelp" class="form-text text-muted">Leave empty and new IRI will be generated automatically</small>
+  </div>
+  <div class="form-group">
+    <label for="label">Label</label>
+    <input type="text" class="form-control" th:field="*{label}" >
+  </div>
+   <div class="form-group">
+    <label for="description">Label</label>
+    <textarea  class="form-control" th:field="*{description}" ></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+</body>
+</html>

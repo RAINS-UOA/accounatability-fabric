@@ -1,0 +1,258 @@
+<!doctype html>
+<head>
+<title>Protocol Builder</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+ <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+<style>
+
+    #mainpage-content {
+        display:none;
+    }   
+    
+.steps {
+min-height:90px;
+    border-radius: 25px;
+width:120px;
+float:left;
+border-style: dotted;
+padding:20px;
+font-size:15px;
+text-align: center;
+
+}
+
+
+
+.rationaleWidget {
+float:left;
+min-width: 100px;
+min-height: 40px;
+border-radius: 25px;
+  background: #f5f5f5;
+margin:5px;
+display: inline-block;
+text-align: center;
+vertical-align: middle;
+padding:10px;
+}
+
+.typeWidget {
+float:left;
+min-width: 100px;
+min-height: 40px;
+border-radius: 25px;
+  background: #93e9be;
+margin:5px;
+display: inline-block;
+text-align: center;
+vertical-align: middle;
+padding:10px;
+}
+
+.inspectorPane {
+padding:10px;
+min-height:400px;
+  background: #87ceeb;
+}
+
+.step {
+      border-radius: 25px;
+float:left;
+min-width: 200px;
+height: 80px;
+background-color:#FFFFCC;
+margin:5px;
+position: relative;
+display: inline-block;
+text-align: center;
+vertical-align: middle;
+padding-top:30px;
+}
+
+.libraryStep {
+width:100%;
+}
+
+div.scroll {
+  overflow: scroll;
+}
+
+.more {
+ position:absolute;
+
+ top:0px;
+ right:2px;
+ margin-right:10px;
+     margin-top:5px;
+}
+
+    .greyBackground {
+        background:#CCCCCC;
+        padding:5px;
+        border-color: #999999;
+        border-style: solid;
+        border-width: 1px;     
+    }    
+    
+    .wrapTextButton {
+        margin-bottom:4px;
+        white-space: normal;
+    }
+    
+</style>
+
+ 
+ </head>
+<script src="./js/index.js"></script>
+<body>
+<!-- FIRST PAGE -->
+
+    <div class="container" id="firstpage-content">
+   <h3> <span class="glyphicon glyphicon-folder-open"> </span> System Library </h3>
+        <div class="list-group">
+  <a href="#" class="list-group-item list-group-item-action " onclick="loadSystemFromFabric('https://rainsproject.org/System#SampleSystem')">
+    Sample System
+  </a>
+  <br>
+<a href="#"  type="button" class="btn btn-primary" data-toggle="modal" data-target="#addNewSystemModal">Add New System URI </a>
+</div>
+
+</div>    
+    
+<!-- Main PAGE -->
+
+    <div class="page-content page-container" id="mainpage-content">    
+    
+<div class="jumbotron text-center">
+  <h1>navigation here</h1> 
+</div>
+  
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-2 ">
+      <h3>Steps Library</h3>
+      <div class="panel panel-default">
+      <button type="button" class="btn btn-info libraryStep wrapTextButton" data-toggle="collapse" data-target="#tree1" >Design &AMP; Implementation</button>
+      <div class="scroll">
+      <ul id="tree1" class="collapse">
+        <li>Requirements Scoping
+        <ul>
+        <li><div id="Decide_Objectives" draggable="true" ondragstart="drag(event)">Decide Objectives</div></li>
+        <li><div id="Produce_Design_Specification" draggable="true" ondragstart="drag(event)">Produce Design Specification</li>
+         <li><a  href="#" data-toggle="modal" data-target="#stepModal">add new type</a></li>              
+                    </ul>
+                </li>
+                <li>ML Pipeline
+                    <ul>
+                        <li><div id="Algorithm_Selection" draggable="true" ondragstart="drag(event)">Algorithm Selection</li>
+                        <li><div id="Training_Data_Selection" draggable="true" ondragstart="drag(event)">Training Data Selection</li>
+                        <li><div id="Evaluation" draggable="true" ondragstart="drag(event)">Evaluation</li>
+                        <li><div id="Training" draggable="true" ondragstart="drag(event)">Training</li>
+                        <li><a href="#">add new type</li>
+                    </ul>
+                </li>
+                <li><a  href="#" data-toggle="modal" data-target="#stepModal">add new type</a></li>
+            </ul>
+            </div>
+             <button type="button" class="btn btn-info libraryStep wrapTextButton" data-toggle="collapse" data-target="#tree2" >Deployment</button>
+        <button type="button" class="btn btn-info libraryStep wrapTextButton" data-toggle="collapse" data-target="#tree3" >Operation &AMP; Monitoring</button>
+      </div>
+        </div>
+    <div class="col-sm-7">
+    <h3>Workflow Steps</h3>
+    <div id="workflowStepsPane" class="panel panel-default"> </div>
+    </div>
+    <div class="col-sm-3 ">
+    <h3>Inspect Element</h3>
+    <div id="inspectPane" class="inspectorPane panel panel-default"> </div>
+    </div>
+</div>
+        </div>
+    </div>
+
+<!-- Modal -->
+<div class="modal fade" id="stepModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Edit Step </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="rationaleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" >Enter Rationale URI</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Enter link to resource:</label>
+            <input type="text" class="form-control" id="rationaleLink">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="saveStepRationale ()" >Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD NEW SYSTEM Modal -->
+<div class="modal fade" id="addNewSystemModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" >Add System URI</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="newSystemURI" class="col-form-label">Enter link to resource:</label>
+            <input type="text" class="form-control" id="newSystemURI">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="fabricManager.addNewSystemToFabric ()" >Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+  
+  <script> 
+  initLayout ();
+  </script>
+</body>
+</html>

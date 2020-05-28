@@ -1,0 +1,261 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> 
+    <title>Accountability Framework</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+ <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<style>
+
+     
+    
+.steps {
+min-height:90px;
+    border-radius: 25px;
+width:120px;
+float:left;
+border-style: dotted;
+padding:20px;
+font-size:15px;
+text-align: center;
+
+}
+
+
+
+.rationaleWidget {
+float:left;
+min-width: 100px;
+min-height: 40px;
+border-radius: 25px;
+  background: #f5f5f5;
+margin:5px;
+display: inline-block;
+text-align: center;
+vertical-align: middle;
+padding:10px;
+}
+
+.typeWidget {
+float:left;
+min-width: 100px;
+min-height: 40px;
+border-radius: 25px;
+  background: #93e9be;
+margin:5px;
+display: inline-block;
+text-align: center;
+vertical-align: middle;
+padding:10px;
+}
+
+.inspectorPane {
+padding:10px;
+min-height:400px;
+  background: #87ceeb;
+}
+
+.step {
+      border-radius: 25px;
+float:left;
+min-width: 200px;
+height: 80px;
+background-color:#FFFFCC;
+margin:5px;
+position: relative;
+display: inline-block;
+text-align: center;
+vertical-align: middle;
+padding-top:30px;
+}
+
+.libraryStep {
+width:100%;
+}
+
+div.scroll {
+  overflow: scroll;
+}
+
+.more {
+ position:absolute;
+
+ top:0px;
+ right:2px;
+ margin-right:10px;
+     margin-top:5px;
+}
+
+    .greyBackground {
+        background:#CCCCCC;
+        padding:5px;
+        border-color: #999999;
+        border-style: solid;
+        border-width: 1px;     
+    }    
+    
+    .wrapTextButton {
+        margin-bottom:4px;
+        white-space: normal;
+    }
+    
+</style>
+
+ 
+ </head>
+<script src="./js/index.js"></script>
+<body>
+
+
+
+<div class="page-content page-container" id="mainpage-content">    
+    
+ <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/systems">Home</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="">Save Changes <span class="sr-only">(current)</span></a>
+      </li>
+      
+    </ul>
+  </div>
+</nav>   
+    
+<div class="jumbotron">
+  <strong>IRI: </strong> <span id="planIRI"> </span> <br>
+   <strong>Label: </strong><input type="text" /> <br>
+   <strong>Comment: </strong><br> <textarea></textarea>
+</div>
+  
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-2 ">
+      <h3>Steps Library</h3>
+      <div class="panel panel-default">
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  > <span th:text="${stage}"></span> </button>
+      <div class="scroll">
+      <ul id="tree1" >
+        <li>Requirements Scoping
+        <ul>
+        <li><div id="Decide_Objectives" draggable="true" ondragstart="drag(event)">Decide Objectives</div></li>
+        <li><div id="Produce_Design_Specification" draggable="true" ondragstart="drag(event)">Produce Design Specification</li>
+         <li><a  href="#" data-toggle="modal" data-target="#stepModal">add new type</a></li>              
+                    </ul>
+                </li>
+                <li>ML Pipeline
+                    <ul>
+                        <li><div id="Algorithm_Selection" draggable="true" ondragstart="drag(event)">Algorithm Selection</li>
+                        <li><div id="Training_Data_Selection" draggable="true" ondragstart="drag(event)">Training Data Selection</li>
+                        <li><div id="Evaluation" draggable="true" ondragstart="drag(event)">Evaluation</li>
+                        <li><div id="Training" draggable="true" ondragstart="drag(event)">Training</li>
+                        <li><a href="#">add new type</li>
+                    </ul>
+                </li>
+                <li><a  href="#" data-toggle="modal" data-target="#stepModal">add new type</a></li>
+            </ul>
+            </div>
+          
+      </div>
+        </div>
+    <div class="col-sm-7">
+    <h3>Workflow Steps</h3>
+    <div id="workflowStepsPane" class="panel panel-default"> </div>
+    </div>
+    <div class="col-sm-3 ">
+    <h3>Inspect Element</h3>
+    <div id="inspectPane" class="inspectorPane panel panel-default"> </div>
+    </div>
+</div>
+        </div>
+    </div>
+
+<!-- Modal -->
+<div class="modal fade" id="stepModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Edit Step </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="rationaleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" >Enter Rationale URI</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Enter link to resource:</label>
+            <input type="text" class="form-control" id="rationaleLink">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="saveStepRationale ()" >Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD NEW SYSTEM Modal -->
+<div class="modal fade" id="addNewSystemModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" >Add System URI</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="newSystemURI" class="col-form-label">Enter link to resource:</label>
+            <input type="text" class="form-control" id="newSystemURI">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="fabricManager.addNewSystemToFabric ()" >Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+  
+  <script> 
+  initLayout ();
+  </script>
+</body>
+</html>

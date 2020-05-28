@@ -1,0 +1,54 @@
+<div th:fragment="systems-details" xmlns:th="http://www.thymeleaf.org" th:remove="tag">
+    <!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="#" onclick="loadDoc('/home')" >Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto">
+ 
+        <li class="nav-item">
+          <a class="nav-link" href="/settings">Settings</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+    <div style="padding-top:150px;" class="container" id="firstpage-content">
+   <h3> System Details </h3>
+   IRI:<span th:text="${systemDetails.getIri()}"></span><br>
+   Label:<span th:text="${systemDetails.getLabel()}"></span><br>
+   Description:<span th:text="${systemDetails.getDescription()}"></span><br>
+   
+   
+   <h3>Lifecycle Stages</h3>
+   to do: implement logic 
+  
+  <div class="list-group-item list-group-item-action clearfix"  >
+    Design
+    
+    <span class="pull-right"><a href="/plan"  role="button" class="btn btn-primary"  > Create Plan
+  </a></span>
+  </div>
+  <div class="list-group-item list-group-item-action clearfix"   >
+    Implementation
+    
+    <span class="pull-right">  <a href="/plan"  role="button" class="btn btn-primary"   > Create Plan
+  </a></span>
+  </div>
+  <div class="list-group-item list-group-item-action clearfix"   >
+    Deployment
+    
+     <span class="pull-right"> <a href="/plan"  role="button" class="btn btn-primary"  > Create Plan
+  </a></span>
+  </div>
+  <div class="list-group-item list-group-item-action clearfix"     >
+    Operation
+    
+    <a href="/plan"  role="button" class="btn btn-primary pull-right"  > Create Plan
+  </a>
+  </div>
+</div>   
+</div>

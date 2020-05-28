@@ -72,7 +72,7 @@ public static void checkRepositorySetUp () {
 	try (RepositoryResult<Statement> result = conn.getStatements(null, null, null, context)) {
 	   while (result.hasNext()) {
 	      Statement st = result.next();
-	     System.out.println(st.toString());
+	    
 	   }
 	}
 	

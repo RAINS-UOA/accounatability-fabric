@@ -1,21 +1,25 @@
-<!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
-<head> 
-    <title>Accountability Framework</title> 
-   <title>Accountability Framework</title> 
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-   
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
- <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
-</head>
-<body>
+<div th:fragment="create-system-form" xmlns:th="http://www.thymeleaf.org" th:remove="tag">
+   <!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="#" onclick="loadDoc('/home')" >Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto">
+ 
+        <li class="nav-item">
+          <a class="nav-link" href="/settings">Settings</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
 
-
-<form action="#" th:action="@{/systems}"  th:object="${newSystem}" method='post'>
+<div style="padding-top:150px;" class="container" id="firstpage-content">
+<form action="#" th:action="@{/systems}"  th:object="${newSystem}" method='post' id="createSystem" onsubmit="submitNewSystemForm(event)">
   <div class="form-group">
     <label for="iri">IRI</label>
     <input type="text" class="form-control" th:field="*{iri}" aria-describedby="irilHelp" placeholder="Enter System IRI">
@@ -26,10 +30,15 @@
     <input type="text" class="form-control" th:field="*{label}" >
   </div>
    <div class="form-group">
-    <label for="description">Label</label>
+    <label for="description">Description</label>
     <textarea  class="form-control" th:field="*{description}" ></textarea>
   </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-</body>
-</html>
+  <button type="submit" class="btn btn-primary" >Submit</button>
+  </form>
+  </div>
+</div>  
+
+
+  
+  
+ 

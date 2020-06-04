@@ -1,17 +1,22 @@
 package uoa.web.handlers;
 
+
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.pool2.ObjectPool;
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -24,7 +29,13 @@ import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
 import org.eclipse.rdf4j.repository.manager.RepositoryManager;
 import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.JSONSettings;
+import org.eclipse.rdf4j.rio.helpers.StatementCollector;
+import org.omg.CORBA.portable.InputStream;
 import org.springframework.util.ResourceUtils;
 
 import uoa.init.graphdb.Constants;
@@ -87,6 +98,53 @@ public class SystemRecordManager {
 		//TO DO need to shutdown everything before garbage collected this will now have to be shut down in the connection pool
 		
 	}
+	
+	public void savePlanFromJSONLD () throws IOException {
+		
+		String jsonld_dummy = "{\"@context\":{\"plan\": \"https://w3id.org/ep-plan#plan\",\"step\": \"https://w3id.org/ep-plan#Step\",\"multiStep\": \"https://w3id.org/ep-plan#Step\",\"isElementOfPlan\": \"https://w3id.org/ep-plan#isElementOfPlan\"},\"@graph\": [{\"@id\": \"https://something/plan1\",\"@type\": \"plan\"}, {\"@id\": \"https://something/step1\",\"@type\": \"multiStep\"}]}";
+	    String BACKSLASH_ESCAPED_TEST_STRING = "{\"@context\": {\"ical\": \"http://www.w3.org/2002/12/cal/ical#\",\"xsd\": \"http://www.w3.org/2001/XMLSchema#\",\"ical:dtstart\": {\"@type\": \"xsd:dateTime\"}},\"ical:summary\": \"Lady Gaga Concert\",\"ical:location\": \"New Orleans Arena, New Orleans, Louisiana, USA\",\"ical:dtstart\": \"2011-04-09T20:00:00Z\"}";
+        String test = "{\"@context\": {\"generatedAt\": {\"@id\": \"http://www.w3.org/ns/prov#generatedAtTime\",\"@type\": \"http://www.w3.org/2001/XMLSchema#date\"},\"Person\": \"http://xmlns.com/foaf/0.1/Person\",\"name\": \"http://xmlns.com/foaf/0.1/name\",\"knows\": \"http://xmlns.com/foaf/0.1/knows\"},\"@graph\": [{\"@id\": \"http://manu.sporny.org/about#manu\",\"@type\": \"Person\",\"name\": \"Manu Sporny\",\"knows\": \"http://greggkellogg.net/foaf#me\"}, {\"@id\": \"http://greggkellogg.net/foaf#me\",\"@type\": \"Person\",\"name\": \"Gregg Kellogg\",\"knows\": \"http://manu.sporny.org/about#manu\"}]}";
+	//	RDFParser rdfParser = Rio.createParser(RDFFormat.JSONLD);
+		//Model model = new LinkedHashModel();
+		//rdfParser.setRDFHandler(new StatementCollector(model));
+		
+		
+		
+		Model results = null;
+		try {
+			  // rdfParser.parse(inputStream	, null);
+			   
+			    RDFParser parser = Rio.createParser(RDFFormat.JSONLD);
+			    parser.set(JSONSettings.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,true);
+			    //parser.parse(new StringReader(jsonld_dummy), null);
+			   
+			    results = Rio.parse(new StringReader(jsonld_dummy), null, RDFFormat.JSONLD);
+			}
+			catch (IOException e) {
+			  // handle IO problems (e.g. the file could not be read)
+				System.out.println(e.getLocalizedMessage());
+			}
+			catch (RDFParseException e) {
+			  // handle unrecoverable parse error
+				System.out.println(e.getLocalizedMessage());
+			}
+			catch (RDFHandlerException e) {
+			  // handle a problem encountered by the RDFHandler
+				System.out.println(e.getLocalizedMessage());
+			}
+			
+		
+		if (results!=null) {
+			System.out.println("model size" +results.size() );
+		conn.add(results.getStatements(null, null, null, (Resource)null), (Resource)null);
+		}
+		else {
+			System.out.println("model is null");
+		}
+		
+		
+	}
+	
 
 	public void addSystemInfo(NewSystemForm newSystem) {
 		

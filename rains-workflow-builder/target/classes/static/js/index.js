@@ -1,3 +1,4 @@
+/*
 class manageFabric {
     
  executeInsertQuery (payload, graph) {
@@ -40,12 +41,15 @@ let parsed =  this.csvToMatrix(text,',');
 }
 }
 
+*/
 
 var stepRowCounter = 0; 
 var selectedStep;
-var fabricManager = new manageFabric();
+var plan ={};
+var dataPrefix;
+//var fabricManager = new manageFabric();
 
-console.log(fabricManager);
+
 
 var inspectorTemplate =`
 <div class="container-fluid">
@@ -300,7 +304,7 @@ function createNewStep (target, data) {
 let step = document.createElement("div") ;
 let uniqueIDelement = uuidv4(); 
 //need to add prefix here as well
-step.stepID = "getprefix/"+ uniqueIDelement
+step.stepID = dataPrefix+ uniqueIDelement
 step.id=uniqueIDelement;
 step.stepLabel = "untitled"; 
 step.types = ["ep-plan:Step", "rains:"+data]; 
@@ -362,10 +366,13 @@ r.className= "row";
 let h = document.createElement("div");
 let text = document.createTextNode("drop here to create new step for this line");
 h.appendChild (text);
-h.className= "steps";
+h.className= "steps dz-message d-flex flex-column dropzone";
 h.addEventListener("dragover", function(event) {
   event.preventDefault();
 });
+
+
+
 
 h.addEventListener("drop", function(event) {
 event.preventDefault();
@@ -389,10 +396,21 @@ console.log(stepRowCounter);
 }
 
 
-function initLayout () {
+function initLayout () {	
+dataPrefix =  "to do load dynamically/";
 for (let i=0; i<15;i++) {
 createStepRow(document.getElementById('workflowStepsPane'), stepRowCounter);
 } 
 }
 
+
+function initNewPlan () {
+	let uniqueIDelement = uuidv4(); 
+	plan.iri = dataPrefix + uniqueIDelement;
+	document.getElementById ('planIRI').innerHTML=plan.iri;
+}
+
+function loadExistingPlan () {
+	
+}
 // FABRIC MANAGEMENT FUNCTIONS

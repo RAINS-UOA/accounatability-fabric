@@ -23,7 +23,7 @@ import uoa.web.handlers.SystemRecordManager;
 public class ServiceController {
 	Repository repository = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager());
 	
-	private ObjectPool connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
+	private ObjectPool<RepositoryConnection>  connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
 	
 	@GetMapping("/")
 	public String index(Model model) {
@@ -36,12 +36,25 @@ public class ServiceController {
 		return "home";
 	}
 	
-	@GetMapping("/plan")
+	@GetMapping("/workflowBuilder")
 	public String planDesigner( Model model) {
 		model.addAttribute("stage", "Design");
 		return "planDesigner";
 	}
+	@GetMapping("/testJSONLD")
+	public String savePlanFromJSONLD () throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		manager.savePlanFromJSONLD();
+		return "home";
+	}
 	
+	
+	@GetMapping("/components")
+	public String components () throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		
+		return "componentsLibrary";
+	}
 	
 	@GetMapping("/system")
 	public String systemDetails(@RequestParam String iri, Model model) throws NoSuchElementException, IllegalStateException, Exception {

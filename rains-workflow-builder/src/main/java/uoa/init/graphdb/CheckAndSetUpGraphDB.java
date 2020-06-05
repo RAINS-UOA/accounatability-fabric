@@ -67,6 +67,14 @@ public static void checkRepositorySetUp () {
 		conn.add(systemCollection, RDF.TYPE, f.createIRI(SystemComponentsIRI.SYSTEM_COLLECTION), context); 		
 	}
 	
+	if (!GraphDBUtils.checkResourcePresent (conn.getContextIDs(), Constants.TEMPLATES_NAMED_GRAPH_IRI)) {
+		System.out.println ("Adding the default Systems named graph") ;
+		
+		Resource templateCollection = f.createIRI(Constants.TEMPLATES_NAMED_GRAPH_IRI+"/"+UUID.randomUUID());
+		IRI context = f.createIRI(Constants.TEMPLATES_NAMED_GRAPH_IRI);
+		conn.add(templateCollection, RDF.TYPE, f.createIRI(SystemComponentsIRI.TEMPLATE_COLLECTION), context); 		
+	}
+	/*
 	// Get all statements in the context
 	IRI context = f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI);
 	try (RepositoryResult<Statement> result = conn.getStatements(null, null, null, context)) {
@@ -75,7 +83,7 @@ public static void checkRepositorySetUp () {
 	    
 	   }
 	}
-	
+	*/
 	
 	//conn.clear(f.createIRI("https://rainsproject.org/PlanComponentLibrary"));
 		
@@ -88,7 +96,10 @@ public static void checkRepositorySetUp () {
     }
     
     else {
+    	
+    	//HAndle if there  is no repository
     	 System.out.println("TO DO - Setting up repository");
+    	 System.exit (0);
     	 
     }
 	

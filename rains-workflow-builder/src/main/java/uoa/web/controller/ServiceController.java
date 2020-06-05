@@ -1,5 +1,6 @@
 package uoa.web.controller;
 
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.pool2.ObjectPool;
@@ -11,7 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import uoa.init.graphdb.ConnectionFactory;
 import uoa.init.graphdb.GraphDBUtils;
@@ -46,6 +49,17 @@ public class ServiceController {
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
 		manager.savePlanFromJSONLD();
 		return "home";
+	}
+	
+	@PostMapping("/saveTemplatePlan")
+	@ResponseBody
+	public String saveTemplatePlan (@RequestBody String payload) throws NoSuchElementException, IllegalStateException, Exception  {
+		System.out.println("Hello");
+		System.out.println(payload);
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		manager.savePlanFromJSONLD(payload);
+		manager.shutdown();
+		return "Request to Save Template Processed - To Do work on the message to confirm it saved sucesfully";
 	}
 	
 	

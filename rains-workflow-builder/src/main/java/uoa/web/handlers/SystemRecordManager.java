@@ -101,7 +101,7 @@ public class SystemRecordManager {
 	
 	public void savePlanFromJSONLD () throws IOException {
 		
-		String jsonld_dummy = "{\"@context\":{\"plan\": \"https://w3id.org/ep-plan#plan\",\"step\": \"https://w3id.org/ep-plan#Step\",\"multiStep\": \"https://w3id.org/ep-plan#Step\",\"isElementOfPlan\": \"https://w3id.org/ep-plan#isElementOfPlan\"},\"@graph\": [{\"@id\": \"https://something/plan1\",\"@type\": \"plan\"}, {\"@id\": \"https://something/step1\",\"@type\": \"multiStep\"}]}";
+		String jsonld_dummy = "{\"@context\":{\"plan\": \"https://w3id.org/ep-plan#plan\",\"step\": \"https://w3id.org/ep-plan#Step\",\"multiStep\": \"https://w3id.org/ep-plan#Step\",\"isElementOfPlan\": \"https://w3id.org/ep-plan#isElementOfPlan\"},\"@graph\": [{\"@id\": \"https://something/plan4\",\"@type\": \"plan\"}, {\"@id\": \"https://something/step3\",\"@type\": [\"multiStep\"]}]}";
 	    String BACKSLASH_ESCAPED_TEST_STRING = "{\"@context\": {\"ical\": \"http://www.w3.org/2002/12/cal/ical#\",\"xsd\": \"http://www.w3.org/2001/XMLSchema#\",\"ical:dtstart\": {\"@type\": \"xsd:dateTime\"}},\"ical:summary\": \"Lady Gaga Concert\",\"ical:location\": \"New Orleans Arena, New Orleans, Louisiana, USA\",\"ical:dtstart\": \"2011-04-09T20:00:00Z\"}";
         String test = "{\"@context\": {\"generatedAt\": {\"@id\": \"http://www.w3.org/ns/prov#generatedAtTime\",\"@type\": \"http://www.w3.org/2001/XMLSchema#date\"},\"Person\": \"http://xmlns.com/foaf/0.1/Person\",\"name\": \"http://xmlns.com/foaf/0.1/name\",\"knows\": \"http://xmlns.com/foaf/0.1/knows\"},\"@graph\": [{\"@id\": \"http://manu.sporny.org/about#manu\",\"@type\": \"Person\",\"name\": \"Manu Sporny\",\"knows\": \"http://greggkellogg.net/foaf#me\"}, {\"@id\": \"http://greggkellogg.net/foaf#me\",\"@type\": \"Person\",\"name\": \"Gregg Kellogg\",\"knows\": \"http://manu.sporny.org/about#manu\"}]}";
 	//	RDFParser rdfParser = Rio.createParser(RDFFormat.JSONLD);
@@ -236,6 +236,42 @@ public class SystemRecordManager {
 		    }
 	
 		return system;
+	}
+
+	public void savePlanFromJSONLD(String jsonPayload) {
+
+		Model results = null;
+		try {
+			  // rdfParser.parse(inputStream	, null);
+			   
+			    RDFParser parser = Rio.createParser(RDFFormat.JSONLD);
+			    parser.set(JSONSettings.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,true);
+			    //parser.parse(new StringReader(jsonld_dummy), null);
+			   
+			    results = Rio.parse(new StringReader(jsonPayload), null, RDFFormat.JSONLD);
+			}
+			catch (IOException e) {
+			  // handle IO problems (e.g. the file could not be read)
+				System.out.println(e.getLocalizedMessage());
+			}
+			catch (RDFParseException e) {
+			  // handle unrecoverable parse error
+				System.out.println(e.getLocalizedMessage());
+			}
+			catch (RDFHandlerException e) {
+			  // handle a problem encountered by the RDFHandler
+				System.out.println(e.getLocalizedMessage());
+			}
+			
+		
+		if (results!=null) {
+			System.out.println("model size" +results.size() );
+		conn.add(results.getStatements(null, null, null, (Resource)null), f.createIRI(Constants.TEMPLATES_NAMED_GRAPH_IRI));
+		}
+		else {
+			System.out.println("model is null");
+		}
+		
 	}
 
 }

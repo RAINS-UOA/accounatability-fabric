@@ -8,6 +8,8 @@ public class Constants {
 
 	public static final  String  DEFAULT_NAMED_GRAPH_NAMESPACE ="https://rainsproject.org/NamedGraph/";
 
+	public static final String TEMPLATES_NAMED_GRAPH_IRI ="https://rainsproject.org/Templates";
+
 	public static String GRAPH_DB_URL  = "http://localhost:7200";
 	
 	public static String DEFAULT_INSTANCE_NAMESPACE  = "https://rainsproject.org/InstanceData/";

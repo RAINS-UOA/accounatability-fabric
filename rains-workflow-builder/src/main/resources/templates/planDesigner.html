@@ -124,6 +124,7 @@ div.scroll {
  </head>
 <script src="./js/index.js"></script>
 <script src="./js/stepsLibrary.js"></script>
+<script src="./js/json-ld_context.js"></script>
 <body>
 
 
@@ -141,7 +142,7 @@ div.scroll {
               <li> <a href="#">Save</a></li>
                </div>
                <div th:if="${#httpServletRequest.getParameter('mode') == 'template'}"> 
-              <li> <a href="#">Save as Template</a></li>
+              <li> <a href="#" onclick="saveTemplate()">Save as Template</a></li>
               </div>
                <li> <a href="#">Import Template</a></li>
                     

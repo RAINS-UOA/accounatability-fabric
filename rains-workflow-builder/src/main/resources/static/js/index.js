@@ -45,9 +45,20 @@ let parsed =  this.csvToMatrix(text,',');
 
 var stepRowCounter = 0; 
 var selectedStep;
+// convenience reference to plan, steps, constraints, and variables as we will
+// be referring to them fairly often
 var plan ={};
+plan ['@type'] = [];
+
+var stepsArray =[];
+var variablesArray =[];
+var constraintsArray =[];
+
+
+var graph ={};
 var dataPrefix;
-//var fabricManager = new manageFabric();
+// var fabricManager = new manageFabric();
+
 
 
 
@@ -120,43 +131,43 @@ function resetInspector () {
 }
 
 function populateInspectPane (element ) {
-//make it also available to other functions
+// make it also available to other functions
 selectedStep = element;
 
 let target = document.getElementById ("inspectPane");
 target.innerHTML=inspectorTemplate;
 
 let id = document.getElementById ("StepID");
-id.innerHTML =  ":"+element.stepID;
+id.innerHTML =  ":"+element['@id'];
 
 let stepLabel = document.getElementById ("StepLabel");
-stepLabel.innerHTML =  element.stepLabel;
+stepLabel.innerHTML =  element['label'];
 
 let stepTypes = document.getElementById ("StepTypes");
 stepTypes.innerHTML =  "";
 
-for (let i=0;i<element.types.length;i++) {
-stepTypes.appendChild (createStepTypeWidget ( element.types[i] , false));
+for (let i=0;i<element['@type'].length;i++) {
+stepTypes.appendChild (createStepTypeWidget ( element['@type'][i] , false));
 }
     
 stepTypes.appendChild(document.createElement('hr'));
 
 let stepRationale = document.getElementById ("StepRationale");
 stepRationale.innerHTML =  "";
-for (let i=0;i<element.rationale.length;i++) {
-stepRationale.appendChild (createStepRationaleWidget ( element.rationale[i] , true));
+for (let i=0;i<element['hasRationale'].length;i++) {
+stepRationale.appendChild (createStepRationaleWidget ( element['hasRationale'][i] , true));
 }
 
-console.log(element.types);
+console.log(element['@type']);
 
 }
 
 function saveStepRationale () {
-//let modal = document.getElementById ('rationaleModal'); 
+// let modal = document.getElementById ('rationaleModal');
 let link =  document.getElementById ('rationaleLink').value;
 document.getElementById ('rationaleLink').value="";
 console.log(link);
-selectedStep.rationale.push (link);
+selectedStep['hasRationale'].push (link);
 populateInspectPane (selectedStep );
 $('#rationaleModal').modal('toggle')
 }
@@ -182,7 +193,7 @@ return widget;
 
 function editStepNameStart(event) {
  console.log(event)
- console.log(event.srcElement.stepID);
+ console.log(event.srcElement['@id']);
       let area = document.createElement('textarea');
       area.className = 'edit';
       area.value = event.srcElement.innerHTML;
@@ -200,17 +211,19 @@ function editStepNameStart(event) {
       event.srcElement.innerHTML = "";
       
       event.srcElement.appendChild (area);
-      console.log(event.srcElement.stepID);
+      console.log(event.srcElement['@id']);
       area.focus();
     }
 
     function editStepNameEnd(view, area) {
       view.innerHTML = area.value;
-      view.stepLabel = area.value;
+      view['label'] = area.value;
       area.remove();
       console.log(view.stepDOMid);
-      let step = document.getElementById(view.stepDOMid);
-      step.stepLabel = area.value;
+      //there will always only be one result so we can use pop() 
+      let step =  stepsArray.filter(obj => {return obj['@id'] === view.stepDOMid}).pop();
+      console.log(step);
+      step['label'] = area.value;
       populateInspectPane (step );
     }
 
@@ -229,11 +242,11 @@ $.fn.extend({
         }
       };
       
-        //initialize each of the top levels
+        // initialize each of the top levels
         var tree = $(this);
         tree.addClass("tree");
         tree.find('li').has("ul").each(function () {
-            var branch = $(this); //li with children ul
+            var branch = $(this); // li with children ul
             branch.prepend("<i class='indicator glyphicon " + closedClass + "'></i>");
             branch.addClass('branch');
             branch.on('click', function (e) {
@@ -245,20 +258,21 @@ $.fn.extend({
             })
             branch.children().children().toggle();
         });
-        //fire event from the dynamically added icon
+        // fire event from the dynamically added icon
       tree.find('.branch .indicator').each(function(){
         $(this).on('click', function () {
             $(this).closest('li').click();
         });
       });
-        //fire event to open branch if the li contains an anchor instead of text
+        // fire event to open branch if the li contains an anchor instead of
+		// text
         tree.find('.branch>a').each(function () {
             $(this).on('click', function (e) {
                 $(this).closest('li').click();
                 e.preventDefault();
             });
         });
-        //fire event to open branch if the li contains a button instead of text
+        // fire event to open branch if the li contains a button instead of text
         tree.find('.branch>button').each(function () {
             $(this).on('click', function (e) {
                 $(this).closest('li').click();
@@ -268,15 +282,15 @@ $.fn.extend({
     }
 });
 
-//Initialization of treeviews
+// Initialization of treeviews
 
 $('#tree1').treed();
 
-//drag and drop
+// drag and drop
 function allowDrop(ev) {
   ev.preventDefault();
   
-  //display placeholder here TO DO 
+  // display placeholder here TO DO
 }
 
 function drag(ev) {
@@ -286,42 +300,61 @@ function drag(ev) {
   function drop(ev) {
   ev.preventDefault();
   var data = ev.dataTransfer.getData("text");
-  //ev.target.appendChild(document.getElementById(data));
+  // ev.target.appendChild(document.getElementById(data));
   createNewStep (ev.target, data);
 }
 
-//form stack overflow https://stackoverflow.com/questions/105034/how-to-create-guid-uuid
-function uuidv4() {
+ 
+/**
+ * from stack overflow https://stackoverflow.com/questions/105034/how-to-create-guid-uuid
+ * @returns unique uuid
+ */
+  function uuidv4() {
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-  );
-}
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+  }
 
 
 
 function createNewStep (target, data) {
 
 let step = document.createElement("div") ;
-let uniqueIDelement = uuidv4(); 
-//need to add prefix here as well
-step.stepID = dataPrefix+ uniqueIDelement
-step.id=uniqueIDelement;
-step.stepLabel = "untitled"; 
-step.types = ["ep-plan:Step", "rains:"+data]; 
-step.rationale = [];  
+// need to add prefix here as well
+step ['@id'] = dataPrefix+ uuidv4();
+step ['@type'] = [];
+step ['@type'].push (context.Step);
+step ['@type'].push ("https://rains.org#"+data);
+step ['label'] = "untitled"; 
+//step.types = ["ep-plan:Step", "rains:"+data]; 
+step['hasRationale'] = [];  
+
+//push to steps array
+stepsArray.push(step);
+console.log ("steps array" );
+console.log (stepsArray );
 
 let more = document.createElement("button");
 
 more.className= "more close";
 more.innerHTML = '<span aria-hidden="true">&times;</span>';
-//let more_text = document.createTextNode("X");
+// let more_text = document.createTextNode("X");
 
 
 more.addEventListener("click", function(event) {
 event.stopPropagation();
+
+console.log ("steps array" );
+console.log (stepsArray );
 step.remove();
+
+stepsArray = stepsArray.filter(function(el) { return el['@id'] != step ['@id']; });
+
+console.log ("steps array after removal" );
+console.log (stepsArray );
+
+
 resetInspector ();
-//$('#stepModal').modal('toggle');
+// $('#stepModal').modal('toggle');
 });
 
 step.addEventListener("click", function(event) {
@@ -330,13 +363,13 @@ populateInspectPane (step);
 
 
 
-//more.appendChild(more_text);
+// more.appendChild(more_text);
 step.appendChild(more);
              // Create a <h1> element
-//let t = document.createTextNode(":"+step.stepID);
+// let t = document.createTextNode(":"+step.stepID);
 let label =   document.createElement("div");
 label.innerHTML=step.stepLabel; 
-label.stepDOMid= uniqueIDelement;
+label.stepDOMid= step['@id'];
 label.addEventListener("click", function(event) {
  editStepNameStart(event);
 });
@@ -345,7 +378,7 @@ label.addEventListener("click", function(event) {
 
 let strong = document.createElement("strong"); 
 let t2 = document.createTextNode(data);
-//step.appendChild(t); 
+// step.appendChild(t);
 step.appendChild(label); 
 step.appendChild(strong); 
 strong.appendChild(t2); 
@@ -353,64 +386,133 @@ step.className= "step";
 target.appendChild (step);
 console.log(target);
 console.log(data);
-
-
-
 }
 
- 
+/**
+ * Author: Milan Markovic 
+ * 
+ * Creates the rows in the middle part of the workflow builder and adds listeners for drop events
+ */
 
 function createStepRow (element, counter) {
-let r = document.createElement("div");
-r.className= "row";
-let h = document.createElement("div");
-let text = document.createTextNode("drop here to create new step for this line");
-h.appendChild (text);
-h.className= "steps dz-message d-flex flex-column dropzone";
-h.addEventListener("dragover", function(event) {
-  event.preventDefault();
-});
+
+	let r = document.createElement("div");
+	r.className= "row";
+	let h = document.createElement("div");
+	let text = document.createTextNode("drop here to create new step for this line");
+	h.appendChild (text);
+	h.className= "steps dz-message d-flex flex-column dropzone";
+	h.addEventListener("dragover", function(event) {
+										event.preventDefault();
+									});
+
+	h.addEventListener("drop", function(event) {
+	event.preventDefault();
+  
+	let data = event.dataTransfer.getData("text");
+	// ev.target.appendChild(document.getElementById(data));
+	createNewStep (r, data);
+	});
 
 
+	if (counter % 2 === 0) {
+		r.style.backgroundColor = "#bbbbbb";
+	}
+	else {
+		r.style.backgroundColor = "#f5f5f5";
+	}
 
-
-h.addEventListener("drop", function(event) {
-event.preventDefault();
-  var data = event.dataTransfer.getData("text");
-  //ev.target.appendChild(document.getElementById(data));
-  createNewStep (r, data);
-
-});
-
-
-if (counter % 2 === 0) {
-r.style.backgroundColor = "#bbbbbb";
-}
-else {
-r.style.backgroundColor = "#f5f5f5";
-}
-r.appendChild (h);
-stepRowCounter++;
-element.appendChild (r);
-console.log(stepRowCounter);
+	r.appendChild (h);
+	stepRowCounter++;
+	element.appendChild (r);
 }
 
 
+/**
+ * Author: Milan Markovic 
+ * 
+ * Initialises teh layout of teh workflow builder
+ */
 function initLayout () {	
-dataPrefix =  "to do load dynamically/";
+dataPrefix =  "https://to_do_load_dynamically.org/";
 for (let i=0; i<15;i++) {
 createStepRow(document.getElementById('workflowStepsPane'), stepRowCounter);
 } 
 }
 
-
+/**
+ * Author: Milan Markovic 
+ * 
+ * Initialises new plan object. This method should be
+ * called if new workflow plan is created 
+ * from scratch
+ * 
+ * @returns IRI of the new plan object
+ */
 function initNewPlan () {
-	let uniqueIDelement = uuidv4(); 
-	plan.iri = dataPrefix + uniqueIDelement;
-	document.getElementById ('planIRI').innerHTML=plan.iri;
+	let IRI = dataPrefix + uuidv4(); 
+	// save into global variable
+	plan ['@id'] = IRI;
+	plan ['@type'].push(context.Plan);
+	
+	//TO DO handle switch between different modes - design/implementation/deployment/operation
+	plan ['@type'].push(context.DesignStageTemplate);
+	
+	
+	document.getElementById ('planIRI').innerHTML=IRI;
+	return IRI
 }
+
 
 function loadExistingPlan () {
 	
 }
-// FABRIC MANAGEMENT FUNCTIONS
+
+
+function prepareGraph () {
+	let graph = stepsArray.concat(variablesArray).concat(constraintsArray);
+	graph.push(plan);
+	return graph;
+}
+
+
+/**
+ * Author: Milan Markovic 
+ * 
+ * This function returns JSON-LD representation of the
+ * workflow plan created by the tool
+ * 
+ * @param context -
+ *            this is expected to be object with the vocabulary terms see
+ *            JSON-LD_context.js
+ * @param graph -
+ *            this is an object containing all the elements of the plan
+ *            description using the context vocabulary
+ * @returns JSON-LD String
+ */
+function generateJsonLDpayload (context, graph) {
+	
+	let jsonld = {};
+	jsonld ['@context'] = context;
+	jsonld ['@graph'] = graph;
+	
+	return JSON.stringify(jsonld); 
+}
+
+
+function saveTemplate () {
+	
+	//console.log(generateJsonLDpayload (context,prepareGraph()));
+	let xhttp = new XMLHttpRequest();
+	  xhttp.onreadystatechange = function() {
+	    if (this.readyState == 4 && this.status == 200) {
+	    	console.log("saved");
+	    }
+	  };
+	  xhttp.open("POST", "/saveTemplatePlan" , true);
+	  xhttp.setRequestHeader("Content-type", "application/ld+json");
+	 let payload = generateJsonLDpayload (context,prepareGraph());
+	  console.log(payload);
+	  xhttp.send(payload);
+
+}

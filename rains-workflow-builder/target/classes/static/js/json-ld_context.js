@@ -1,0 +1,96 @@
+var context = {};
+
+//AF context
+
+context.DesignStageTemplate   = "https://rainsproject.org/af#DesignStageTemplate";
+context.ImplementationStageTemplate   = "https://rainsproject.org/af#ImplementationStageTemplate";
+context.DeploymentStageTemplate   = "https://rainsproject.org/af#DeploymentStageTemplate";
+context.OperationStageTemplate   = "https://rainsproject.org/af#OperationStageTemplate";
+
+//rdfs context
+
+context.label = "http://www.w3.org/2000/01/rdf-schema#label";
+
+//ep-plan terms 
+context.Activity	= "https://w3id.org/ep-plan#Activity";
+context.Agent	= "https://w3id.org/ep-plan#Agent";
+context.Communication	= "https://w3id.org/ep-plan#Communication";
+context.CommunicationSpecification	= "https://w3id.org/ep-plan#CommunicationSpecification";
+context.Constraint	= "https://w3id.org/ep-plan#Constraint";
+context.ConstraintEvaluation	= "https://w3id.org/ep-plan#ConstraintEvaluation";
+context.Entity	= "https://w3id.org/ep-plan#Entity";
+context.EntityCollection	= "https://w3id.org/ep-plan#EntityCollection";
+context.ExecutionTraceBundle	= "https://w3id.org/ep-plan#ExecutionTraceBundle";
+context.FailedActivity	= "https://w3id.org/ep-plan#FailedActivity";
+context.MultiActivity	= "https://w3id.org/ep-plan#MultiActivity";
+context.MultiStep	= "https://w3id.org/ep-plan#MultiStep";
+context.MultiVariable	= "https://w3id.org/ep-plan#MultiVariable";
+context.Objective	= "https://w3id.org/ep-plan#Objective";
+context.Plan	= "https://w3id.org/ep-plan#Plan";
+context.Policy	= "https://w3id.org/ep-plan#Policy";
+context.Rationale	= "https://w3id.org/ep-plan#Rationale";
+context.ResponsibleAgent	= "https://w3id.org/ep-plan#ResponsibleAgent";
+context.Step	= "https://w3id.org/ep-plan#Step";
+context.Variable	= "https://w3id.org/ep-plan#Variable";
+context.achieves	= "https://w3id.org/ep-plan#achieves";
+context.constrains	= "https://w3id.org/ep-plan#constrains";
+context.correspondsToCommunicationSpecification	= "https://w3id.org/ep-plan#correspondsToCommunicationSpecification";
+context.correspondsToStep	= "https://w3id.org/ep-plan#correspondsToStep";
+context.correspondsToVariable	= "https://w3id.org/ep-plan#correspondsToVariable";
+context.decomposesMultiStep	= "https://w3id.org/ep-plan#decomposesMultiStep";
+context.evaluatedAgainst	= "https://w3id.org/ep-plan#evaluatedAgainst";
+context.evaluatedFor	= "https://w3id.org/ep-plan#evaluatedFor";
+context.evaluatedTraceElement	= "https://w3id.org/ep-plan#evaluatedTraceElement";
+context.hasConstraint	= "https://w3id.org/ep-plan#hasConstraint";
+context.hasConstraintImplementation	= "https://w3id.org/ep-plan#hasConstraintImplementation";
+context.hasCorrespondingActivity	= "https://w3id.org/ep-plan#hasCorrespondingActivity";
+context.hasCorrespondingCommunication	= "https://w3id.org/ep-plan#hasCorrespondingCommunication";
+context.hasCorrespondingEntity	= "https://w3id.org/ep-plan#hasCorrespondingEntity";
+context.hasInputVariable	= "https://w3id.org/ep-plan#hasInputVariable";
+context.hasOutputVariable	= "https://w3id.org/ep-plan#hasOutputVariable";
+context.hasPart	= "https://w3id.org/ep-plan#hasPart";
+context.hasPayload	= "https://w3id.org/ep-plan#hasPayload";
+context.hasPermittedAgent	= "https://w3id.org/ep-plan#hasPermittedAgent";
+context.hasRationale	= "https://w3id.org/ep-plan#hasRationale";
+context.hasRecipient	= "https://w3id.org/ep-plan#hasRecipient";
+context.hasSender	= "https://w3id.org/ep-plan#hasSender";
+context.hasTraceElement	= "https://w3id.org/ep-plan#hasTraceElement";
+context.includesCommunicationSpecification	= "https://w3id.org/ep-plan#includesCommunicationSpecification";
+context.includesConstraint	= "https://w3id.org/ep-plan#includesConstraint";
+context.includesObjective	= "https://w3id.org/ep-plan#includesObjective";
+context.includesPlanElement	= "https://w3id.org/ep-plan#includesPlanElement";
+context.includesPolicy	= "https://w3id.org/ep-plan#includesPolicy";
+context.includesResponsibleAgent	= "https://w3id.org/ep-plan#includesResponsibleAgent";
+context.includesStep	= "https://w3id.org/ep-plan#includesStep";
+context.includesSubPlan	= "https://w3id.org/ep-plan#includesSubPlan";
+context.includesVariable	= "https://w3id.org/ep-plan#includesVariable";
+context.isAchievedBy	= "https://w3id.org/ep-plan#isAchievedBy";
+context.isCommunicationSpecificationOfPlan	= "https://w3id.org/ep-plan#isCommunicationSpecificationOfPlan";
+context.isConstraintImplementationOf	= "https://w3id.org/ep-plan#isConstraintImplementationOf";
+context.isConstraintOfPlan	= "https://w3id.org/ep-plan#isConstraintOfPlan";
+context.isDecomposedAsPlan	= "https://w3id.org/ep-plan#isDecomposedAsPlan";
+context.isElementOfPlan	= "https://w3id.org/ep-plan#isElementOfPlan";
+context.isElementOfTrace	= "https://w3id.org/ep-plan#isElementOfTrace";
+context.isInputVariableOf	= "https://w3id.org/ep-plan#isInputVariableOf";
+context.isObjectiveOfPlan	= "https://w3id.org/ep-plan#isObjectiveOfPlan";
+context.isOutputVariableOf	= "https://w3id.org/ep-plan#isOutputVariableOf";
+context.isPartOf	= "https://w3id.org/ep-plan#isPartOf";
+context.isPayloadIn	= "https://w3id.org/ep-plan#isPayloadIn";
+context.isPermittedAgentFor	= "https://w3id.org/ep-plan#isPermittedAgentFor";
+context.isPolicyOfPlan	= "https://w3id.org/ep-plan#isPolicyOfPlan";
+context.isPrecededBy	= "https://w3id.org/ep-plan#isPrecededBy";
+context.isQualifiedEvaluationOf	= "https://w3id.org/ep-plan#isQualifiedEvaluationOf";
+context.isRationaleOf	= "https://w3id.org/ep-plan#isRationaleOf";
+context.isRecipientIn	= "https://w3id.org/ep-plan#isRecipientIn";
+context.isResponsibleAgentOfPlan	= "https://w3id.org/ep-plan#isResponsibleAgentOfPlan";
+context.isSenderIn	= "https://w3id.org/ep-plan#isSenderIn";
+context.isStepOfPlan	= "https://w3id.org/ep-plan#isStepOfPlan";
+context.isSubPlanOfPlan	= "https://w3id.org/ep-plan#isSubPlanOfPlan";
+context.isVariableOfPlan	= "https://w3id.org/ep-plan#isVariableOfPlan";
+context.precedes	= "https://w3id.org/ep-plan#precedes";
+context.qualifiedEvaluation	= "https://w3id.org/ep-plan#qualifiedEvaluation";
+context.satisfied	= "https://w3id.org/ep-plan#satisfied";
+context.satisfiedBy	= "https://w3id.org/ep-plan#satisfiedBy";
+context.violated	= "https://w3id.org/ep-plan#violated";
+context.violatedBy	= "https://w3id.org/ep-plan#violatedBy";
+context.wasEvaluatedtraceElement	= "https://w3id.org/ep-plan#wasEvaluatedtraceElement";

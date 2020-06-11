@@ -18,7 +18,7 @@
 </nav>
     <div style="padding-top:150px;" class="container" id="firstpage-content">
    <h3> System Details </h3>
-   IRI:<span th:text="${systemDetails.getIri()}"></span><br>
+   IRI:<span  id="systemIRI" th:text="${systemDetails.getIri()}"></span><br>
    Label:<span th:text="${systemDetails.getLabel()}"></span><br>
    Description:<span th:text="${systemDetails.getDescription()}"></span><br>
    
@@ -29,26 +29,99 @@
   <div class="list-group-item list-group-item-action clearfix"  >
     Design
     
-    <span class="pull-right"><a href="/workflowBuilder?mode=new&stage=design"  target="_blank" role="button" class="btn btn-primary"  > Create Plan
+    <span id="design" class="loadingButton pull-right"><a   th:attr="href='workflowBuilder?mode=new&stage=design&systemIri='+${systemDetails.getIri()}+''" target="_blank" role="button" class="btn btn-primary"  > Create Plan
   </a></span>
   </div>
   <div class="list-group-item list-group-item-action clearfix"   >
     Implementation
     
-    <span class="pull-right">  <a href="/workflowBuilder"  role="button" class="btn btn-primary"   > Create Plan
+    <span id="implementation" class="loadingButton pull-right">  <a th:attr="href='workflowBuilder?mode=new&stage=implementation&systemIri='+${systemDetails.getIri()}+''"  role="button" class="btn btn-primary"   > Create Plan
   </a></span>
   </div>
   <div class="list-group-item list-group-item-action clearfix"   >
     Deployment
     
-     <span class="pull-right"> <a href="/workflowBuilder"  role="button" class="btn btn-primary"  > Create Plan
+     <span id="deployment" class="loadingButton pull-right"> <a th:attr="href='workflowBuilder?mode=new&stage=deployment&systemIri='+${systemDetails.getIri()}+''"  role="button" class="btn btn-primary"  > Create Plan
   </a></span>
   </div>
   <div class="list-group-item list-group-item-action clearfix"     >
     Operation
-    
-    <a href="/workflowBuilder"  role="button" class="btn btn-primary pull-right"  > Create Plan
+    <span id="operation" class="loadingButton pull-right">
+    <a th:attr="href='workflowBuilder?mode=new&stage=operation&systemIri='+${systemDetails.getIri()}+''"  role="button" class="btn btn-primary pull-right"  > Create Plan
   </a>
+  </span>
   </div>
 </div>   
 </div>
+
+<script id="script">
+
+
+loadingButtons ();
+let getplans = fetch("/getSavedPlanForEachStage?systemIri="+document.getElementById("systemIRI").innerHTML);
+getplans.then(
+		(data) => {
+			return data.json();
+		}).then(plans => {
+		console.log(plans.length);
+		let buttonsToCreate = ['design','implementation','deployment','operation'];
+		for (let i = 0; i < plans.length; i++) {
+			
+			
+		switch (plans[i].topLevelStepType) {
+		
+		case context.DesigStep:
+			document.getElementById("design").innerHTML = '<a href="workflowBuilder?mode=open&stage=design&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").innerHTML+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
+			delete buttonsToCreate[0]; 
+		break; 
+		
+		case context.ImplementationStep:
+			document.getElementById("implementation").innerHTML = '<a href="workflowBuilder?mode=open&stage=implementation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").innerHTML+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
+			delete buttonsToCreate[1]; 
+		break; 
+		
+		case context.DeploymentStep:
+			document.getElementById("deployment").innerHTML = '<a href="workflowBuilder?mode=open&stage=deployment&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").innerHTML+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
+			delete buttonsToCreate[2]; 
+		break; 
+		
+		case context.OperationStep:
+			document.getElementById("operation").innerHTML = '<a href="workflowBuilder?mode=open&stage=operation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").innerHTML+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
+			 
+			delete buttonsToCreate[3]; 
+		break; 
+		}
+		}
+		
+		for (let i = 0; i < buttonsToCreate.length; i++) {
+			if (buttonsToCreate[i] != null ) {
+				document.getElementById(buttonsToCreate[i]).innerHTML = '<a href="workflowBuilder?mode=new&stage='+buttonsToCreate[i]+'&systemIri='+document.getElementById("systemIRI").innerHTML+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Create Plan</a>';;
+			}
+		}
+		
+		
+		
+		}
+	).catch(
+	        // Log the rejection reason
+		       (reason) => {
+		            console.log('Handle rejected promise ('+reason+') here.');		           
+		        });
+
+function loadingButtons () {	
+		let buttonSpans = document.getElementsByClassName("loadingButton");		
+		
+		for (let i = 0; i < buttonSpans.length; i++) {
+			buttonSpans[i].innerHTML = "Loading" ;
+			}
+		
+function sendData () {
+	
+	
+	
+}
+		
+}
+
+</script>
+

@@ -1,0 +1,62 @@
+<div th:fragment="workflowBuilderSatgeSelector" xmlns:th="http://www.thymeleaf.org" th:remove="tag">
+    <!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="#" onclick="loadDoc('/home')" >Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto">
+ 
+        <li class="nav-item">
+          <a class="nav-link" href="/settings">Settings</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+    <div style="padding-top:150px;" class="container" id="firstpage-content">
+    <div class="row">
+   <h3> Select the system life-cycle stage for your template </h3>
+   <div class="alert alert-info">
+   <i class="fa fa-info-circle" aria-hidden="true"></i> Each template must be defined within a scope of one of the four intelligent system life-cycle stages.
+   </div>
+  </div>
+  <div class="row">
+  
+   <div class="card" style="width: 13rem; margin:1rem;">
+   <a class="btn" target="_blank" href="/workflowBuilder?mode=template&stage=design" role="button">
+       Design<br>
+      <i class="fa fa-info-circle" aria-hidden="true"></i> This stage TBA ...
+  </a>
+</div>
+
+   <div class="card" style="width: 13rem; margin:1rem;">
+   <a class="btn" target="_blank" href="/workflowBuilder?mode=template&stage=implementation" role="button">
+       Implementation<br>
+      <i class="fa fa-info-circle" aria-hidden="true"></i> This stage TBA ...
+  </a>
+</div>
+
+   <div class="card" style="width: 13rem; margin:1rem;">
+   <a class="btn" target="_blank" href="/workflowBuilder?mode=template&stage=deployment" role="button">
+       Deployment<br>
+      <i class="fa fa-info-circle" aria-hidden="true"></i> This stage TBA ...
+  </a>
+</div>
+
+   <div class="card" style="width: 13rem; margin:1rem;">
+   <a class="btn" target="_blank" href="/workflowBuilder?mode=template&stage=operation" role="button">
+       Operation<br>
+      <i class="fa fa-info-circle" aria-hidden="true"></i> This stage TBA ...
+  </a>
+</div>
+
+
+   
+  
+  </div>
+  
+</div>   
+</div>

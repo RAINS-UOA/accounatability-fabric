@@ -16,11 +16,14 @@
     <link rel="stylesheet" href="/css/dropzone.css">
 
 <!-- sidebar CSS -->
-    <link rel="stylesheet" href="/css/sidebar.css">
+<link rel="stylesheet" href="/css/sidebar.css">
 
-    <!-- Font Awesome JS -->
-    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
-    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+<!-- Font Awesome JS -->
+<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="./css/componentsLibrary.css">
+<link rel="stylesheet" href="./css/loader.css">
+
 <style>
 
      
@@ -139,13 +142,14 @@ div.scroll {
 
             <ul class="list-unstyled ">
              <div th:if="${#httpServletRequest.getParameter('mode') == 'new'}"> 
-              <li> <a href="#">Save</a></li>
+              <li> <a href="#" onclick="savePlan()" >Save</a></li> 
                </div>
                <div th:if="${#httpServletRequest.getParameter('mode') == 'template'}"> 
               <li> <a href="#" onclick="saveTemplate()">Save as Template</a></li>
               </div>
-               <li> <a href="#">Import Template</a></li>
-                    
+              <div th:if="${#httpServletRequest.getParameter('mode') == 'template' OR #httpServletRequest.getParameter('mode') == 'new' }"> 
+               <li> <a href="javascript:void(0);" data-toggle="modal" data-target="#importTemplateModal" onclick=" getTemplates ()">Import Template</a></li>
+                 </div>   
          
                 <li>
                     <a href="#">Help</a>
@@ -176,9 +180,32 @@ div.scroll {
 
     
 <div class="jumbotron">
-  <strong>IRI: </strong> <span id="planIRI"> </span> <br>
-   <strong>Label: </strong><input type="text" /> <br>
-   <strong>Comment: </strong><br> <textarea></textarea>
+<div th:if="${#httpServletRequest.getParameter('systemIri')}">
+<h3>Designing workflow plan for system <span  th:text="${#httpServletRequest.getParameter('systemIri')}"></span></h3>
+</div>
+<div th:if="${#httpServletRequest.getParameter('mode') == 'template'}"><h3>Designing template workflow plan</h3></div>
+  <div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" >Plan IRI</span>
+  </div>
+  <input type="text" readonly class="form-control" id="planIRI" >
+ 
+</div>
+  
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" >Label</span>
+  </div>
+  <input type="text" class="form-control" id="plan_label" placeholder="not yet implemented">
+</div>
+
+
+   <div class="input-group">
+   <div class="input-group-prepend">
+    <span class="input-group-text">Comment</span>
+  </div>
+   <textarea class="form-control" placeholder="not yet implemented"></textarea>
+   </div>
 </div>
   
 <div class="container-fluid">
@@ -186,7 +213,13 @@ div.scroll {
     <div class="col-sm-2 ">
       <h3>Steps Library</h3>
       <div class="panel panel-default">
-      <button type="button" class="btn btn-info libraryStep wrapTextButton"  > <span th:text="${stage}"></span> </button>
+       <div th:if="${#httpServletRequest.getParameter('stage') == 'design'}">
+       
+       
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Design </button>
+     
+     
+     
       <div class="scroll">
       <ul id="tree1" >
         <li>Requirements Scoping
@@ -208,7 +241,31 @@ div.scroll {
                 <li><a  href="#" data-toggle="modal" data-target="#stepModal">add new type</a></li>
             </ul>
             </div>
-          
+      
+      TBA this needs to be loaded dynamically
+       </div>    
+         <div th:if="${#httpServletRequest.getParameter('stage') == 'implementation'}">
+       
+       
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Implementation </button>
+     TBA this needs to be loaded dynamically
+       </div> 
+       
+            <div th:if="${#httpServletRequest.getParameter('stage') == 'deployment'}">
+       
+       
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Deployment </button>
+     TBA this needs to be loaded dynamically
+       </div> 
+       
+            <div th:if="${#httpServletRequest.getParameter('stage') == 'operation'}">
+       
+       
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Operation </button>
+     TBA this needs to be loaded dynamically
+       </div> 
+       
+       
       </div>
         </div>
     <div class="col-sm-7">
@@ -223,6 +280,30 @@ div.scroll {
         </div>
     </div>
 </div>
+
+<!-- Modal - Import Template -->
+<div class="modal" id="importTemplateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Select a template to import</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="importTemplateModalBody" style="min-height:200px;">
+        <div id="loader"></div>
+        <div id="templateList"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- Modal -->
 <div class="modal fade" id="stepModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -298,13 +379,18 @@ div.scroll {
 
 
 
+   
+   <script> initLayout (findGetParameter('mode'),findGetParameter('stage'), findGetParameter('systemIri'), findGetParameter('topLevelStepIri')); </script>
   
-  <script> 
-  initLayout ();
+   
+
   
-  initNewPlan ();
+ 
   
+ 
+ 
   
+  <script>
   //for sidebar
    $(document).ready(function () {
             $('#sidebarCollapse').on('click', function () {
@@ -312,6 +398,17 @@ div.scroll {
                 $(this).toggleClass('active');
             });
         });
+  
+   function setSpinner () {
+		document.getElementById("loader").style.display = "inline";
+		console.log("hello");
+		
+	}
+
+	function hideSpinner () {
+		document.getElementById("loader").style.display = "none";
+		
+	}
   </script>
 </body>
 </html>

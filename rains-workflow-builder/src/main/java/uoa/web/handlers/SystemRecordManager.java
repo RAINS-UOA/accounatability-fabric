@@ -1,8 +1,10 @@
 package uoa.web.handlers;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +22,8 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
@@ -28,15 +32,19 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
 import org.eclipse.rdf4j.repository.manager.RepositoryManager;
+import org.eclipse.rdf4j.repository.util.Repositories;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.JSONSettings;
 import org.eclipse.rdf4j.rio.helpers.StatementCollector;
 import org.omg.CORBA.portable.InputStream;
 import org.springframework.util.ResourceUtils;
+
+import com.google.gson.Gson;
 
 import uoa.init.graphdb.Constants;
 import uoa.init.graphdb.GraphDBUtils;
@@ -81,8 +89,11 @@ public class SystemRecordManager {
 				      while (result.hasNext()) {  // iterate over the result
 				         BindingSet bindingSet = result.next();
 				         Value iri = bindingSet.getValue("system");
-				         Value label = bindingSet.getValue("label");
-				         map.put(iri.stringValue(),label.stringValue());
+				         String label = "";
+				         if (bindingSet.getValue("label") !=null) {
+				        	 label = bindingSet.getValue("label").stringValue();
+				         }
+				         map.put(iri.stringValue(),label);
 				      }
 				   
 			   }
@@ -99,16 +110,7 @@ public class SystemRecordManager {
 		
 	}
 	
-	public void savePlanFromJSONLD () throws IOException {
-		
-		String jsonld_dummy = "{\"@context\":{\"plan\": \"https://w3id.org/ep-plan#plan\",\"step\": \"https://w3id.org/ep-plan#Step\",\"multiStep\": \"https://w3id.org/ep-plan#Step\",\"isElementOfPlan\": \"https://w3id.org/ep-plan#isElementOfPlan\"},\"@graph\": [{\"@id\": \"https://something/plan4\",\"@type\": \"plan\"}, {\"@id\": \"https://something/step3\",\"@type\": [\"multiStep\"]}]}";
-	    String BACKSLASH_ESCAPED_TEST_STRING = "{\"@context\": {\"ical\": \"http://www.w3.org/2002/12/cal/ical#\",\"xsd\": \"http://www.w3.org/2001/XMLSchema#\",\"ical:dtstart\": {\"@type\": \"xsd:dateTime\"}},\"ical:summary\": \"Lady Gaga Concert\",\"ical:location\": \"New Orleans Arena, New Orleans, Louisiana, USA\",\"ical:dtstart\": \"2011-04-09T20:00:00Z\"}";
-        String test = "{\"@context\": {\"generatedAt\": {\"@id\": \"http://www.w3.org/ns/prov#generatedAtTime\",\"@type\": \"http://www.w3.org/2001/XMLSchema#date\"},\"Person\": \"http://xmlns.com/foaf/0.1/Person\",\"name\": \"http://xmlns.com/foaf/0.1/name\",\"knows\": \"http://xmlns.com/foaf/0.1/knows\"},\"@graph\": [{\"@id\": \"http://manu.sporny.org/about#manu\",\"@type\": \"Person\",\"name\": \"Manu Sporny\",\"knows\": \"http://greggkellogg.net/foaf#me\"}, {\"@id\": \"http://greggkellogg.net/foaf#me\",\"@type\": \"Person\",\"name\": \"Gregg Kellogg\",\"knows\": \"http://manu.sporny.org/about#manu\"}]}";
-	//	RDFParser rdfParser = Rio.createParser(RDFFormat.JSONLD);
-		//Model model = new LinkedHashModel();
-		//rdfParser.setRDFHandler(new StatementCollector(model));
-		
-		
+	public void savePlanFromJSONLD (String systemIri, String jsonPayload) throws IOException {
 		
 		Model results = null;
 		try {
@@ -118,7 +120,7 @@ public class SystemRecordManager {
 			    parser.set(JSONSettings.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,true);
 			    //parser.parse(new StringReader(jsonld_dummy), null);
 			   
-			    results = Rio.parse(new StringReader(jsonld_dummy), null, RDFFormat.JSONLD);
+			    results = Rio.parse(new StringReader(jsonPayload), null, RDFFormat.JSONLD);
 			}
 			catch (IOException e) {
 			  // handle IO problems (e.g. the file could not be read)
@@ -136,12 +138,11 @@ public class SystemRecordManager {
 		
 		if (results!=null) {
 			System.out.println("model size" +results.size() );
-		conn.add(results.getStatements(null, null, null, (Resource)null), (Resource)null);
+		conn.add(results.getStatements(null, null, null, (Resource)null), f.createIRI(getPlansNamedGraph(systemIri)));
 		}
 		else {
 			System.out.println("model is null");
 		}
-		
 		
 	}
 	
@@ -210,7 +211,9 @@ public class SystemRecordManager {
 			conn.add(operationStep, f.createIRI(EpPlanOntologyComponents.isElementOfPlan), plan, planNamedGraphContext);
 			conn.add(operationStep, f.createIRI(EpPlanOntologyComponents.isPreceededBy), deploymentStep, planNamedGraphContext);	
 			
-			conn.commit();;
+			conn.commit();
+			
+	
 		}
 		
 	}
@@ -238,7 +241,7 @@ public class SystemRecordManager {
 		return system;
 	}
 
-	public void savePlanFromJSONLD(String jsonPayload) {
+	public void saveTemplatePlanFromJSONLD(String jsonPayload) {
 
 		Model results = null;
 		try {
@@ -274,4 +277,126 @@ public class SystemRecordManager {
 		
 	}
 
+	public String getTemplatePlans() {
+HashMap <String,String > map = new  HashMap <String,String >  ();
+		
+		String queryString = Constants.PREFIXES + "SELECT DISTINCT ?template ?label FROM <"+Constants.TEMPLATES_NAMED_GRAPH_IRI+"> WHERE { ?template a ep-plan:Plan. OPTIONAL {?template rdfs:label ?label} } ";
+		   TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+				      while (result.hasNext()) {  // iterate over the result
+				         BindingSet bindingSet = result.next();
+				         Value iri = bindingSet.getValue("template");
+				         String label = "";
+				         if (bindingSet.getValue("label") !=null) {
+				        	 label = bindingSet.getValue("label").stringValue();
+				         }				        
+				         map.put(iri.stringValue(),label);
+				      }
+				   
+			   }
+			   Gson gson = new Gson(); 
+			   String json = gson.toJson(map); 
+		return json;
+	}
+	
+	public String getTemplate (String templatePlanIRI)  {
+		
+		String ldjson ="error";	
+		String query =  Constants.PREFIXES + " Construct FROM <"+Constants.TEMPLATES_NAMED_GRAPH_IRI+">  where { ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.} Values (?plan) { (<"+templatePlanIRI+">) }";
+		System.out.println(query);
+		//Model m = Repositories.graphQuery(repository,query, r -> QueryResults.asModel(r));
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		RDFWriter writer = Rio.createWriter(RDFFormat.JSONLD, stream);
+		   conn.prepareGraphQuery(QueryLanguage.SPARQL,
+				   query).evaluate(writer);
+		ldjson = new String(stream.toByteArray());
+		return ldjson; 
+	}
+
+	//there shoudl always be only one result
+	public String getPlansNamedGraph(String systemPlanIri) {	
+		Value iri =null;
+		String queryString = Constants.PREFIXES +" SELECT ?plansNamedGraph FROM <"+Constants.SYSTEMS_NAMED_GRAPH_IRI+"> WHERE { <"+systemPlanIri+"> af:hasPlansStoredInGraph ?plansNamedGraph.}";
+		   TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+				      while (result.hasNext()) {  // iterate over the result
+				         BindingSet bindingSet = result.next();
+				         iri = bindingSet.getValue("plansNamedGraph"); 
+				      }
+			   }
+			
+		return iri.toString();
+	}
+
+	public HashMap <String,String > getTopLevelPlan(String systemIri) {
+HashMap <String,String > map = new  HashMap <String,String >  ();
+		//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+		String queryString = Constants.PREFIXES + "SELECT ?plan ?designStep ?implementationStep ?deployStep ?operationStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan a rains:AccountabilityPlan. ?designStep ep-plan:isElementOfPlan ?plan; a rains:Design. ?implementationStep ep-plan:isElementOfPlan ?plan; a rains:Implementation. ?deployStep ep-plan:isElementOfPlan ?plan; a rains:Deployment. ?operationStep ep-plan:isElementOfPlan ?plan; a rains:Operation. FILTER NOT EXISTS {?plan ep-plan:isSubPlanOf ?anotherPlan} }";
+		   TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+				      while (result.hasNext()) {  // iterate over the result
+				         BindingSet bindingSet = result.next();
+				         Value iri = bindingSet.getValue("plan");				        
+				         map.put("plan",iri.toString());
+				         iri = bindingSet.getValue("designStep");				        
+				         map.put("designStep",iri.toString());
+				         iri = bindingSet.getValue("implementationStep");				        
+				         map.put("implementationStep",iri.toString());
+				         iri = bindingSet.getValue("deployStep");
+				         map.put("deployStep",iri.toString());
+				         iri = bindingSet.getValue("operationStep");
+				         map.put("operationStep",iri.toString());
+				      }
+				   
+			   }
+		return map;
+	}
+
+	
+	public ArrayList <HashMap <String,String >> getSavedPlanForEachStage(String systemIri) {
+  ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+		//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+		String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+		
+		TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+				      while (result.hasNext()) {  // iterate over the result
+				    	 HashMap <String,String > map = new HashMap <String,String > ();
+				         BindingSet bindingSet = result.next();
+				         Value iri = bindingSet.getValue("plan");				        
+				         map.put("plan",iri.toString());
+				         iri = bindingSet.getValue("topLevelStepType");				        
+				         map.put("topLevelStepType",iri.toString());
+				         iri = bindingSet.getValue("topLevelStep");				        
+				         map.put("topLevelStep",iri.toString());
+				         list.add(map);
+				      }			   
+			   }
+		return list;
+	}
+	
+	
+public String getSavedPlan (String topLevelStepIri, String systemIri)  {
+		
+        System.out.println(topLevelStepIri+" : "+systemIri)	;
+	
+		String ldjson ="error";	
+			
+		String query =  Constants.PREFIXES + "Construct FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a rains:Design; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.} Values (?topLevelStep) { (<"+topLevelStepIri+">)}"   ;
+			
+		System.out.println(query);
+		//Model m = Repositories.graphQuery(repository,query, r -> QueryResults.asModel(r));
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		RDFWriter writer = Rio.createWriter(RDFFormat.JSONLD, stream);
+		   conn.prepareGraphQuery(QueryLanguage.SPARQL,
+				   query).evaluate(writer);
+		ldjson = new String(stream.toByteArray());
+		return ldjson; 
+	}	
+
 }
+
+
+
+
+

@@ -16,33 +16,56 @@
     </div>
   </div>
 </nav>
+
     <div style="padding-top:150px;" class="container" id="firstpage-content">
+ 
    <h3> System Details </h3>
-   IRI:<span  id="systemIRI" th:text="${systemDetails.getIri()}"></span><br>
-   Label:<span th:text="${systemDetails.getLabel()}"></span><br>
-   Description:<span th:text="${systemDetails.getDescription()}"></span><br>
+ 
+   <div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" >Plan IRI</span>
+  </div>
+  <input type="text" readonly class="form-control" id="systemIRI" th:value="*{systemDetails.getIri()}" >
+ 
+</div>
+  
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" >Label</span>
+  </div>
+  <input type="text" readonly class="form-control" id="plan_label" th:value="*{systemDetails.getLabel()}">
+</div>
+
+
+   <div class="input-group">
+   <div class="input-group-prepend">
+    <span class="input-group-text">Comment</span>
+  </div>
+   <textarea class="form-control" readonly th:text = "${systemDetails.getDescription()}" ></textarea>
+   </div>
+ 
+ <br>
+ 
+
+       
+   <hr> 
+   <h3>Manage Accountability Evidence Collection Protocols For System Life Cycle Stages</h3>
    
-   
-   <h3>Lifecycle Stages</h3>
-   to do: implement logic 
   
   <div class="list-group-item list-group-item-action clearfix"  >
     Design
     
-    <span id="design" class="loadingButton pull-right"><a   th:attr="href='workflowBuilder?mode=new&stage=design&systemIri='+${systemDetails.getIri()}+''" target="_blank" role="button" class="btn btn-primary"  > Create Plan
-  </a></span>
+    <span id="design" class="loadingButton pull-right"></span>
   </div>
   <div class="list-group-item list-group-item-action clearfix"   >
     Implementation
     
-    <span id="implementation" class="loadingButton pull-right">  <a th:attr="href='workflowBuilder?mode=new&stage=implementation&systemIri='+${systemDetails.getIri()}+''"  role="button" class="btn btn-primary"   > Create Plan
-  </a></span>
+    <span id="implementation" class="loadingButton pull-right"> </span>
   </div>
   <div class="list-group-item list-group-item-action clearfix"   >
     Deployment
     
-     <span id="deployment" class="loadingButton pull-right"> <a th:attr="href='workflowBuilder?mode=new&stage=deployment&systemIri='+${systemDetails.getIri()}+''"  role="button" class="btn btn-primary"  > Create Plan
-  </a></span>
+     <span id="deployment" class="loadingButton pull-right"> </span>
   </div>
   <div class="list-group-item list-group-item-action clearfix"     >
     Operation
@@ -51,14 +74,21 @@
   </a>
   </span>
   </div>
-</div>   
+ 
+ <hr>
+     <h3>System Accountability Audit</h3>
+  
+  <p class="clearfix">  To audit the available accountability evidence about this system use the audit manager. 
+   <a role="button" class="btn btn-primary pull-right" target="_blank" href="/auditManager">Open Audit Manager</a>
+  </p>
+</div>
 </div>
 
 <script id="script">
 
 
 loadingButtons ();
-let getplans = fetch("/getSavedPlanForEachStage?systemIri="+document.getElementById("systemIRI").innerHTML);
+let getplans = fetch("/getSavedPlanForEachStage?systemIri="+document.getElementById("systemIRI").value);
 getplans.then(
 		(data) => {
 			return data.json();
@@ -67,26 +97,28 @@ getplans.then(
 		let buttonsToCreate = ['design','implementation','deployment','operation'];
 		for (let i = 0; i < plans.length; i++) {
 			
+			console.log ("Comparing:"+ plans[i].topLevelStepType);
+			console.log (context.DesigStep);
 			
 		switch (plans[i].topLevelStepType) {
 		
 		case context.DesigStep:
-			document.getElementById("design").innerHTML = '<a href="workflowBuilder?mode=open&stage=design&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").innerHTML+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
+			document.getElementById("design").innerHTML = '<a href="workflowBuilder?mode=open&stage=design&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
 			delete buttonsToCreate[0]; 
 		break; 
 		
 		case context.ImplementationStep:
-			document.getElementById("implementation").innerHTML = '<a href="workflowBuilder?mode=open&stage=implementation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").innerHTML+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
+			document.getElementById("implementation").innerHTML = '<a href="workflowBuilder?mode=open&stage=implementation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
 			delete buttonsToCreate[1]; 
 		break; 
 		
 		case context.DeploymentStep:
-			document.getElementById("deployment").innerHTML = '<a href="workflowBuilder?mode=open&stage=deployment&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").innerHTML+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
+			document.getElementById("deployment").innerHTML = '<a href="workflowBuilder?mode=open&stage=deployment&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
 			delete buttonsToCreate[2]; 
 		break; 
 		
 		case context.OperationStep:
-			document.getElementById("operation").innerHTML = '<a href="workflowBuilder?mode=open&stage=operation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").innerHTML+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
+			document.getElementById("operation").innerHTML = '<a href="workflowBuilder?mode=open&stage=operation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a>';
 			 
 			delete buttonsToCreate[3]; 
 		break; 
@@ -95,7 +127,7 @@ getplans.then(
 		
 		for (let i = 0; i < buttonsToCreate.length; i++) {
 			if (buttonsToCreate[i] != null ) {
-				document.getElementById(buttonsToCreate[i]).innerHTML = '<a href="workflowBuilder?mode=new&stage='+buttonsToCreate[i]+'&systemIri='+document.getElementById("systemIRI").innerHTML+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Create Plan</a>';;
+				document.getElementById(buttonsToCreate[i]).innerHTML = '<a href="workflowBuilder?mode=new&stage='+buttonsToCreate[i]+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Create Plan</a>';;
 			}
 		}
 		

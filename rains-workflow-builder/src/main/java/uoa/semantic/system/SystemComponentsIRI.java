@@ -17,5 +17,6 @@ public class SystemComponentsIRI {
 	public static final String DEPLOYMENT_STAGE_TEMPLATE = Constants.AF_NAMESPACE + "DeploymentStageTemplate";
 	
 	public static final String OPERATION_STAGE_TEMPLATE = Constants.AF_NAMESPACE + "OperationStageTemplate";
-	
+
+	public static final String COMPONENT_COLLECTION = Constants.AF_NAMESPACE + "ComponentCollection";
 }

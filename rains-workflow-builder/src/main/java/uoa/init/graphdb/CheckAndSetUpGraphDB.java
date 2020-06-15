@@ -49,9 +49,9 @@ public static void checkRepositorySetUp () {
 	RepositoryConnection conn = repository.getConnection();	
 	
 	//check if rainsnamespace present
-	if (!GraphDBUtils.checkNamespacePresent (conn.getNamespaces(), Constants.RAINS_NAMESPACE)) {
+	if (!GraphDBUtils.checkNamespacePresent (conn.getNamespaces(), Constants.RAINS_PLAN_NAMESPACE)) {
 		System.out.println ("Setting rains namespace") ; 
-		conn.setNamespace("rains", Constants.RAINS_NAMESPACE);
+		conn.setNamespace("rains", Constants.RAINS_PLAN_NAMESPACE);
 	}
 	
 	if (!GraphDBUtils.checkNamespacePresent (conn.getNamespaces(), Constants.AF_NAMESPACE)) {
@@ -62,18 +62,26 @@ public static void checkRepositorySetUp () {
 	if (!GraphDBUtils.checkResourcePresent (conn.getContextIDs(), Constants.SYSTEMS_NAMED_GRAPH_IRI)) {
 		System.out.println ("Adding the default Systems named graph") ;
 		
-		Resource systemCollection = f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI+"/"+UUID.randomUUID());
 		IRI context = f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI);
-		conn.add(systemCollection, RDF.TYPE, f.createIRI(SystemComponentsIRI.SYSTEM_COLLECTION), context); 		
+		conn.add(f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI), RDF.TYPE, f.createIRI(SystemComponentsIRI.SYSTEM_COLLECTION), context); 		
 	}
 	
 	if (!GraphDBUtils.checkResourcePresent (conn.getContextIDs(), Constants.TEMPLATES_NAMED_GRAPH_IRI)) {
-		System.out.println ("Adding the default Systems named graph") ;
+		System.out.println ("Adding the default Templates named graph") ;
 		
-		Resource templateCollection = f.createIRI(Constants.TEMPLATES_NAMED_GRAPH_IRI+"/"+UUID.randomUUID());
 		IRI context = f.createIRI(Constants.TEMPLATES_NAMED_GRAPH_IRI);
-		conn.add(templateCollection, RDF.TYPE, f.createIRI(SystemComponentsIRI.TEMPLATE_COLLECTION), context); 		
+		conn.add(f.createIRI(Constants.TEMPLATES_NAMED_GRAPH_IRI), RDF.TYPE, f.createIRI(SystemComponentsIRI.TEMPLATE_COLLECTION), context); 		
 	}
+	
+	if (!GraphDBUtils.checkResourcePresent (conn.getContextIDs(), Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI)) {
+		System.out.println ("Adding the System Components named graph") ;
+		
+		//Resource componentCollection = f.createIRI(Constants.TEMPLATES_NAMED_GRAPH_IRI+"/"+UUID.randomUUID());
+		IRI context = f.createIRI( Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI);
+		conn.add(f.createIRI( Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI), RDF.TYPE, f.createIRI(SystemComponentsIRI.COMPONENT_COLLECTION), context); 		
+	}
+	
+	
 	/*
 	// Get all statements in the context
 	IRI context = f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI);

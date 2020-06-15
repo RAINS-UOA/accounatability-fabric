@@ -23,6 +23,7 @@
 <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="./css/componentsLibrary.css">
 <link rel="stylesheet" href="./css/loader.css">
+  <link rel="stylesheet" href="/css/main.css"> 
 
 <style>
 
@@ -55,18 +56,7 @@ vertical-align: middle;
 padding:10px;
 }
 
-.typeWidget {
-float:left;
-min-width: 100px;
-min-height: 40px;
-border-radius: 25px;
-  background: #93e9be;
-margin:5px;
-display: inline-block;
-text-align: center;
-vertical-align: middle;
-padding:10px;
-}
+
 
 .inspectorPane {
 padding:10px;
@@ -126,8 +116,9 @@ div.scroll {
  
  </head>
 <script src="./js/index.js"></script>
-<script src="./js/stepsLibrary.js"></script>
+
 <script src="./js/json-ld_context.js"></script>
+ <script src="./js/componentsLibrary.js"></script>
 <body>
 
 
@@ -212,37 +203,20 @@ div.scroll {
   <div class="row">
     <div class="col-sm-2 ">
       <h3>Steps Library</h3>
+      
       <div class="panel panel-default">
-       <div th:if="${#httpServletRequest.getParameter('stage') == 'design'}">
+      <div th:if="${#httpServletRequest.getParameter('stage') == 'design'}">
+      
+     
+      
        
        
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Design </button>
-     
-     
-     
-      <div class="scroll">
-      <ul id="tree1" >
-        <li>Requirements Scoping
-        <ul>
-        <li><div id="Decide_Objectives" draggable="true" ondragstart="drag(event)">Decide Objectives</div></li>
-        <li><div id="Produce_Design_Specification" draggable="true" ondragstart="drag(event)">Produce Design Specification</li>
-         <li><a  href="#" data-toggle="modal" data-target="#stepModal">add new type</a></li>              
-                    </ul>
-                </li>
-                <li>ML Pipeline
-                    <ul>
-                        <li><div id="Algorithm_Selection" draggable="true" ondragstart="drag(event)">Algorithm Selection</li>
-                        <li><div id="Training_Data_Selection" draggable="true" ondragstart="drag(event)">Training Data Selection</li>
-                        <li><div id="Evaluation" draggable="true" ondragstart="drag(event)">Evaluation</li>
-                        <li><div id="Training" draggable="true" ondragstart="drag(event)">Training</li>
-                        <li><a href="#">add new type</li>
-                    </ul>
-                </li>
-                <li><a  href="#" data-toggle="modal" data-target="#stepModal">add new type</a></li>
-            </ul>
-            </div>
       
-      TBA this needs to be loaded dynamically
+       <script>
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.DesigStep);
+      </script>
+    
        </div>    
          <div th:if="${#httpServletRequest.getParameter('stage') == 'implementation'}">
        
@@ -264,7 +238,9 @@ div.scroll {
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Operation </button>
      TBA this needs to be loaded dynamically
        </div> 
-       
+       <div id="stepsMessage"></div>
+       <div class="scroll">
+      <ul id="stepsUL"></ul></div>
        
       </div>
         </div>

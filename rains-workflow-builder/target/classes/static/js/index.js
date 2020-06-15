@@ -463,9 +463,9 @@ let step = document.createElement("div") ;
 // need to add prefix here as well
 step ['@id'] = dataPrefix+ uuidv4();
 step ['@type'] = [];
-step ['@type'].push (context.Step);
+//step ['@type'].push (context.Step);
 //to do load the IRI from component tree properly
-step ['@type'].push ("https://rains.org#"+data);
+step ['@type'].push (data);
 step ['label'] = "untitled"; 
 step ['isElementOfPlan'] = plan['@id']; 
 //step.types = ["ep-plan:Step", "rains:"+data]; 
@@ -473,7 +473,10 @@ step['hasRationale'] = [];
 
 
 step['belongsToRow'] = target.id;
-
+step.addEventListener("click", function(event) {
+	console.log("called");
+	populateInspectPane (step);
+	});
 //push to steps array
 stepsArray.push(step);
 
@@ -522,7 +525,7 @@ function stepCloseButtonElement (step) {
 	more.addEventListener("click", function(event) {
 	event.stopPropagation();
 	step.remove();
-
+//remove also from cached steps array
 	stepsArray = stepsArray.filter(function(el) { return el['@id'] != step ['@id']; });
 	resetInspector ();
 	// $('#stepModal').modal('toggle');

@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -32,6 +33,7 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
 import org.eclipse.rdf4j.repository.manager.RepositoryManager;
+import org.eclipse.rdf4j.repository.util.RDFLoader;
 import org.eclipse.rdf4j.repository.util.Repositories;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
@@ -43,6 +45,7 @@ import org.eclipse.rdf4j.rio.helpers.JSONSettings;
 import org.eclipse.rdf4j.rio.helpers.StatementCollector;
 import org.omg.CORBA.portable.InputStream;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.google.gson.Gson;
 
@@ -83,7 +86,7 @@ public class SystemRecordManager {
 		
 		HashMap <String,String > map = new  HashMap <String,String >  ();
 		
-		String queryString = " Prefix rains:<"+Constants.RAINS_NAMESPACE+"> SELECT DISTINCT ?system ?label FROM <"+Constants.SYSTEMS_NAMED_GRAPH_IRI+"> WHERE { ?system a rains:AiSystem. OPTIONAL {?system rdfs:label ?label} } ";
+		String queryString = " Prefix rains:<"+Constants.RAINS_PLAN_NAMESPACE+"> SELECT DISTINCT ?system ?label FROM <"+Constants.SYSTEMS_NAMED_GRAPH_IRI+"> WHERE { ?system a rains:AiSystem. OPTIONAL {?system rdfs:label ?label} } ";
 		   TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 			   try (TupleQueryResult result = tupleQuery.evaluate()) {
 				      while (result.hasNext()) {  // iterate over the result
@@ -357,7 +360,7 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
   ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
 		//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
 		String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
-		
+		System.out.println(queryString);
 		TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 			   try (TupleQueryResult result = tupleQuery.evaluate()) {
 				      while (result.hasNext()) {  // iterate over the result
@@ -392,11 +395,44 @@ public String getSavedPlan (String topLevelStepIri, String systemIri)  {
 				   query).evaluate(writer);
 		ldjson = new String(stream.toByteArray());
 		return ldjson; 
-	}	
+	}
 
+
+
+public void saveUploadToWorkflowComponentLibrary(MultipartFile file) throws RDFParseException, RDFHandlerException, IOException {
+  
+   conn.add( file.getInputStream(), null, RDFFormat.TURTLE, f.createIRI(Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI));
+}	
+
+
+
+public HashMap <String,HashSet <String >> getStepComponentHierarchy () {
+	HashMap <String,HashSet <String >> map = new  HashMap   <String,HashSet <String >> ();
+	//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:Step. ?step rdfs:subClassOf ?parentStep.} ";
+	
+	TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+		   try (TupleQueryResult result = tupleQuery.evaluate()) {
+			      while (result.hasNext()) {  // iterate over the result
+			    	
+			         BindingSet bindingSet = result.next();			         
+			        
+			         Value step = bindingSet.getValue("step");
+			         Value parentStep = bindingSet.getValue("parentStep");	
+			         if (map.containsKey(parentStep.toString())) {			        	
+			        	 map.get(parentStep.toString()).add(step.toString());
+			         }
+			         else {
+			        	 HashSet <String> set = new HashSet <String> ();
+			        	 set.add(step.toString());
+			        	 map.put(parentStep.toString(), set);
+			         }
+			         
+			      }			   
+		   }
+	return map;
 }
 
-
-
+}
 
 

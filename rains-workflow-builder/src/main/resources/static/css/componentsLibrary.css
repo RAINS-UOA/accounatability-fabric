@@ -45,3 +45,10 @@ ul, #myUL {
 	    position: absolute;
 	    bottom: 0;
 	}
+	
+	.leaf {
+	display: list-item;          /* This has to be "list-item"                                               */
+    list-style-type: disc;       /* See https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type     */
+    list-style-position: inside; 
+    margin-left: 10px;
+	}

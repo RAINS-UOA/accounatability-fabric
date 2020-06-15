@@ -24,35 +24,94 @@
 <p>Here you can add steps and variables that are used by the workflow builder interface</p>
 
 <div  class="row">
- <!-- Steps Column -->
-<div class="col-sm-6" >
-<ul id="myUL">
-  <li><span class="caret container"   >Design Stage</span>
-    <ul class="nested container" id="1">
-     
-	  <button class="bottom_list" onclick="addLink('1')">Add field</button>
-    </ul>
-  </li>
-</ul>
+ <div class="col-md-12" >
+<h3>Add Components</h3>
+<form method="POST" enctype="multipart/form-data" id="uploadForm" action="/upload">
+ <div class="custom-file">
+  <input type="file" class="custom-file-input" name="file" id="customFile">
+  <label class="custom-file-label" for="customFile">Choose file</label>
+ </div>
+ <br>
+			<button class="btn btn-primary pull-right" id="uploadButton"  >Upload</button>	
+		</form>
+	
+</div>
+</div>
+<div  class="row">
+
+ <div class="col-md-12" >
+  <h3>Steps</h3>
+<div class="overflow-auto">
+<div id="stepsMessage"></div>
+<ul id="stepsUL"></ul>
+</div>
 </div> 
+</div>
+
   <!-- Variables Column -->
-<div class="col-sm-6">
-Variables
+  <div  class="row">
+<div class="col-md-12">
+<h3>Variables</h3>
+<div class="alert alert-danger" role="alert"> This is not yet implemented.</div>
+	    				 
 </div> 
+ </div>
  </div>
  
  
  
 
 <script id="script">
- console.log('hello');
- var toggler = document.getElementsByClassName("caret");
- var i;
+ 
+ 
 
- for (i = 0; i < toggler.length; i++) {
-   toggler[i].addEventListener("click", function() {
-     this.parentElement.querySelector(".nested").classList.toggle("active");
-     this.classList.toggle("caret-down");
-   });
- }
+$("#uploadButton").click(function() {
+	 console.log("trying to submit");
+	 $("#uploadForm").submit(function(e) {
+		
+		    e.preventDefault(); // avoid to execute the actual submit of the form.
+
+		    let form = $(this);
+		    let url = form.attr('action');
+		    console.log("sending");
+		    
+		    let data = new FormData();
+		   
+		    
+		    data.append('file', jQuery('#customFile')[0].files[0]);
+		    
+		    $.ajax({
+		           type: "POST",
+		           
+		           url: url,
+		           data: data,
+		           cache: false,
+		           contentType: false,
+		           processData: false,
+		           method: 'POST',
+		           type: 'POST',
+		           success: function(data)
+		           {
+		              console.log(data); 
+		              document.getElementById('customFile').value= null;
+		              getStepComponents ('stepsUL', 'stepsMessage');
+		           }
+		         });
+
+
+		});
+	});
+
+
+
+ 
+
+ 
+ $(".custom-file-input").on("change", function() {
+	  let fileName = $(this).val().split("\\").pop();
+	  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+	});
+
+ //populate the step components view
+ getStepComponents ('stepsUL', 'stepsMessage');
  </script>

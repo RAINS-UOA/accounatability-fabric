@@ -2,12 +2,12 @@ var context = {};
 
 //Rains context
 
-context.AccountabilityPlan   = "https://w3id.org/rains#AccountabilityPlan";
+context.AccountabilityPlan   = "https://w3id.org/rains-plan#AccountabilityPlan";
 
-context.DesigStep   = "https://w3id.org/rains#Design";
-context.ImplementationStep   = "https://w3id.org/rains#Implementation";
-context.DeploymentStep   = "https://w3id.org/rains#Deployment";
-context.OperationStep   = "https://w3id.org/rains#Operation";
+context.DesigStep   = "https://w3id.org/rains-plan#Design";
+context.ImplementationStep   = "https://w3id.org/rains-plan#Implementation";
+context.DeploymentStep   = "https://w3id.org/rains-plan#Deployment";
+context.OperationStep   = "https://w3id.org/rains-plan#Operation";
 
 //AF context
 

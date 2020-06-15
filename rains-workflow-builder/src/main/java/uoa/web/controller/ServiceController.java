@@ -1,11 +1,14 @@
 package uoa.web.controller;
 
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -14,15 +17,24 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.solr.common.util.Base64;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.gson.Gson;
 
@@ -31,12 +43,70 @@ import uoa.init.graphdb.GraphDBUtils;
 import uoa.model.components.NewSystemForm;
 import uoa.model.components.SystemDetails;
 import uoa.web.handlers.SystemRecordManager;
+import uoa.web.storage.StorageFileNotFoundException;
+import uoa.web.storage.StorageService;
 
 @Controller
 public class ServiceController {
 	Repository repository = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager());
 	
 	private ObjectPool<RepositoryConnection>  connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
+	
+	private final StorageService storageService;
+
+	@Autowired
+	public ServiceController(StorageService storageService) {
+		this.storageService = storageService;
+	}
+
+	@GetMapping("/upload")
+	public String listUploadedFiles(Model model) throws IOException {
+
+		model.addAttribute("files", storageService.loadAll().map(
+				path -> MvcUriComponentsBuilder.fromMethodName(ServiceController.class,
+						"serveFile", path.getFileName().toString()).build().toUri().toString())
+				.collect(Collectors.toList()));
+
+		return "uploadForm";
+	}
+
+	@GetMapping("/files/{filename:.+}")
+	@ResponseBody
+	public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+
+		Resource file = storageService.loadAsResource(filename);
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+				"attachment; filename=\"" + file.getFilename() + "\"").body(file);
+	}
+
+	@PostMapping("/upload")
+	@ResponseBody
+	public String handleFileUpload(@RequestParam("file") MultipartFile file,
+			RedirectAttributes redirectAttributes) throws NoSuchElementException, IllegalStateException, Exception {
+        String response = "";     
+		if (file.isEmpty() ) {
+			response = "you didn.t provide a file";
+             }
+		else {
+		  //  storageService.store(file);
+		    SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		    manager.saveUploadToWorkflowComponentLibrary (file);
+		    manager.shutdown();
+		 
+		
+		redirectAttributes.addFlashAttribute("message",
+				"You successfully uploaded " + file.getOriginalFilename() + "!");
+		
+		response = "ok";
+		}
+		return response;
+	}
+
+	@ExceptionHandler(StorageFileNotFoundException.class)
+	public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
+		return ResponseEntity.notFound().build();
+	}
+	
 	
 	@GetMapping("/")
 	public String index(Model model) {
@@ -141,6 +211,18 @@ public class ServiceController {
 		return gson.toJson(map);
 	}
 	
+	@GetMapping("/getStepComponentHierarchy")
+	@ResponseBody
+	public String getStepComponentHierarchy () throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		HashMap <String,HashSet <String >> map = manager.getStepComponentHierarchy();
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(map);
+	}
+	
+	
+	
 	@GetMapping("/getSavedPlan")
 	@ResponseBody
 	public String getSavedPlan (@RequestParam String systemIri,@RequestParam String topLevelStepIri) throws NoSuchElementException, IllegalStateException, Exception  {
@@ -156,6 +238,8 @@ public class ServiceController {
 	@GetMapping("/components")
 	public String components () throws NoSuchElementException, IllegalStateException, Exception  {
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		manager.shutdown();
+		
 		
 		return "componentsLibrary";
 	}

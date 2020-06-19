@@ -7,11 +7,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 import uoa.init.graphdb.CheckAndSetUpGraphDB;
-import uoa.web.storage.StorageProperties;
-import uoa.web.storage.StorageService;
+import uoa.web.storage.FileUploadStorageProperties;
+import uoa.web.storage.FileUploadStorageService;
 
 @SpringBootApplication
-@EnableConfigurationProperties(StorageProperties.class)
+@EnableConfigurationProperties(FileUploadStorageProperties.class)
 public class ServingWebContentApplication {
 
     public static void main(String[] args) {
@@ -20,7 +20,7 @@ public class ServingWebContentApplication {
     }
 
     @Bean
-	CommandLineRunner init(StorageService storageService) {
+	CommandLineRunner init(FileUploadStorageService storageService) {
 		return (args) -> {
 			storageService.deleteAll();
 			storageService.init();

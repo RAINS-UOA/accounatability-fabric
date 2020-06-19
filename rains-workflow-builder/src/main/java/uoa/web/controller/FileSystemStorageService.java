@@ -17,18 +17,18 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import uoa.web.storage.StorageException;
-import uoa.web.storage.StorageFileNotFoundException;
-import uoa.web.storage.StorageProperties;
-import uoa.web.storage.StorageService;
+import uoa.web.storage.FileUploadStorageException;
+import uoa.web.storage.FileUploadStorageFileNotFoundException;
+import uoa.web.storage.FileUploadStorageProperties;
+import uoa.web.storage.FileUploadStorageService;
 
 @Service
-public class FileSystemStorageService implements StorageService {
+public class FileSystemStorageService implements FileUploadStorageService {
 
 	private final Path rootLocation;
 
 	@Autowired
-	public FileSystemStorageService(StorageProperties properties) {
+	public FileSystemStorageService(FileUploadStorageProperties properties) {
 		this.rootLocation = Paths.get(properties.getLocation());
 	}
 
@@ -37,11 +37,11 @@ public class FileSystemStorageService implements StorageService {
 		String filename = StringUtils.cleanPath(file.getOriginalFilename());
 		try {
 			if (file.isEmpty()) {
-				throw new StorageException("Failed to store empty file " + filename);
+				throw new FileUploadStorageException("Failed to store empty file " + filename);
 			}
 			if (filename.contains("..")) {
 				// This is a security check
-				throw new StorageException(
+				throw new FileUploadStorageException(
 						"Cannot store file with relative path outside current directory "
 								+ filename);
 			}
@@ -51,7 +51,7 @@ public class FileSystemStorageService implements StorageService {
 			}
 		}
 		catch (IOException e) {
-			throw new StorageException("Failed to store file " + filename, e);
+			throw new FileUploadStorageException("Failed to store file " + filename, e);
 		}
 	}
 
@@ -63,7 +63,7 @@ public class FileSystemStorageService implements StorageService {
 				.map(this.rootLocation::relativize);
 		}
 		catch (IOException e) {
-			throw new StorageException("Failed to read stored files", e);
+			throw new FileUploadStorageException("Failed to read stored files", e);
 		}
 
 	}
@@ -82,13 +82,13 @@ public class FileSystemStorageService implements StorageService {
 				return resource;
 			}
 			else {
-				throw new StorageFileNotFoundException(
+				throw new FileUploadStorageFileNotFoundException(
 						"Could not read file: " + filename);
 
 			}
 		}
 		catch (MalformedURLException e) {
-			throw new StorageFileNotFoundException("Could not read file: " + filename, e);
+			throw new FileUploadStorageFileNotFoundException("Could not read file: " + filename, e);
 		}
 	}
 
@@ -103,7 +103,7 @@ public class FileSystemStorageService implements StorageService {
 			Files.createDirectories(rootLocation);
 		}
 		catch (IOException e) {
-			throw new StorageException("Could not initialize storage", e);
+			throw new FileUploadStorageException("Could not initialize storage", e);
 		}
 	}
 }

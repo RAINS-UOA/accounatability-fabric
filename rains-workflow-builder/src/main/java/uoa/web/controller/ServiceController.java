@@ -43,8 +43,8 @@ import uoa.init.graphdb.GraphDBUtils;
 import uoa.model.components.NewSystemForm;
 import uoa.model.components.SystemDetails;
 import uoa.web.handlers.SystemRecordManager;
-import uoa.web.storage.StorageFileNotFoundException;
-import uoa.web.storage.StorageService;
+import uoa.web.storage.FileUploadStorageFileNotFoundException;
+import uoa.web.storage.FileUploadStorageService;
 
 @Controller
 public class ServiceController {
@@ -52,10 +52,10 @@ public class ServiceController {
 	
 	private ObjectPool<RepositoryConnection>  connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
 	
-	private final StorageService storageService;
+	private final FileUploadStorageService storageService;
 
 	@Autowired
-	public ServiceController(StorageService storageService) {
+	public ServiceController(FileUploadStorageService storageService) {
 		this.storageService = storageService;
 	}
 
@@ -102,8 +102,8 @@ public class ServiceController {
 		return response;
 	}
 
-	@ExceptionHandler(StorageFileNotFoundException.class)
-	public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
+	@ExceptionHandler(FileUploadStorageFileNotFoundException.class)
+	public ResponseEntity<?> handleStorageFileNotFound(FileUploadStorageFileNotFoundException exc) {
 		return ResponseEntity.notFound().build();
 	}
 	
@@ -138,6 +138,20 @@ public class ServiceController {
 		return "home";
 	}
 	*/
+	
+	@GetMapping("/provenanceCollector")
+	public String provenanceCollector( @RequestParam String mode, @RequestParam String stage, Model model) {
+		model.addAttribute("stage", stage);
+		model.addAttribute("mode", mode);
+		return "provenanceCollector";
+	}
+	
+	@GetMapping("/auditManager")
+	public String auditManager(  Model model) {
+		
+		return "auditManager";
+	}
+	
 	
 	@PostMapping("/saveTemplatePlan")
 	@ResponseBody
@@ -221,6 +235,16 @@ public class ServiceController {
 		return gson.toJson(map);
 	}
 	
+	@GetMapping("/getVariableComponentHierarchy")
+	@ResponseBody
+	public String getVariableComponentHierarchy () throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		HashMap <String,HashSet <String >> map = manager.getVariableComponentHierarchy();
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(map);
+	}
+	
 	
 	
 	@GetMapping("/getSavedPlan")
@@ -237,10 +261,8 @@ public class ServiceController {
 	
 	@GetMapping("/components")
 	public String components () throws NoSuchElementException, IllegalStateException, Exception  {
-		SystemRecordManager manager = new SystemRecordManager(connectionPool);
-		manager.shutdown();
-		
-		
+		//SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		//manager.shutdown();	
 		return "componentsLibrary";
 	}
 	

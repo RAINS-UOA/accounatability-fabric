@@ -1,0 +1,187 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> 
+    <title>Audit Manager</title> 
+   <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<style>
+    .bs-example{
+        margin: 20px;
+    }
+    .accordion .fa{
+        margin-right: 0.5rem;
+    }
+</style>
+
+
+<link rel="stylesheet" href="./css/componentsLibrary.css">
+<link rel="stylesheet" href="./css/loader.css">
+  <link rel="stylesheet" href="/css/main.css"> 
+    <link rel="stylesheet" href="/css/main.css"> 
+  
+   <script src="./js/json-ld_context.js"></script>
+   
+   <script>
+    $(document).ready(function(){
+        // Add minus icon for collapse element which is open by default
+        $(".collapse.show").each(function(){
+        	$(this).prev(".card-header").find(".fa").addClass("fa-minus").removeClass("fa-plus");
+        });
+        
+        // Toggle plus minus icon on show hide of collapse element
+        $(".collapse").on('show.bs.collapse', function(){
+        	$(this).prev(".card-header").find(".fa").removeClass("fa-plus").addClass("fa-minus");
+        }).on('hide.bs.collapse', function(){
+        	$(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-plus");
+        });
+    });
+</script>
+<body>
+
+
+
+
+        <!-- Page Content Holder -->
+        <div id="content">
+
+
+    
+<div class="jumbotron">
+
+<h3>Audit Manager </h3>
+  <div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" >System IRI</span>
+  </div>
+  <input type="text" readonly class="form-control" id="systemIRI" >
+ 
+</div>
+  
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" >Label</span>
+  </div>
+  <input type="text" class="form-control" id="plan_label" placeholder="not yet implemented">
+</div>
+
+
+   <div class="input-group">
+   <div class="input-group-prepend">
+    <span class="input-group-text">Comment</span>
+  </div>
+   <textarea class="form-control" placeholder="not yet implemented"></textarea>
+   </div>
+</div>
+  
+<div class="container-fluid">
+<div class="col-md-12">
+ <h3>Agents</h3>
+ <p>Click on the agents to explore their accountabilities</p>
+ 
+<div class="agentWidget"> <a href="/entityExplorer?agentIri=" target="_blank"> ExampleAgent </a></div>
+<br><br><br>
+</div>
+
+<div class="col-md-12">
+ <h3>Queries</h3>
+ <p>Click on the query to run it</p>
+ 
+  <h4>Topic 1</h4>
+<div class="accordion" id="myAccordion">
+    <div class="card">
+        <div class="card-header" id="headingOne">
+            <h2 class="mb-0">
+                <button type="button" class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"><i class="fa fa-plus"></i>Query 1</button>
+            </h2>
+        </div>
+        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#myAccordion">
+            <div class="card-body">
+                <p>Results will go here</p>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingTwo">
+            <h2 class="mb-0">
+                <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"><i class="fa fa-plus"></i>Query 2</button>
+            </h2>
+        </div>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#myAccordion">
+            <div class="card-body">
+                 <p>Results will go here</p>     </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingThree">
+            <h2 class="mb-0">
+                <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree"><i class="fa fa-plus"></i>Query 3</button>
+            </h2>
+        </div>
+        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#myAccordion">
+            <div class="card-body">
+                 <p>Results will go here</p>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+   <h4>Topic 2</h4>
+<div class="accordion" id="myAccordion2">
+    <div class="card">
+        <div class="card-header" id="headingOne1">
+            <h2 class="mb-0">
+                <button type="button" class="btn btn-link" data-toggle="collapse" data-target="#collapseOne1"><i class="fa fa-plus"></i>Query 1</button>
+            </h2>
+        </div>
+        <div id="collapseOne1" class="collapse" aria-labelledby="headingOne1" data-parent="#myAccordion2">
+            <div class="card-body">
+                <p>Results will go here</p>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingTwo1">
+            <h2 class="mb-0">
+                <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo1"><i class="fa fa-plus"></i>Query 2</button>
+            </h2>
+        </div>
+        <div id="collapseTwo1" class="collapse" aria-labelledby="headingTwo1" data-parent="#myAccordion2">
+            <div class="card-body">
+                 <p>Results will go here</p>     </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingThree1">
+            <h2 class="mb-0">
+                <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree1"><i class="fa fa-plus"></i>Query 3</button>
+            </h2>
+        </div>
+        <div id="collapseThree1" class="collapse" aria-labelledby="headingThree1" data-parent="#myAccordion2">
+            <div class="card-body">
+                 <p>Results will go here</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+   </div>
+   
+</div>
+
+
+
+
+
+
+
+   
+
+  
+</body>
+</html>

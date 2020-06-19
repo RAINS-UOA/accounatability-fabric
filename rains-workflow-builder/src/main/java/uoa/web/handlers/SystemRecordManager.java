@@ -433,6 +433,34 @@ public HashMap <String,HashSet <String >> getStepComponentHierarchy () {
 	return map;
 }
 
+public HashMap <String,HashSet <String >> getVariableComponentHierarchy () {
+	HashMap <String,HashSet <String >> map = new  HashMap   <String,HashSet <String >> ();
+	//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?variable rdfs:subClassOf* ep-plan:Variable. ?variable rdfs:subClassOf ?parentVariable.} ";
+	
+	TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+		   try (TupleQueryResult result = tupleQuery.evaluate()) {
+			      while (result.hasNext()) {  // iterate over the result
+			    	
+			         BindingSet bindingSet = result.next();			         
+			        
+			         Value step = bindingSet.getValue("variable");
+			         Value parentStep = bindingSet.getValue("parentVariable");	
+			         if (map.containsKey(parentStep.toString())) {			        	
+			        	 map.get(parentStep.toString()).add(step.toString());
+			         }
+			         else {
+			        	 HashSet <String> set = new HashSet <String> ();
+			        	 set.add(step.toString());
+			        	 map.put(parentStep.toString(), set);
+			         }
+			         
+			      }			   
+		   }
+	return map;
+}
+
+
 }
 
 

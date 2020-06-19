@@ -41,8 +41,10 @@
 
  <div class="col-md-12" >
   <h3>Steps</h3>
-<div class="overflow-auto">
+
+<div class="overflow-auto componentPane" id="contentSteps">
 <div id="stepsMessage"></div>
+  <div class="loader" id="loaderSteps" ></div>
 <ul id="stepsUL"></ul>
 </div>
 </div> 
@@ -52,7 +54,12 @@
   <div  class="row">
 <div class="col-md-12">
 <h3>Variables</h3>
-<div class="alert alert-danger" role="alert"> This is not yet implemented.</div>
+<div class="overflow-auto componentPane" id="contentVariables">
+<div id="variablesMessage"></div>
+  <div class="loader" id="loaderVariables" ></div>
+<ul id="variablesUL"></ul>
+</div>
+
 	    				 
 </div> 
  </div>
@@ -114,4 +121,5 @@ $("#uploadButton").click(function() {
 
  //populate the step components view
  getStepComponents ('stepsUL', 'stepsMessage');
+ getVariableComponents ('variablesUL', 'variablesMessage');
  </script>

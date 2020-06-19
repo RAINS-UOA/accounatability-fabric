@@ -368,10 +368,13 @@ function parseSavedPlanJsonLD (graphArray) {
 				console.log("found element with @type STEP");
 				//ASSUMPTION THERE IS ALWAYS LABEL (WE ALWAYS FORCE DEFAULT LABEL) AND THERE IS ONLY ONE
 				let label = "default value";
+				
 				if (element[context.label][0]['@value']!=null) {
 					label = element[context.label][0]['@value'];
 					console.log("saved label: "+ label);
 				} 
+				
+				
 				loadSavedStep (element['@id'],element['@type'],label, "https://to_do_loading label.org"  , element[context.belongsToRow][0]['@value']);
 				
 			}			
@@ -436,6 +439,7 @@ console.log("creating step with label" + label);
 	step ['label'] = label;
 	step ['isElementOfPlan'] = plan['@id']; 
 	step['hasRationale'] = []; 
+	step['belongsToRow'] = rowID;
 	
 	stepsArray.push(step);
 	
@@ -463,7 +467,7 @@ let step = document.createElement("div") ;
 // need to add prefix here as well
 step ['@id'] = dataPrefix+ uuidv4();
 step ['@type'] = [];
-//step ['@type'].push (context.Step);
+step ['@type'].push (context.Step);
 //to do load the IRI from component tree properly
 step ['@type'].push (data);
 step ['label'] = "untitled"; 

@@ -4,6 +4,8 @@ import java.util.UUID;
 
 public class Constants {
 	
+	public static String AUTHORISATION_CACHE_DATABASE_PATH = System.getProperty("user.dir")+"/src/main/resources/sqlite/authorisationCache";
+	
 	public static final String EPPLAN_NAMESPACE = "https://w3id.org/ep-plan#";
 
 	public static final  String  DEFAULT_NAMED_GRAPH_NAMESPACE ="https://rainsproject.org/NamedGraph/";

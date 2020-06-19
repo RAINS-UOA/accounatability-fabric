@@ -117,8 +117,9 @@ div.scroll {
  </head>
 <script src="./js/index.js"></script>
 
-<script src="./js/json-ld_context.js"></script>
+
  <script src="./js/componentsLibrary.js"></script>
+ <script src="./js/json-ld_context.js"></script>
 <body>
 
 
@@ -201,9 +202,9 @@ div.scroll {
   
 <div class="container-fluid">
   <div class="row">
-    <div class="col-sm-2 ">
+    <div class="col-sm-2 " id="contentSteps">
       <h3>Steps Library</h3>
-      
+        <div class="loader" id="loaderSteps" ></div>
       <div class="panel panel-default">
       <div th:if="${#httpServletRequest.getParameter('stage') == 'design'}">
       
@@ -214,7 +215,7 @@ div.scroll {
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Design </button>
       
        <script>
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.DesigStep);
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.DesigStep, true);
       </script>
     
        </div>    
@@ -222,21 +223,27 @@ div.scroll {
        
        
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Implementation </button>
-     TBA this needs to be loaded dynamically
+      <script>
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.ImplementationStep, true);
+      </script>
        </div> 
        
             <div th:if="${#httpServletRequest.getParameter('stage') == 'deployment'}">
        
        
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Deployment </button>
-     TBA this needs to be loaded dynamically
+    <script>
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.DeploymentStep, true);
+      </script>
        </div> 
        
             <div th:if="${#httpServletRequest.getParameter('stage') == 'operation'}">
        
        
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Operation </button>
-     TBA this needs to be loaded dynamically
+      <script>
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.OperationStep, true);
+      </script>
        </div> 
        <div id="stepsMessage"></div>
        <div class="scroll">

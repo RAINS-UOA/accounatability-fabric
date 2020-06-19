@@ -23,6 +23,7 @@ import org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
 import org.eclipse.rdf4j.repository.manager.RepositoryManager;
 
 import uoa.semantic.system.SystemComponentsIRI;
+import uoa.web.storage.AuthorisationCacheStorage;
 
 
 
@@ -82,6 +83,7 @@ public static void checkRepositorySetUp () {
 	}
 	
 	
+	
 	/*
 	// Get all statements in the context
 	IRI context = f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI);
@@ -101,6 +103,12 @@ public static void checkRepositorySetUp () {
 	conn.close();
 	repository.shutDown();
 	repositoryManager.shutDown();
+	
+	
+	//create Authorisation Cache SQLLite database
+	
+	AuthorisationCacheStorage.createNewDatabase();
+	
     }
     
     else {

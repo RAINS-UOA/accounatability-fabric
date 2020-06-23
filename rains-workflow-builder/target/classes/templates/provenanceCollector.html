@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="/css/main.css"> 
   
    <script src="./js/json-ld_context.js"></script>
+   <script src="./js/provenanceCollector.js"></script>
 <body>
 
 
@@ -67,7 +68,26 @@
   <div class="row"></div>
   <h3>Human Interface</h3>
   
-  to do
+  <script> fetchHumanTasks(findGetBase64Parameter('planIri'))</script>
+  
+<table class="table" id="taskTable">
+  <thead>
+    <tr>
+       <th scope="col">#</th>
+      <th scope="col">Person Completing Task </th>
+       <th scope="col">Execution Bundle IRI</th>
+      <th scope="col">Task Status</th>
+      <th scope="col">Link</th>
+    </tr>
+  </thead>
+  <tbody id="taskTableBody">
+
+   
+  </tbody>
+</table>
+
+<div id="taskTableMessage"></div>
+
   
   <h3>API Calls</h3>
   

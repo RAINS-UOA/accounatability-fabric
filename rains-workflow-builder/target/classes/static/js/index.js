@@ -383,9 +383,7 @@ function parseSavedPlanJsonLD (graphArray) {
 }
 
 
-function generateLabelsFromTypes () {
-	
-}
+
 
 //takes jsonld object representation and the type that needs to be checked if present
 function checkTypeInJsonLD (input,type) {

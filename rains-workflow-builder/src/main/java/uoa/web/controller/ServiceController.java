@@ -43,6 +43,7 @@ import uoa.init.graphdb.GraphDBUtils;
 import uoa.model.components.NewSystemForm;
 import uoa.model.components.SystemDetails;
 import uoa.web.handlers.SystemRecordManager;
+import uoa.web.storage.AuthorisationCacheStorage;
 import uoa.web.storage.FileUploadStorageFileNotFoundException;
 import uoa.web.storage.FileUploadStorageService;
 
@@ -308,7 +309,38 @@ public class ServiceController {
 	}
 	
 	
+	@GetMapping("/createHumanProvenaceGenerationTask")
+	@ResponseBody
+	public String createHumanProvenaceGenerationTask (@RequestParam String planIRI,@RequestParam String systemIRI) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		AuthorisationCacheStorage.createHumanProvenaceGenerationTask(new String(Base64.base64ToByteArray(planIRI)), manager.createNewExecutionBundle(new String(Base64.base64ToByteArray(planIRI)), new String(Base64.base64ToByteArray(systemIRI))));
+		//to do addd split based on agents associated with steps
+		
+		manager.shutdown();
+		return "createHumanProvenaceGenerationTask: to do some meaningful response";
+		
+	}
+	
+	@GetMapping("/getHumanProvenaceGenerationTasksForPlan")
+	@ResponseBody
+	public String getHumanProvenaceGenerationTasksForPlan (@RequestParam String planIRI) throws NoSuchElementException, IllegalStateException, Exception  {
+		Gson gson = new Gson(); 
+		return gson.toJson(AuthorisationCacheStorage.getHumanProvenaceGenerationTasksForPlan(new String(Base64.base64ToByteArray(planIRI))));
+	}
 	
 	
+	@GetMapping("/getPlanStructureForHumanForm")
+	@ResponseBody
+	public String createProvenanceTraceHumanInterface (@RequestParam String token) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		String jsonld = manager.createProvenanceTraceHumanInterface (token);
+		manager.shutdown();
+		return jsonld;
+	}
+	
+	@GetMapping("/createProvenanceTrace")
+	public String createProvenanceTrace (@RequestParam String token) throws NoSuchElementException, IllegalStateException, Exception  {
+		return "provenanceTraceForm";
+	}
 	
 }

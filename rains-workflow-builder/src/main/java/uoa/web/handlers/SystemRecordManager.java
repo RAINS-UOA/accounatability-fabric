@@ -20,6 +20,7 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.vocabulary.PROV;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -56,6 +57,7 @@ import uoa.model.components.SystemDetails;
 import uoa.semantic.system.EpPlanOntologyComponents;
 import uoa.semantic.system.RainsOntologyComponents;
 import uoa.semantic.system.SystemComponentsIRI;
+import uoa.web.storage.AuthorisationCacheStorage;
 
 public class SystemRecordManager {
 	/*
@@ -224,7 +226,6 @@ public class SystemRecordManager {
 	private void addPlanNamedGraphOntologies (Resource planNamedGraphContext) throws RDFParseException, RepositoryException, IOException {
 		
 		File file = ResourceUtils.getFile("classpath:ep-plan.ttl"); 
-		String baseURI = "https://w3id.org/ep-plan";
 		conn.add(file, null, RDFFormat.TURTLE,planNamedGraphContext);
 		
 		
@@ -378,6 +379,23 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 		return list;
 	}
 	
+// to do : this currently retrieves the whole plan but in the future we may want to divide it into chunks depending on the agents associated with the task
+public String getSavedPlanPartsForHumanTaskForm (String planIri, String systemIri, String executiontraceBundleIRI)  {
+	
+		String ldjson ="error";	
+			
+		String query =  Constants.PREFIXES + "Construct {?element ?p ?o . ?plan ?c ?x. ?plan prov:wasDerivedFrom <"+executiontraceBundleIRI+">} FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {  ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.} Values (?plan) { (<"+planIri+">)}"   ;
+			
+		System.out.println(query);
+		//Model m = Repositories.graphQuery(repository,query, r -> QueryResults.asModel(r));
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		RDFWriter writer = Rio.createWriter(RDFFormat.JSONLD, stream);
+		   conn.prepareGraphQuery(QueryLanguage.SPARQL,
+				   query).evaluate(writer);
+		ldjson = new String(stream.toByteArray());
+		return ldjson; 
+	}	
+	
 	
 public String getSavedPlan (String topLevelStepIri, String systemIri)  {
 		
@@ -458,6 +476,42 @@ public HashMap <String,HashSet <String >> getVariableComponentHierarchy () {
 			      }			   
 		   }
 	return map;
+}
+
+public String createNewExecutionBundle(String planIRI, String systemIRI) {
+	// TODO Auto-generated method stub
+	
+	conn.begin();
+	
+	String executionBundleIRI = Constants.DEFAULT_NAMED_GRAPH_NAMESPACE+UUID.randomUUID();
+	//create named graph for storing execution trace
+	conn.add(f.createIRI(executionBundleIRI), RDF.TYPE, f.createIRI(EpPlanOntologyComponents.ExecutionTraceBundle), f.createIRI(executionBundleIRI));
+	
+	//save the link between plan and execution trace bundle into systems named graph as well so we can later find it
+	conn.add(f.createIRI(systemIRI), f.createIRI(RainsOntologyComponents.hasAccountabilityTrace), f.createIRI(executionBundleIRI), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	conn.commit();
+	
+	return executionBundleIRI;
+}
+
+public String createProvenanceTraceHumanInterface(String token) {
+HashMap <String,String> map =  AuthorisationCacheStorage.getDetailsForHumanGenrationTaskToken( token); 
+
+//map.put("executiontraceBundleIRI",  rs.getString("executiontraceBundleIRI") );
+if (map.get("status")!=null) {
+	if (map.get("status").equals("Active")) {
+		String planIRI = map.get("planIRI");
+		String executiontraceBundleIRI = map.get("executiontraceBundleIRI");
+		RepositoryResult<Statement> res= conn.getStatements(null, f.createIRI(RainsOntologyComponents.hasAccountabilityTrace), f.createIRI(executiontraceBundleIRI), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+		// get system iri there should only be one added by createNewExecutionBundle(String planIRI, String systemIRI) 
+		Statement stm  = res.next();
+		Value system = stm.getSubject();
+		return getSavedPlanPartsForHumanTaskForm (planIRI,system.toString(),executiontraceBundleIRI );		
+	}
+}
+return "{\"error\":\"Can't retrive the plan structure\"}"	;
+
+
 }
 
 

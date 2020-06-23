@@ -26,6 +26,8 @@ public class Constants {
 	
 	public static final String RAINS_PLAN_NAMESPACE = "https://w3id.org/rains-plan#";
 	
-	public static final String PREFIXES = "Prefix af: <"+AF_NAMESPACE+"> Prefix ep-plan: <"+EPPLAN_NAMESPACE+"> Prefix rains: <"+RAINS_PLAN_NAMESPACE+">";
+	public static final String PROV_NAMESPACE = "http://www.w3.org/ns/prov#";
+	
+	public static final String PREFIXES = "Prefix af: <"+AF_NAMESPACE+"> Prefix ep-plan: <"+EPPLAN_NAMESPACE+"> Prefix rains: <"+RAINS_PLAN_NAMESPACE+"> Prefix prov: <"+PROV_NAMESPACE+">";
 	
 }

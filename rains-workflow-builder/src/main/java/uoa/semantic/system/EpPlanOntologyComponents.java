@@ -11,4 +11,6 @@ public class EpPlanOntologyComponents {
 	public static final String isPreceededBy =Constants.EPPLAN_NAMESPACE + "isPrecededBy";
 	
 	public static final String MultiStep =Constants.EPPLAN_NAMESPACE + "MultiStep";
+
+	public static final String ExecutionTraceBundle = Constants.EPPLAN_NAMESPACE + "ExecutionTraceBundle";
 }

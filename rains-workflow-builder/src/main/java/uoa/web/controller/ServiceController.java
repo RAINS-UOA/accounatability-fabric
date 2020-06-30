@@ -343,4 +343,14 @@ public class ServiceController {
 		return "provenanceTraceForm";
 	}
 	
+	@PostMapping("/uploadHumanTaskProvenanceTrace")
+	@ResponseBody
+	public String uploadHumanTaskProvenanceTrace (@RequestParam String payload, @RequestParam String token) throws NoSuchElementException, IllegalStateException, Exception  {
+		//to do need to check token again
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		String response = manager.saveHumanTaskProvenanceTrace(payload, token);
+		manager.shutdown();
+		return response;
+	}
+	
 }

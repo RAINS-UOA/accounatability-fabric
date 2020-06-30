@@ -36,7 +36,9 @@
  <script src="./js/provenanceCollector.js"></script>
   <script src="./js/index.js"></script>
 <script>
-let elemntIDArray = [];
+var stepIDArray = [];
+var  dataPrefix =  "https://rainsproject.org/InstanceData/";
+var bundleID = "";
 
 function getPlanComponets (token) {
 	
@@ -71,7 +73,10 @@ function parsePlanStructureJsonLD (graphArray) {
 		console.log( graphArray[i]);
 		if (element['@type']!=null) {
 			
-			
+			if (checkTypeInJsonLD (element['@type'],context.ExecutionTraceBundle)) {
+				console.log("found element with @type ExecutionTraceBundle");
+				bundleID = element['@id'];
+			}
 			
 			if (checkTypeInJsonLD (element['@type'],context.Step)) {
 				console.log("found element with @type STEP");
@@ -94,16 +99,16 @@ function parsePlanStructureJsonLD (graphArray) {
 function createStepFormInput (id, types, label) {
 	let html = "";
 	//use this to keep track of which input belongs to which plan element as we cannot use iri as part of element id - JQUERY complaining
-	elemntIDArray.push(id);
-	let index = elemntIDArray.length - 1;
+	stepIDArray.push(id);
+	let index = stepIDArray.length - 1;
 	html=html+"<h3>"+label+"</h3>"
 	html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
 	html = html + '<label>Select time when activity ended</label>'
-	html = html + '<div class="form-group"><div class=" input-group input-group-lg date" id="time-end-group-'+index+'" data-target-input="nearest"><input type="text" id="time-end-input-'+index+'" class="form-control datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';
+	html = html + '<div class="form-group"><div class=" input-group input-group-lg date" id="time-end-group-'+index+'" data-target-input="nearest"><input required type="text" id="time-end-input-'+index+'" class="form-control datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';
 	
 	//add agent field
 	html = html + '<br><br><label>Who performed the task?</label>'
-	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="agent-group-'+index+'"><input type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div>';
+	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="agent-group-'+index+'"><input required type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div>';
 	
 	
 	html = html + "<hr>";
@@ -115,7 +120,30 @@ function createStepFormInput (id, types, label) {
 	$('#time-end-group-'+index).datetimepicker();
 }
 
-
+function prepareHumanTaskProvenanceTraceGraph () {
+	
+	
+	
+	
+	let traceElementArray = [];
+	
+	for (let i=0;i<stepIDArray.length;i++) {
+		let activity = {};
+		activity ['@id'] = dataPrefix+ uuidv4();
+		activity ['@type'] = [];
+		activity ['@type'].push (context.Activity);
+		//to do load the IRI from component tree properly
+		activity ['isElementOfTrace'] = bundleID; 
+		activity ['correspondsToStep'] = stepIDArray[i];
+		activity ['wasAssociatedWith'] = document.getElementById('agent-input-'+i).value;
+		activity ['wasStartedAtTime'] =  moment(document.getElementById('time-end-input-'+i).value).utc().format('YYYY-MM-DDTHH:mm:ssZZ');
+		
+		traceElementArray.push(activity);
+	}
+	
+	
+	return traceElementArray; 
+}
 
 </script>
 <body>
@@ -125,33 +153,65 @@ function createStepFormInput (id, types, label) {
 
 <h2>Please complete the requested information below</h2> <br><br>
 <form id="form" action="/uploadHumanTaskProvenanceTrace">
+<button class="btn btn-primary" id="submitButton">Submit</button>
 </form>
-<button id="submitButton">Submit</button>
-<script>
-$("#uploadButton").click(function() {
-	 console.log("trying to submit");
-	 $("#form").submit(function(e) {
-		
-		    e.preventDefault(); // avoid to execute the actual submit of the form.
 
+<script>
+$(document).ready(function () {
+$("#submitButton").click(function() {
+	 console.log("trying to submit");
+	 console.log($("#form"));
+	 $("#form").submit(function(e) {
+		  
+		 console.log("trying to submit");
+		    e.preventDefault(); // avoid to execute the actual submit of the form.
+		    
 		    let form = $(this);
 		    let url = form.attr('action');
 		    console.log("sending");
 		    
+		    let data = new FormData();
+		   
+		    
+		    data.append('payload', generateJsonLDpayload (context,prepareHumanTaskProvenanceTraceGraph()));
+		    data.append('token',findGetParameter('token') );
+		    
+		    $.ajax({
+		           type: "POST",
+		           
+		           url: url,
+		           data: data,
+		           cache: false,
+		           contentType: false,
+		           processData: false,
+		           method: 'POST',
+		           type: 'POST',
+		           success: function(data)
+		           {
+		              console.log(data); 
+		              
+		           }
+		         });
+
+		    
+		  
+		   
+		    /*
 		    let xhttp = new XMLHttpRequest();
 			  xhttp.onreadystatechange = function() {
 			    if (this.readyState == 4 && this.status == 200) {
 			    	console.log("data sent to the server");
 			    }
 			  };
-			  xhttp.open("POST", url  , true);
-			  xhttp.setRequestHeader("Content-type", "application/ld+json");
+			 // xhttp.open("POST", url  , true);
+			//  xhttp.setRequestHeader("Content-type", "application/ld+json");
 			 let payload = generateJsonLDpayload (context,prepareHumanTaskProvenanceTraceGraph());
 			  console.log(payload);
-			  xhttp.send(payload);
+			 // xhttp.send(payload);
+			 */
 		});
 	});
-
+});
 </script>
 
 

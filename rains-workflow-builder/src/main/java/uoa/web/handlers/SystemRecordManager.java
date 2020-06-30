@@ -384,7 +384,7 @@ public String getSavedPlanPartsForHumanTaskForm (String planIri, String systemIr
 	
 		String ldjson ="error";	
 			
-		String query =  Constants.PREFIXES + "Construct {?element ?p ?o . ?plan ?c ?x. ?plan prov:wasDerivedFrom <"+executiontraceBundleIRI+">} FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {  ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.} Values (?plan) { (<"+planIri+">)}"   ;
+		String query =  Constants.PREFIXES + "Construct {?element ?p ?o . ?plan ?c ?x. <"+executiontraceBundleIRI+"> prov:wasDerivedFrom ?plan. <"+executiontraceBundleIRI+"> a ep-plan:ExecutionTraceBundle} FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {  ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.} Values (?plan) { (<"+planIri+">)}"   ;
 			
 		System.out.println(query);
 		//Model m = Repositories.graphQuery(repository,query, r -> QueryResults.asModel(r));
@@ -403,7 +403,7 @@ public String getSavedPlan (String topLevelStepIri, String systemIri)  {
 	
 		String ldjson ="error";	
 			
-		String query =  Constants.PREFIXES + "Construct FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a rains:Design; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.} Values (?topLevelStep) { (<"+topLevelStepIri+">)}"   ;
+		String query =  Constants.PREFIXES + "Construct FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep  ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.} Values (?topLevelStep) { (<"+topLevelStepIri+">)}"   ;
 			
 		System.out.println(query);
 		//Model m = Repositories.graphQuery(repository,query, r -> QueryResults.asModel(r));
@@ -512,6 +512,57 @@ if (map.get("status")!=null) {
 return "{\"error\":\"Can't retrive the plan structure\"}"	;
 
 
+}
+
+public String saveHumanTaskProvenanceTrace(String payload, String token) {
+	HashMap <String,String> map =  AuthorisationCacheStorage.getDetailsForHumanGenrationTaskToken( token); 
+
+	//map.put("executiontraceBundleIRI",  rs.getString("executiontraceBundleIRI") );
+	if (map.get("status")!=null) {
+		if (map.get("status").equals("Active")) {
+			String planIRI = map.get("planIRI");
+			String executiontraceBundleIRI = map.get("executiontraceBundleIRI");
+			
+			Model results = null;
+			try {
+				  // rdfParser.parse(inputStream	, null);
+				   
+				    RDFParser parser = Rio.createParser(RDFFormat.JSONLD);
+				    parser.set(JSONSettings.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,true);
+				    //parser.parse(new StringReader(jsonld_dummy), null);
+				   
+				    results = Rio.parse(new StringReader(payload), null, RDFFormat.JSONLD);
+				}
+				catch (IOException e) {
+				  // handle IO problems (e.g. the file could not be read)
+					System.out.println(e.getLocalizedMessage());
+				}
+				catch (RDFParseException e) {
+				  // handle unrecoverable parse error
+					System.out.println(e.getLocalizedMessage());
+				}
+				catch (RDFHandlerException e) {
+				  // handle a problem encountered by the RDFHandler
+					System.out.println(e.getLocalizedMessage());
+				}
+				
+			
+			if (results!=null) {
+				System.out.println("model size" +results.size() );
+			conn.add(results.getStatements(null, null, null, (Resource)null), f.createIRI(executiontraceBundleIRI));
+			
+			//Neeed to update the cache!!! and invalidate the token
+			}
+			else {
+				System.out.println("model is null");
+			}
+			
+			return "{\"success\":\"Execution trace Saved\"}" ;		
+		}
+	}
+	return "{\"error\":\"Token invalid\"}"	;
+
+	
 }
 
 

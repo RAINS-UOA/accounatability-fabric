@@ -1,5 +1,11 @@
 var context = {};
 
+//PROV context
+
+context.wasStartedAtTime = "http://www.w3.org/ns/prov#startedAtTime";
+context.wasAssociatedWith = {"@id":"http://www.w3.org/ns/prov#wasAssociatedWith","@type": "@id"};
+
+
 //Rains context
 
 context.AccountabilityPlan   = "https://w3id.org/rains-plan#AccountabilityPlan";

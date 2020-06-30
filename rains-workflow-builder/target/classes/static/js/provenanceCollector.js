@@ -25,7 +25,7 @@ function generateHumanTasksLinks(planIRI, systemIRI) {
     		).catch(
     		        // Log the rejection reason
     			       (reason) => {   			    	 
-    			            console.log('Handle rejected promise ggenerateHumanTasksLinks ('+reason+') here.');
+    			            console.log('Handle rejected promise createHumanProvenaceGenerationTask ('+reason+') here.');
     			           
     			        });
 	console.log (planIRI);
@@ -45,6 +45,7 @@ function fetchHumanTasks (planIRI ) {
     			if (tasks.length >0 ) {
     				for (let i=0;i<tasks.length;i++) {
     					document.getElementById ('taskTableBody').innerHTML	= '<tr> <th scope="row">'+i+'</th> <td>'+tasks[i]['agentIRI']+'</td><td>'+tasks[i]['executiontraceBundleIRI']+'</td><td>'+tasks[i]['status']+'</td><td><a href="/createProvenanceTrace?token='+tasks[i]['token']+'" target="_blank">click to complete task</a></td></tr>';
+    					document.getElementById ('taskTableMessage').innerHTML = '';
     				}
     			}
     			

@@ -43,6 +43,9 @@ let parsed =  this.csvToMatrix(text,',');
 
 */
 
+
+
+
 var stepRowCounter = 0; 
 
 
@@ -61,9 +64,6 @@ var graph ={};
 var  dataPrefix =  "https://rainsproject.org/InstanceData/";
 // var fabricManager = new manageFabric();
 
-
-
-
 var inspectorTemplate =`
 <div class="container-fluid">
   <div class="form-group">
@@ -76,7 +76,7 @@ var inspectorTemplate =`
   </div>
     <div class="row">
     <label for="StepTypes">Types</label>
-    <div id="StepTypes" > </div>
+    <div id="StepTypes" class = "row"> </div>
    </div>
      <hr>
   <div class="row">
@@ -87,38 +87,38 @@ var inspectorTemplate =`
  <hr>
   <div class="form-group">
     <label for="StepInputs">Inputs</label>
-     <a href="#" class="btn btn-info btn-sm">
-          <span class="glyphicon glyphicon-plus"></span>  
-        </a>
+     <button class="btn btn-info btn-sm" data-toggle="modal" data-flag="Input" data-target="#linkVariables">
+          <span class="fa fa-plus-circle"></span>  
+        </button>
      <br>
-    <div id="StepInputs" > </div>
+    <div id="StepInputs" class = "row"> </div>
   </div>
   <hr>
  <div class="form-group">
     <label for="StepOutputs">Outputs</label>
-     <a href="#" class="btn btn-info btn-sm">
-          <span class="glyphicon glyphicon-plus"></span>  
-        </a>
+    <button class="btn btn-info btn-sm" data-toggle="modal" data-flag="Output" data-target="#linkVariables">
+          <span class="fa fa-plus-circle"></span>  
+        </button>
      <br>
-    <div id="StepOutputs" > </div>
+    <div id="StepOutputs" class = "row"> </div>
   </div>
    <hr>
   <div class="form-group">
     <label for="StepConstraints">Constraints</label>
      <a href="#" class="btn btn-info btn-sm">
-          <span class="glyphicon glyphicon-plus"></span>  
+          <span class="fa fa-plus-circle"></span>  
         </a>
      <br>
-    <div id="StepConstraints" > </div>
+    <div id="StepConstraints" class = "row"> </div>
   </div>
   <hr>
  <div class="form-group">
     <label for="StepRationale">Rationale</label>
      <a href="#" class="btn btn-info btn-sm" data-toggle="modal" data-target="#rationaleModal">
-          <span class="glyphicon glyphicon-plus"></span>  
+          <span class="fa fa-plus-circle"></span>  
         </a>
      <br>
-    <div id="StepRationale" > </div>
+    <div id="StepRationale" class = "row" > </div>
   </div>
  <br>
   <hr>
@@ -149,7 +149,25 @@ let stepTypes = document.getElementById ("StepTypes");
 stepTypes.innerHTML =  "";
 
 for (let i=0;i<element['@type'].length;i++) {
-stepTypes.appendChild (createStepTypeWidget ( element['@type'][i] , false));
+stepTypes.appendChild (createStepTypeWidget ( replaceForNameSpace (element['@type'][i]) , false));
+}
+
+let inputs = document.getElementById ("StepInputs");
+for (let i=0;i<variablesArray.length;i++) {
+	
+	if (variablesArray[i]['isInputVariableOf'].includes(element['@id'])) {
+	
+	inputs.appendChild (createInputVariableWidget ( variablesArray[i] , false));
+	}
+}
+
+let outputs = document.getElementById ("StepOutputs");
+for (let i=0;i<variablesArray.length;i++) {
+	
+	if (variablesArray[i]['isOutputVariableOf'].includes(element['@id'])) {
+	
+		outputs.appendChild (createOutputVariableWidget ( variablesArray[i] , false));
+	}
 }
     
 stepTypes.appendChild(document.createElement('hr'));
@@ -174,6 +192,7 @@ populateInspectPane (selectedStep );
 $('#rationaleModal').modal('toggle')
 }
 
+//to do handle deletions
 function createStepRationaleWidget ( rationale , canDelete) {
 let widget = document.createElement('div');
 widget.className = 'rationaleWidget';
@@ -182,7 +201,79 @@ widget.innerHTML = rationale;
 return widget;
 }
 
+//currently not used as not working as expected
 
+function connectSteps () {
+	 console.log('CSteps Array');
+	 console.log(stepsArray);
+	 
+	 let pathsArray = [];
+	for (let i=0;i < stepsArray.length;i++) {
+		let step = stepsArray[i];
+		//if step has inputs 
+		 console.log('Inputs');
+		 console.log(step['hasInputVariable']);
+		if (step['hasInputVariable'].length>0) {
+			
+			let inputs = step['hasInputVariable'];
+		//find steps that produce those inputs 
+		for (let j=0;j< inputs.length;j++) {
+			
+			let variable = {};
+			for (let b=0;b < variablesArray.length ; b++) {
+				if (variablesArray[b]['@id']===inputs[j]) {
+					variable = 	variablesArray[b];
+				}
+				break;
+			} 
+			
+			console.log('FOUND The variable');
+			 console.log(variable);
+			if (variable['isOutputVariableOf']&&variable['isOutputVariableOf'].length>0) {
+				
+				//should be only 1 eleemnt as we dont allow two steps to produce same variable but writing it like this in case this gets relaxed in the future
+				let stepsIdsProducingOutput = variable['isOutputVariableOf'];
+				
+				for (let y=0;y< stepsIdsProducingOutput.length;y++) {
+					
+					//find each producer step div from our array and connect to it
+					
+					for (let x=0;x< stepsArray.length;x++) {
+						
+						if (stepsArray[x]['@id']===stepsIdsProducingOutput[y]) {
+							
+							 console.log('CONNECTING STEPS');
+							 console.log($("#"+stepsArray[x].id));
+							 console.log($("#"+step.id));
+							 
+							 new LeaderLine(
+								 document.getElementById (step.id),
+								 document.getElementById (stepsArray[x].id)
+								 
+								 );
+							
+
+							
+							
+						}
+					
+					}
+					
+					
+				}
+				
+			}
+		
+		}
+		
+	    }
+	}
+	
+	
+	
+}
+
+//to do handle deletions
 function createStepTypeWidget ( type , canDelete) {
 
 let widget = document.createElement('div');
@@ -192,6 +283,30 @@ widget.innerHTML = type;
 return widget;
 
 }
+
+//to do handle deletions
+function createInputVariableWidget ( input , canDelete) {
+
+	let widget = document.createElement('div');
+	widget.className = 'inputVariableWidget';
+	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${input['@type']} <br> <strong>Description</strong>: ${input['comment']}"> ${input['label']} </label>`;
+
+	return widget;
+
+	}
+
+//to do handle deletions
+function createOutputVariableWidget ( output , canDelete) {
+
+	let widget = document.createElement('div');
+	widget.className = 'outputVariableWidget';
+	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${output['@type']} <br> <strong>Description</strong>:${output['comment']}"> ${output['label']} </label>`;
+
+
+	return widget;
+
+	}
+
 
 function editStepNameStart(event) {
  console.log(event)
@@ -458,20 +573,73 @@ console.log("creating step with label" + label);
 	return step;
 }   
   
-  
+
+
+function createNewVariable (label, description, type, rowId, mode ) {
+	let variable = {} ;
+	variable ['@id'] = dataPrefix+ uuidv4();
+	variable ['@type'] = [];
+	variable ['@type'].push (context.Variable);
+	variable ['@type'].push (type);
+	variable ['label'] = label; 
+	variable ['comment'] = description; 
+	variable ['isElementOfPlan'] = plan['@id'];
+	variable['belongsToRow'] = rowId;
+	variable['isInputVariableOf'] = [];
+	variable['isOutputVariableOf'] =[];
+	
+	if (mode==="Input") {
+		
+		variable['isInputVariableOf'].push( selectedStep["@id"]);
+		
+		
+	}
+	if (mode==="Output") {
+		
+		variable['isOutputVariableOf'].push(selectedStep["@id"]);
+		
+	}
+	
+	for (let i=0; i< stepsArray.length;i++ ) {
+		if (stepsArray[i]['@id']===selectedStep["@id"]) {
+			if (mode==="Input") {
+				stepsArray[i]['hasInputVariable'].push( variable["@id"]);
+			}
+			if (mode==="Output") {
+				stepsArray[i]['hasOutputVariable'].push( variable["@id"]);
+			}
+			break;
+			
+		}
+		
+	}
+	
+	
+	variablesArray.push(variable);
+
+	
+	
+}
+
+
+
 function createNewStep (target, data) {
 
 let step = document.createElement("div") ;
+let uuid = uuidv4();
+step.id = uuid;
 // need to add prefix here as well
-step ['@id'] = dataPrefix+ uuidv4();
+step ['@id'] = dataPrefix+ uuid;
 step ['@type'] = [];
 step ['@type'].push (context.Step);
 //to do load the IRI from component tree properly
 step ['@type'].push (data);
-step ['label'] = "untitled"; 
+step ['label'] = labelFromIRI (data); 
 step ['isElementOfPlan'] = plan['@id']; 
 //step.types = ["ep-plan:Step", "rains:"+data]; 
 step['hasRationale'] = []; 
+step['hasInputVariable'] = [];
+step['hasOutputVariable'] =[];
 
 
 step['belongsToRow'] = target.id;
@@ -488,6 +656,27 @@ stepCloseButtonElement (step);
 //add the label controls
 addLabel (step, "step", data, target);
 
+}
+
+//for IRIs with #
+function labelFromIRI (str) {
+	let label="";
+	let passedHash = false;
+	
+	for (let j=str.length-1; j >0 ; j--) {
+		
+		if (str[j] === "#") {
+			break;
+		} 
+	
+		else {
+			label =label.concat(str[j]);
+			
+		}
+		
+	}
+	
+	return label.split("").reverse().join("").replace( /([A-Z])/g, " $1" );;
 }
 
 function addLabel (element, className, data, target) {
@@ -548,9 +737,9 @@ function createStepRow (element) {
 
 	let r = document.createElement("div");
 	r.id = "step_row_"+stepRowCounter;
-	r.className= "row";
+	r.className= "row steprow";
 	let h = document.createElement("div");
-	let text = document.createTextNode("drop here to create new step for this line");
+	let text = document.createTextNode("drop here to create new step for this row");
 	h.appendChild (text);
 	h.className= "steps dz-message d-flex flex-column dropzone";
 	h.addEventListener("dragover", function(event) {

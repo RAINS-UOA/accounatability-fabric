@@ -25,6 +25,7 @@ context.belongsToRow ="https://rainsproject.org/af#belongsToRow";
 //rdfs context
 
 context.label = "http://www.w3.org/2000/01/rdf-schema#label";
+context.comment = "http://www.w3.org/2000/01/rdf-schema#comment";
 
 //ep-plan terms 
 context.Activity	= "https://w3id.org/ep-plan#Activity";

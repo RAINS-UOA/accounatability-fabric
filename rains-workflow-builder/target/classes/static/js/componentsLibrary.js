@@ -118,7 +118,7 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 	    			  else {
 	    			  document.getElementById(emptystepLibraryMessage).innerHTML ="";
 	    			  document.getElementById(targetElementId).innerHTML = htmlSteps;
-	    			  console.log(htmlSteps);
+	    			  //console.log(htmlSteps);
 	    			  let toggler = document.getElementsByClassName("caret");
 	    			  for (let i = 0; i < toggler.length; i++) {
 	    				   toggler[i].addEventListener("click", function() {

@@ -27,7 +27,8 @@
 
 <style>
 
-     
+   .steprow {
+   z-index:-10;}  
     
 .steps {
 min-height:90px;
@@ -120,6 +121,8 @@ div.scroll {
 
  <script src="./js/componentsLibrary.js"></script>
  <script src="./js/json-ld_context.js"></script>
+ <script src="./js/leader-line.min.js"></script>
+
 <body>
 
 
@@ -153,6 +156,8 @@ div.scroll {
 
         <!-- Page Content Holder -->
         <div id="content">
+        
+       
 
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <div class="container-fluid">
@@ -202,7 +207,7 @@ div.scroll {
   
 <div class="container-fluid">
   <div class="row">
-    <div class="col-sm-2 " id="contentSteps">
+    <div class="col-sm-3 " id="contentSteps">
       <h3>Steps Library</h3>
         <div class="loader" id="loaderSteps" ></div>
       <div class="panel panel-default">
@@ -252,8 +257,10 @@ div.scroll {
        
       </div>
         </div>
-    <div class="col-sm-7">
+    <div class="col-sm-6">
     <h3>Workflow Steps</h3>
+    <div id="svgContainer"></div>
+    
     <div id="workflowStepsPane" class="panel panel-default"> </div>
     </div>
     <div class="col-sm-3 ">
@@ -286,6 +293,289 @@ div.scroll {
     </div>
   </div>
 </div>
+
+
+
+ <!-- The Modal  ADD Variables  -->
+  <div class="modal" id="linkVariables">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title"><span id="variablesTitle"></span> Variables</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body" >
+        <div id="currentPlanVariablesList">
+         <h5 class="modal-title">Re-use Existing Plan Variables</h5>
+         <small  class="form-text text-muted">The list contains only variables that may be linked to this step.</small>
+         <div id="currentPlanExistingVariablesList">  </div>
+        
+            <hr>
+          </div>  
+            <h5 class="modal-title">Define New Variables  </h5>
+             <small  class="form-text text-muted">New variables will be saved (and made available to other steps) only if they are selected to be associated with this step.</small>
+            <div id="currentPlanNewVariablesList">  </div>
+            
+        </div>
+        
+         <div class="card">
+          <div id="newVariableForm" class="collapse collapsed" aria-labelledby="headingOne" data-parent="#currentPlanNewVariablesList">
+      <div class="card-body">
+       
+       <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text" >Label</span>
+         </div>
+       <input type="text" class="form-control" id="newVariableLabel" placeholder="Default Label" aria-label="label" aria-describedby="newVariableLabel">
+      </div>
+      <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text">Description</span>
+         </div>
+       <input type="text" class="form-control" id="newVariableDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
+      </div>
+       <div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <label class="input-group-text" for="newVariableType">Variable Type</label>
+  </div>
+  <select class="custom-select" id="newVariableType">
+    <option selected>Choose...</option>
+    <option value="1">One</option>
+    <option value="2">Two</option>
+    <option value="3">Three</option>
+  </select>
+</div>
+ <button type="button" class="close" style="margin-left:10px" data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariableDismissButton">Dismiss</button>
+       <button type="button" class="close"  data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariableAddButton">Add</button>
+      </div>
+    </div>
+         <div class="form-check">
+         <button type="button" class="btn btn-link " data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariable">Create New Variable</button>
+         <br><br>
+         </div>
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" data-dismiss="modal" id="addSelectedVarsBtn">Add Selected Variables</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+
+
+<script>
+
+function displayCurrentPlanVariables (elementId,variableMode) {
+	//Temparalily we are forcing to create outputs first before they are used as inputs and also we dont allow two steps to produce same variable so there will never be any existing variables that could be linked to
+	if (variableMode=="Output") {
+		$('#currentPlanVariablesList').hide();
+		return 0;
+	}
+    
+	$('#currentPlanVariablesList').show();
+		
+	console.log("called");
+	let availableVariables = listVaribalesAvailableToStep (selectedStep['@id'],variableMode);
+	// this need to change to be more specific based on teh step we are talking about
+	
+	
+	
+	if (availableVariables.length === 0) {
+		document.getElementById(elementId).innerHTML = '<div class="alert alert-primary"> No existing variables are available for this step </div>';
+	} 
+	else {
+		document.getElementById (elementId).innerHTML = "";
+		
+		console.log("all variables");
+		console.log(availableVariables);
+		for (let i=0;i<availableVariables.length;i++) {
+			document.getElementById (elementId).innerHTML += `<div class="form-check" >
+                <input type="checkbox" class="form-check-input" id="${availableVariables[i]['@id']}">
+                <label class="form-check-label" for="random" data-toggle="tooltip" data-placement="top" title="${availableVariables[i]['comment']}"> ${availableVariables[i]['label']} (${availableVariables[i]['@type']}) </label>
+           </div>`;
+		}
+		
+		//document.getElementById(elementId).innerHTML = "list teh variables to do ";
+		
+	}
+}
+
+function listVaribalesAvailableToStep (stepId,variableMode) {
+// to do
+	let result = [];
+	for (let i=0;i<variablesArray.length;i++) {
+		let variable = variablesArray[i];
+		
+		//skip those already associated as inputs or aoutputs of this step 
+		console.log(variableMode);
+		console.log(variable["isOutputVariableOf"]);
+		console.log(variableMode=="Output"&&variable["isInputVariableOf"]);
+		
+		if ((variable["isInputVariableOf"]&&variable["isInputVariableOf"].includes(selectedStep['@id']))||( variable["isOutputVariableOf"]&&variable["isOutputVariableOf"].includes(selectedStep['@id'])) ) {
+			continue;
+		}
+		//skip those that don't yet exist
+		if (variable["belongsToRow"] > selectedStep['belongsToRow']) {
+			continue;
+		}
+		//don't allow two steps to produce same variable 
+		if (variableMode=="Output"&&variable["isOutputVariableOf"]&&(variable["isOutputVariableOf"].length>0)) {
+			continue;
+		}
+		//TO DO LATER - don't allow to assign as output if the variable has already been used as input (output potentially changes the row allocation so need to reshufle everything)
+		if  (variableMode=="Output"&&variable["isInputVariableOf"]&&(variable["isInputVariableOf"].length>0)) {
+			continue;
+		}
+		//dont allow to assign as input if variable produced by different step in the same row
+		if  (variableMode=="Input"&&variable["isOutputVariableOf"]&&(variable["isOutputVariableOf"].length>0)&&(variable["belongsToRow"] === selectedStep['belongsToRow'])) {
+			continue;
+		}
+			
+			
+		result.push (variable);
+	}
+	//let result = variablesArray;
+	return result;
+}
+
+
+$('#linkVariables').on('show.bs.modal', function (event) {
+	document.getElementById ("currentPlanNewVariablesList").innerHTML ="";
+	  variableMode = $(event.relatedTarget).data('flag');
+	  displayCurrentPlanVariables ('currentPlanExistingVariablesList',variableMode);
+	  $(this).find('#variablesTitle').html(variableMode);
+	  //hold teh info about temporary 
+	  temporaryVarArray = [];
+	  if (variableMode!="Output") {
+	  document.getElementById ("currentPlanNewVariablesList").innerHTML="";
+	  }
+	 
+	  
+	});
+	
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+}) 
+
+$('#createVariable').click(
+function () {
+$('#createVariable').hide();
+}
+);
+
+$('#createVariableDismissButton').click(
+function () {
+$('#createVariable').show();
+}
+);
+
+$('#createVariableAddButton').click(
+function () {
+$('#createVariable').show();
+let type = $('#newVariableType').val();
+let label = $('#newVariableLabel').val();
+let description = $('#newVariableDescription').val();
+$('#newVariableType').val("");
+$('#newVariableLabel').val("");
+$('#newVariableDescription').val("");
+let id = temporaryVarArray.length;
+console.log("Selected Step");
+console.log(selectedStep['@type']);
+document.getElementById ("currentPlanNewVariablesList").innerHTML += `<div class="form-check" >
+                 <input checked type="checkbox" class="form-check-input" id="${id}">
+                 <label class="form-check-label" for="random" data-toggle="tooltip" data-placement="top" title="${description}"> ${label} (${type}) </label>
+            </div>`;
+            temporaryVarArray.push({id:id, label:label, type:type, description:description});
+$('body').tooltip({
+	 selector: '[data-toggle="tooltip"]'
+});
+}
+);
+
+$('#addSelectedVarsBtn').click(
+		function () {
+			
+			console.log('add variables clicked');
+			let inputelements = $('#currentPlanNewVariablesList').find(':input');
+			for (let i = 0; i<inputelements.length;i++ ) {
+				if(inputelements[i].checked == true){
+					let variableObj = temporaryVarArray[inputelements[i]["id"]];
+					
+					//!!!!!!!!!  to do HANDLE row ID
+					let rowID = "no assignement";
+					if (variableMode == "Input") {
+					 rowID = "step_row_0";
+					}
+					if (variableMode == "Output") {
+						rowID = selectedStep['belongsToRow'];
+					}
+					
+					createNewVariable (variableObj.label, variableObj.description, variableObj.type, rowID, variableMode )
+				}
+				}
+			
+			let inputElementsExisting = $('#currentPlanExistingVariablesList').find(':input');
+			
+			for (let i = 0; i<inputElementsExisting.length;i++ ) {
+				if(inputElementsExisting[i].checked == true){
+					let variableid = inputElementsExisting[i].id;
+					//CLEAN: TO DO put ifs inside one for loop
+					if (variableMode == "Input") {
+						
+						console.log ("variable id is :"+ variableid); 
+						
+						for (let i = 0; i< variablesArray.length;i++) {
+							 if (variablesArray[i]['@id']===variableid ) {
+								 variablesArray[i]['isInputVariableOf'].push(selectedStep["@id"]);
+							 }
+						 }
+						
+						
+					}
+					if (variableMode == "Output") {
+						
+						for (let i = 0; i< variablesArray.length;i++) {
+							 if (variablesArray[i]['@id']===variableid ) {
+								 variablesArray[i]['isOutputVariableOf'].push(selectedStep["@id"]);
+							 }
+						 }
+					}
+					
+					//add inverse relationships to steps as well
+					for (let i=0; i< stepsArray.length;i++ ) {
+						if (stepsArray[i]['@id']===selectedStep["@id"]) {
+							if (variableMode==="Input") {
+								stepsArray[i]['hasInputVariable'].push( variableid);
+							}
+							if (variableMode==="Output") {
+								stepsArray[i]['hasOutputVariable'].push( variableid);
+							}
+							break;
+							
+						}
+						
+					}
+					
+				}
+			}
+			
+			populateInspectPane (selectedStep );
+			
+			//currently not used as not working as expected
+			//connectSteps ();
+			
+			}
+		
+		);
+
+</script>
 
 
 <!-- Modal -->

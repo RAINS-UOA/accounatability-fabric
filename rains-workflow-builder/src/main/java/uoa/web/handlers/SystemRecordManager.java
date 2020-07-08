@@ -49,6 +49,7 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 import uoa.init.graphdb.Constants;
 import uoa.init.graphdb.GraphDBUtils;
@@ -563,6 +564,45 @@ public String saveHumanTaskProvenanceTrace(String payload, String token) {
 	return "{\"error\":\"Token invalid\"}"	;
 
 	
+}
+
+//this one currently does not handle inherrent restrictions from parent classes, if the class does not have any restrictions defined directly all variables will be considered 
+public ArrayList <String> getAllowedVariableTypesForStepType(String stepTypeIRI, String restrictionPropertyIRI) {
+	// TODO Auto-generated method stub
+	ArrayList <String> allowedTypes = new ArrayList <String> ();
+	
+String queryString = Constants.PREFIXES + "SELECT ?allowedPropertyRange From <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> WHERE { ?subject rdfs:subClassOf ?restriction. ?restriction owl:onProperty ?property. { ?restriction owl:allValuesFrom ?allowedPropertyRange ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first ?allowedPropertyRange.} FILTER (!isBlank(?allowedPropertyRange)) }order  by asc(?allowedPropertyRange) Values (?subject ?property ) {(<"+stepTypeIRI+"> <"+restrictionPropertyIRI+">) } ";
+	
+	TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+		   try (TupleQueryResult result = tupleQuery.evaluate()) {
+			      while (result.hasNext()) {  // iterate over the result
+			    	
+			         BindingSet bindingSet = result.next();			         
+			        
+			         Value step = bindingSet.getValue("allowedPropertyRange");
+			         allowedTypes.add(step.toString());
+			      }			   
+		   }
+	//if no restrictions found add all available types
+    if (allowedTypes.size() == 0) {
+    
+    queryString = Constants.PREFIXES + "Select Distinct ?variable FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?variable rdfs:subClassOf* ep-plan:Variable. }order  by asc(?variable) ";
+    tupleQuery = conn.prepareTupleQuery(queryString);
+	   try (TupleQueryResult result = tupleQuery.evaluate()) {
+		      while (result.hasNext()) {  // iterate over the result
+		    	
+		         BindingSet bindingSet = result.next();			         
+		        
+		         Value step = bindingSet.getValue("variable");
+		         allowedTypes.add(step.toString());
+		      }			   
+	   }
+    	
+    	
+    }
+		   
+	
+ 	return allowedTypes;
 }
 
 

@@ -309,6 +309,16 @@ public class ServiceController {
 	}
 	
 	
+	@GetMapping("/getAllowedVariableTypesForStepType")
+	@ResponseBody
+	public String getAllowedVariableTypesForStepType(@RequestParam String stepTypeIRI, @RequestParam String restrictionPropertyIRI) throws NoSuchElementException, IllegalStateException, Exception {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		Gson gson = new Gson();
+		return gson.toJson(manager.getAllowedVariableTypesForStepType(new String(Base64.base64ToByteArray(stepTypeIRI)),new String(Base64.base64ToByteArray(restrictionPropertyIRI))));
+	}
+	
+	
+	
 	@GetMapping("/createHumanProvenaceGenerationTask")
 	@ResponseBody
 	public String createHumanProvenaceGenerationTask (@RequestParam String planIRI,@RequestParam String systemIRI) throws NoSuchElementException, IllegalStateException, Exception  {

@@ -343,10 +343,7 @@ div.scroll {
     <label class="input-group-text" for="newVariableType">Variable Type</label>
   </div>
   <select class="custom-select" id="newVariableType">
-    <option selected>Choose...</option>
-    <option value="1">One</option>
-    <option value="2">Two</option>
-    <option value="3">Three</option>
+   
   </select>
 </div>
  <button type="button" class="close" style="margin-left:10px" data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariableDismissButton">Dismiss</button>
@@ -372,10 +369,54 @@ div.scroll {
 
 <script>
 
+function getAllowedVariablesForSelectedStep (mode) { 
+	let property ;
+	if (mode==="Output") {
+		property = context.hasOutputVariable ['@id'];	
+	}
+	if (mode==="Input") {
+		property = context.hasInputVariable ['@id'];	
+	}
+	
+	//TO DO - ASSUMPTION HERE ! here we only select the first type with prefix rains-plan, if other types need to be handled in the fiuture this needs to change
+    let stepType;
+	for (let i=0;i<selectedStep['@type'].length;i++) {
+		if (selectedStep['@type'][i].includes(rainsPlanPrefix)) {
+			stepType = selectedStep['@type'][i];
+			break;
+		}
+	}
+	
+	fetch("/getAllowedVariableTypesForStepType?stepTypeIRI="+encodeURIComponent(btoa(stepType))+"&restrictionPropertyIRI="+encodeURIComponent(btoa(property)) ) 
+	.then((data) => {
+		return data.json();
+	})
+  .then(function (data) {
+   // console.log('Request succeeded with JSON response', data);
+    let selectOption = document.getElementById('newVariableType');
+    selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
+    for (let i=0;i<data.length;i++) {
+    	if (data[i].includes(rainsPlanPrefix)) {
+    	selectOption.innerHTML += ' <option value="'+data[i]+'">'+data[i]+'</option>' ;
+    	}
+	}
+    
+    
+  })
+  .catch(function (error) {
+    console.log('Request failed', error);
+  });
+}
+
+
 function displayCurrentPlanVariables (elementId,variableMode) {
+	//populate the new variable select option menu
+	getAllowedVariablesForSelectedStep (variableMode);
+	
 	//Temparalily we are forcing to create outputs first before they are used as inputs and also we dont allow two steps to produce same variable so there will never be any existing variables that could be linked to
 	if (variableMode=="Output") {
 		$('#currentPlanVariablesList').hide();
+		
 		return 0;
 	}
     

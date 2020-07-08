@@ -62,6 +62,7 @@ var constraintsArray =[];
 
 var graph ={};
 var  dataPrefix =  "https://rainsproject.org/InstanceData/";
+var  rainsPlanPrefix =  "https://w3id.org/rains-plan#";
 // var fabricManager = new manageFabric();
 
 var inspectorTemplate =`

@@ -25,6 +25,8 @@
     <link rel="stylesheet" href="/css/main.css"> 
   
    <script src="./js/json-ld_context.js"></script>
+    <script src="./js/auditManager.js"></script>
+     <script src="./js/index.js"></script>
    
    <script>
     $(document).ready(function(){
@@ -39,6 +41,10 @@
         }).on('hide.bs.collapse', function(){
         	$(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-plus");
         });
+        
+        getAgents (findGetParameter('systemIri'));    
+        
+        
     });
 </script>
 <body>
@@ -79,13 +85,42 @@
 </div>
   
 <div class="container-fluid">
-<div class="col-md-12">
+
+<div class="row">
+<div class="col-md-6">
  <h3>Agents</h3>
  <p>Click on the agents to explore their accountabilities</p>
- 
-<div class="agentWidget"> <a href="/entityExplorer?agentIri=" target="_blank"> ExampleAgent </a></div>
-<br><br><br>
+ <div id="agent_pane"></div>
 </div>
+<div class="col-md-6">
+<div id="Info">
+ <h3>Object Details</h3>
+</div>
+</div>
+</div>
+<br>
+<div class="col-md-12" >
+<hr>
+ <p>Results</p>
+
+<table class="table">
+
+ <thead>
+    <tr>
+      <th scope="col">Activity</th>
+      <th scope="col">Output Produced</th>
+      <th scope="col">Relates to</th>
+      <th scope="col">Activities depended on this Output</th>
+    </tr>
+  </thead>
+  <tbody id="agent_result_body">
+    
+  </tbody>
+
+</table>
+
+</div>
+
 
 <div class="col-md-12">
  <h3>Queries</h3>

@@ -52,7 +52,7 @@ function getVariableComponents (targetElementId, emptystepLibraryMessage) {
 	    			  
 	    			  //for (let i=0;i<stepArray.length;i++) {
 	    			   
-	    			    	  html = html + constructVariablesComponentHierarchy (steps, context.Variable); 
+	    			    	  html = html + constructVariablesComponentHierarchy (steps, context.MultiVariable); 
 	    			      
 	    			 // }
 	    			  if (html==="") {
@@ -100,14 +100,18 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 	    			  
 	    			  //for (let i=0;i<stepArray.length;i++) {
 	    			      if (rootStep!=null) {
-	    				  htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, draggable, dragEvent, rootStep, true);
+	    				  htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.MultiStep, draggable, dragEvent, rootStep, true);
 	    			      }
 	    			      //alway order design, implementation, deployment, operation - TO DO this is lazy approach as it will make the constructComponentHerarchy run 4 times -> improve in the future
 	    			      else {
-	    			    	  htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false,null, context.DesigStep, false);
-	    			    	  htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.ImplementationStep, false);
-	    			    	  htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.DeploymentStep, false);
-	    			    	  htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.OperationStep, false);
+	    			    	  //htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false,null, context.DesigStep, false);
+	    			    	  //htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.ImplementationStep, false);
+	    			    	  //htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.DeploymentStep, false);
+	    			    	  //htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.OperationStep, false);
+	    			    	  
+	    			    	  htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.MultiStep, false,null, context.AccountableAction, false);
+	    			    	 
+
 	    			    	  
 	    			      }
 	    			 // }

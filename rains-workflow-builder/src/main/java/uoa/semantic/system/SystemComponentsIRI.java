@@ -19,4 +19,5 @@ public class SystemComponentsIRI {
 	public static final String OPERATION_STAGE_TEMPLATE = Constants.AF_NAMESPACE + "OperationStageTemplate";
 
 	public static final String COMPONENT_COLLECTION = Constants.AF_NAMESPACE + "ComponentCollection";
+	public static final String hasAccountabilityTrace = Constants.AF_NAMESPACE + "hasAccountabilityTrace";
 }

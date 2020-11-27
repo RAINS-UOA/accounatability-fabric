@@ -5,15 +5,22 @@ var context = {};
 context.wasStartedAtTime = "http://www.w3.org/ns/prov#startedAtTime";
 context.wasAssociatedWith = {"@id":"http://www.w3.org/ns/prov#wasAssociatedWith","@type": "@id"};
 
+///SAO context
+context.AccountableAction   = "https://w3id.org/sao#AccountableAction";
+context.AccountableResult   = "https://w3id.org/sao#AccountableResult";
+
 
 //Rains context
+context.AccountabilityPlan   = "https://w3id.org/rains#AccountabilityPlan";
+context.DesignStageAccountabilityPlan   = "https://w3id.org/rains#DesignStageAccountabilityPlan";
+context.ImplementationStageAccountabilityPlan   = "https://w3id.org/rains#ImplementationStageAccountabilityPlan";
+context.DeploymentStageAccountabilityPlan   = "https://w3id.org/rains#DeploymentStageAccountabilityPlan";
+context.OperationStageAccountabilityPlan   = "https://w3id.org/rains#OperationStageAccountabilityPlan";
 
-context.AccountabilityPlan   = "https://w3id.org/rains-plan#AccountabilityPlan";
-
-context.DesigStep   = "https://w3id.org/rains-plan#Design";
-context.ImplementationStep   = "https://w3id.org/rains-plan#Implementation";
-context.DeploymentStep   = "https://w3id.org/rains-plan#Deployment";
-context.OperationStep   = "https://w3id.org/rains-plan#Operation";
+//context.DesigStep   = "https://w3id.org/rains#Design";/
+//context.ImplementationStep   = "https://w3id.org/rains#Implementation";
+//context.DeploymentStep   = "https://w3id.org/rains#Deployment";
+//context.OperationStep   = "https://w3id.org/rains#Operation";
 
 //AF context
 

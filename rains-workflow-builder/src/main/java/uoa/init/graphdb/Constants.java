@@ -24,7 +24,8 @@ public class Constants {
 	
 	public static final String AF_NAMESPACE = "https://rainsproject.org/af#";
 	
-	public static final String RAINS_PLAN_NAMESPACE = "https://w3id.org/rains-plan#";
+	public static final String RAINS_PLAN_NAMESPACE = "https://w3id.org/rains#";
+	public static final String SAO_NAMESPACE = "https://w3id.org/sao#";
 	
 	public static final String PROV_NAMESPACE = "http://www.w3.org/ns/prov#";
 	

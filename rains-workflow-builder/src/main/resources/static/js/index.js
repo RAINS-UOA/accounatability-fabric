@@ -62,7 +62,8 @@ var constraintsArray =[];
 
 var graph ={};
 var  dataPrefix =  "https://rainsproject.org/InstanceData/";
-var  rainsPlanPrefix =  "https://w3id.org/rains-plan#";
+var  rainsPlanPrefix =  "https://w3id.org/rains#";
+var  saoPrefix =  "https://w3id.org/sao#";
 // var fabricManager = new manageFabric();
 
 var inspectorTemplate =`
@@ -179,7 +180,6 @@ for (let i=0;i<element['hasRationale'].length;i++) {
 stepRationale.appendChild (createStepRationaleWidget ( element['hasRationale'][i] , true));
 }
 
-console.log(element['@type']);
 
 }
 
@@ -190,7 +190,7 @@ document.getElementById ('rationaleLink').value="";
 console.log(link);
 selectedStep['hasRationale'].push (link);
 populateInspectPane (selectedStep );
-$('#rationaleModal').modal('toggle')
+$('#rationaleModal').modal('toggle');
 }
 
 //to do handle deletions
@@ -607,6 +607,8 @@ function createNewVariable (label, description, type, rowId, mode ) {
 				stepsArray[i]['hasInputVariable'].push( variable["@id"]);
 			}
 			if (mode==="Output") {
+				console.log("index.js line 610 pushing output variable to " + selectedStep["@id"]);
+				console.log("index.js line 610 pushing var " + variable["@id"]);
 				stepsArray[i]['hasOutputVariable'].push( variable["@id"]);
 			}
 			break;
@@ -777,19 +779,21 @@ function createStepRow (element) {
 function initLayout (mode, stage, systemiri, topLevelStepIri) {	
 	console.log(systemiri);	
     if (mode ==='open') {
-    	let p1 = getSavedPlan(systemiri, topLevelStepIri);
+    	let p1 = getSavedPlan(systemiri, stage);
+    	//let p1 = getSavedPlan(systemiri, topLevelStepIri);
     	p1.then(
     			(data) => {
     				console.log(data);
     				return data.json();
-    			}).then(topLevelPlanDetails => {
-    			 
+    			//}).then(topLevelPlanDetails => {
+    			}).then(planDetails => {
     			  //console.log(topLevelPlanDetails);
     			 
     			  for (let i=0; i<15;i++) {
     			       createStepRow(document.getElementById('workflowStepsPane'));
     			} 
-    			  parseSavedPlanJsonLD (topLevelPlanDetails);
+    			  //parseSavedPlanJsonLD (topLevelPlanDetails);
+    			  parseSavedPlanJsonLD (planDetails);
     			}
     		).catch(
     		        // Log the rejection reason
@@ -802,7 +806,7 @@ function initLayout (mode, stage, systemiri, topLevelStepIri) {
 	
 	if (mode==='new') {
 	    //load the details of top level plan  
-		
+		/*
 		let p1 = getTopLevelPlan(systemiri);
 		p1.then(
 			(data) => {
@@ -821,7 +825,25 @@ function initLayout (mode, stage, systemiri, topLevelStepIri) {
 			            console.log('Handle rejected promise ('+reason+') here.');
 			           
 			        });
-		
+		*/
+		let p1 = getStagePlanIRI (systemiri,stage);
+		p1.then(
+			(data) => {
+				return data.json();
+			}).then(plan => {
+			 
+			  
+			  initNewPlan (mode,stage, plan.planIRI);
+			  for (let i=0; i<15;i++) {
+			       createStepRow(document.getElementById('workflowStepsPane'));
+			} 
+			}
+		).catch(
+		        // Log the rejection reason
+			       (reason) => {
+			            console.log('Handle rejected promise ('+reason+') here.');
+			           
+			        });
 	
 	
 	}
@@ -862,11 +884,18 @@ function findGetParameter(parameterName) {
  * 
  * @returns IRI of the new plan object
  */
-function initNewPlan (mode,stage, topLevelPlan) {
-	let IRI = dataPrefix + uuidv4(); 
+function initNewPlan (mode,stage, ExistingPlanIRI) {
+	let IRI ="";
+	if (ExistingPlanIRI=="") {
+	 IRI = dataPrefix + uuidv4();
+	}else{
+	 IRI = ExistingPlanIRI;
+	}
+	console.log("Empty plan IRI is: "+ IRI);
 	// save into global variable
 	plan ['@id'] = IRI;
 	plan ['@type'].push(context.Plan);
+	plan ['@type'].push(context.AccountabilityPlan);
 	
 		
 	if (mode ==='template')  {
@@ -891,8 +920,9 @@ function initNewPlan (mode,stage, topLevelPlan) {
 	}
 	
 	if (mode ==='new') {
-		console.log(topLevelPlan.designStep);
-		plan ['@type'].push(context.AccountabilityPlan);
+		//console.log(topLevelPlan.designStep);
+		//plan ['@type'].push(context.AccountabilityPlan);
+		/*
 		plan ['isSubPlanOfPlan'] = topLevelPlan.plan;
 		
 		switch (stage) {
@@ -913,6 +943,8 @@ function initNewPlan (mode,stage, topLevelPlan) {
 			plan ['decomposesMultiStep']= topLevelPlan.operationStep;
 		break; 
 		}
+		*/
+		
 		
 	}
 	
@@ -953,12 +985,17 @@ function generateJsonLDpayload (context, graph) {
 	return JSON.stringify(jsonld); 
 }
 
-
+/*
 // to do all XMLH should be rewritten as promise
 function getTopLevelPlan (systemiri) {
 	return fetch("/getTopLevelPlan?systemIri="+systemiri);
 }
-	
+*/	
+
+//to do all XMLH should be rewritten as promise
+function getStagePlanIRI (systemiri, stage) {
+	return fetch("/getStagePlanIRI?systemIri="+systemiri+"&stage="+stage);
+}
 
 function savePlan () {
 	
@@ -1079,9 +1116,13 @@ function importTemplate (templatePlanIRI) {
     xmlhttp.send();
 }
 
+/*
 function getSavedPlan ( systemiri, topLevelStepIri) {
 	return fetch("/getSavedPlan?systemIri="+systemiri+"&topLevelStepIri="+topLevelStepIri);
 }
-
+*/
+function getSavedPlan ( systemiri, stage) {
+	return fetch("/getSavedPlan?systemIri="+systemiri+"&stage="+stage);
+}
 
 

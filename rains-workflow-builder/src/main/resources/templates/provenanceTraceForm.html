@@ -35,10 +35,15 @@
  <script src="./js/json-ld_context.js"></script>
  <script src="./js/provenanceCollector.js"></script>
   <script src="./js/index.js"></script>
+  
+
+  
 <script>
+var variableIDArray = [];
 var stepIDArray = [];
 var  dataPrefix =  "https://rainsproject.org/InstanceData/";
 var bundleID = "";
+var currentInformationElementPaneId = "";
 
 function getPlanComponets (token) {
 	
@@ -88,12 +93,114 @@ function parsePlanStructureJsonLD (graphArray) {
 					console.log("saved label: "+ label);
 				} 
 				
+				createStepFormInput (element['@id'], element['@type'], label);
 				
-				createStepFormInput (element['@id'], element['@type'], label)
-			}			
+				//console.log("hasOutputVariable "+ element[context.hasOutputVariable['@id']]);
+				
+				let outputVariables =   element[context.hasOutputVariable['@id']]; 
+				console.log ("------->");
+				console.log (outputVariables);
+				
+				for (let j=0;j<outputVariables.length; j++) {
+					for (let x=0;x<graphArray.length; x++) {
+						let element2 = graphArray[x];
+						
+						outputVarID = outputVariables[j]; 
+						console.log ("*******");
+						console.log (element2['@type'],context.Variable);
+						console.log (element2['@id']);
+						console.log (outputVariables[j]['@id']);
+						
+						if (checkTypeInJsonLD (element2['@type'],context.Variable)&& (element2['@id']==outputVariables[j]['@id']) ) {
+							console.log ("------->");
+							console.log("FOUND OUTPUT!!!");
+						
+						     //ASSUMPTION THERE IS ALWAYS LABEL (WE ALWAYS FORCE DEFAULT LABEL) AND THERE IS ONLY ONE
+						    let label = "default value";
+						
+						    if (element2[context.label][0]['@value']!=null) {
+							label = element2[context.label][0]['@value'];
+							console.log("saved label: "+ label);
+						 } 
+						
+						
+						createOutputInformationRealizationFormInput (element2['@id'], element2['@type'], label)
+						
+					}
+					}
+				
+				}
+				
+				
+			}	
+			
+				
+			
 		} 	
 	}
 }
+
+function createOutputInformationRealizationFormInput (id, types, label, ActivyIdGenearatingThis){
+	let html = "";
+	
+	console.log(types);
+	console.log(id);
+	console.log(label);
+	variableIDArray.push(id);
+
+	let index = variableIDArray.length - 1;
+	html = html + "<hr>";
+	html = html + "Output";
+	html = html + "<hr>";
+	html=html+"<h5>Name of output: "+label+"</h5>"
+	html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
+	
+	
+	html = html + '<label>Enter description:</label>'
+	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="information-realization-description-group-'+index+'"><input required type="text" id="information-realization-description-group-'+index+'" class="form-control " > <div class="input-group-append" data-target="#information-realization-description-group-'+index+'" > <div class="input-group-text"><i class="fas fa-align-justify"></i></div></div></div>';
+	html = html + '<br> <button class="btn btn-info btn-sm" data-toggle="modal" data-flag="InformationElementPane'+index+'" data-target="#informationElement"> <span class="fa fa-plus-circle"></span> Add Information Element  </button>'
+	
+	html = html + '<div id="InformationElementPane'+index+'" class = "row" > </div>';
+    let formhtml = document.getElementById("form").innerHTML;
+	document.getElementById("form").innerHTML = formhtml + html;
+
+}
+
+
+
+function getAllowedInformationElelementForInformationRealizationType () { 
+	let property ;
+    
+	
+	
+	//!!!! TO DO - Need to call to query constraints to see whihc type corresponds to variable
+    informationRealizationType = "https://w3id.org/sao#ModelSpecification";
+	
+	fetch("/getAllowedInformationElelementForInformationRealizationType?informationRealizationType="+encodeURIComponent(btoa(informationRealizationType))+"&restrictionPropertyIRI="+encodeURIComponent(btoa(property)) ) 
+	.then((data) => {
+		  console.log ("here1");
+		return data.json();
+	})
+  .then(function (data) {
+	  console.log ("here2");
+    console.log('Request succeeded with JSON response', data);
+    let selectOption = document.getElementById('informationElementType');
+    selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
+    for (let i=0;i<data.length;i++) {
+    	if (data[i].includes(rainsPlanPrefix)) {
+    	selectOption.innerHTML += ' <option value="'+data[i]+'">'+data[i]+'</option>' ;
+    	}
+	}
+    
+    
+  })
+  .catch(function (error) {
+    console.log('Request failed', error);
+  });
+}
+
+
+
 
 
 function createStepFormInput (id, types, label) {
@@ -101,17 +208,18 @@ function createStepFormInput (id, types, label) {
 	//use this to keep track of which input belongs to which plan element as we cannot use iri as part of element id - JQUERY complaining
 	stepIDArray.push(id);
 	let index = stepIDArray.length - 1;
-	html=html+"<h3>"+label+"</h3>"
+	html = html + "<hr>";
+	html = html + "<h4>Step - "+label+"</h3>";
+	html = html + "<hr>";
 	html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
 	html = html + '<label>Select time when activity ended</label>'
-	html = html + '<div class="form-group"><div class=" input-group input-group-lg date" id="time-end-group-'+index+'" data-target-input="nearest"><input required type="text" id="time-end-input-'+index+'" class="form-control datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';
-	
+	html = html + '<div class="form-group"><div class=" input-group input-group-lg date" id="time-end-group-'+index+'" data-target-input="nearest"><input required type="text" id="time-end-input-'+index+'" class="form-control datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
 	//add agent field
-	html = html + '<br><br><label>Who performed the task?</label>'
+	html = html + '<label>Who performed the task?</label>'
 	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="agent-group-'+index+'"><input required type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div>';
 	
 	
-	html = html + "<hr>";
+	
 	
 	let formhtml = document.getElementById("form").innerHTML;
 	
@@ -122,16 +230,13 @@ function createStepFormInput (id, types, label) {
 
 function prepareHumanTaskProvenanceTraceGraph () {
 	
-	
-	
-	
 	let traceElementArray = [];
 	
 	for (let i=0;i<stepIDArray.length;i++) {
 		let activity = {};
 		activity ['@id'] = dataPrefix+ uuidv4();
 		activity ['@type'] = [];
-		activity ['@type'].push (context.Activity);
+		activity ['@type'].push (context.MultiActivity);
 		//to do load the IRI from component tree properly
 		activity ['isElementOfTrace'] = bundleID; 
 		activity ['correspondsToStep'] = stepIDArray[i];
@@ -141,33 +246,151 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		traceElementArray.push(activity);
 	}
 	
+	for (let i=0;i<variableIDArray.length;i++) {
+		let entityCollection = {};
+		entityCollection ['@id'] = dataPrefix+ uuidv4();
+		entityCollection ['@type'] = [];
+		entityCollection ['@type'].push (context.EntityCollection);
+		entityCollection ['isElementOfTrace'] = bundleID; 
+		entityCollection ['correspondsToVariable'] = variableIDArray[i];
+		
+		traceElementArray.push(entityCollection);
+		
+	}
+	
 	
 	return traceElementArray; 
 }
 
 </script>
 <body>
- <div class="container">
+
+ <!-- The Modal  ADD Variables  -->
+  <div class="modal" id="informationElement">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title"> Information Element</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body" >
+       <div class="card">
+           <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementType">Information Type</label>
+           
+        </div>
+         <select class="custom-select" id="informationElementType"></select>
+        </div>
+        
+        
+         <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text" >Label</span>
+         </div>
+       <input type="text" class="form-control" id="newInformationElementLabel" placeholder="Default Label" aria-label="label" aria-describedby="newInformationElementLabel">
+      </div>  
+        <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text">Description</span>
+         </div>
+       <input type="text" class="form-control" id="newInformationElementDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
+      </div>  
+      
+            
+        </div>
+        
+         
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" data-dismiss="modal" id="addInfoElementBtn">Add Element</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+ <div class="container" id="main">
 <script>getPlanComponets (findGetParameter('token'));
 </script>
 
 <h2>Please complete the requested information below</h2> <br><br>
-<form id="form" action="/uploadHumanTaskProvenanceTrace">
+<form id="form" action="/uploadHumanTaskProvenanceTrace"  method="post">
 <button class="btn btn-primary" id="submitButton">Submit</button>
 </form>
 
 <script>
-$(document).ready(function () {
-$("#submitButton").click(function() {
+$(document).ready(function (e) {
+	
+	$('#informationElement').on('show.bs.modal', function (event) {
+		console.log("modal showing");
+		getAllowedInformationElelementForInformationRealizationType ();
+		//document.getElementById ("addInformationElementModal").innerHTML ="";
+	     currentInformationElementPaneId = $(event.relatedTarget).data('flag');
+		
+		 // displayCurrentPlanVariables ('currentPlanExistingVariablesList',variableMode);
+		 // $(this).find('#variablesTitle').html(variableMode);
+		  //hold teh info about temporary 
+		//  temporaryVarArray = [];
+		//  if (variableMode!="Output") {
+		//  document.getElementById ("currentPlanNewVariablesList").innerHTML="";
+		  //}
+		 
+		  
+		});
+	
+	$(function () {
+		  $('[data-toggle="tooltip"]').tooltip()
+		}) 
+	
+	$('#addInfoElementBtn').on("click",function(x) {
+		document.getElementById (currentInformationElementPaneId).appendChild ( createInformationElementWidget ()); 		
+		//TO DO - Handle storing of the onbject 
+		
+		$('#informationElement').modal('toggle');
+	}
+	)
+	
+	//to do handle deletions
+function createInformationElementWidget () {
+    let infoElement = {};
+    infoElement.label = document.getElementById('newInformationElementLabel').value;
+    infoElement.description =document.getElementById('newInformationElementDescription').value;
+    infoElement['@type'] = [];
+    infoElement['@type'].push(document.getElementById('informationElementType').value);
+    
+    
+        
+	let widget = document.createElement('div');
+	widget.className = 'outputVariableWidget';
+	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${infoElement['@type']} <br> <strong>Description</strong>:${infoElement['description']}"> ${infoElement['label']} </label>`;
+	
+	return widget;
+
+	}
+
+	
+	
+	
+	
+	
+	$('#form').on("submit",function(x) {
 	 console.log("trying to submit");
 	 console.log($("#form"));
-	 $("#form").submit(function(e) {
+	 
 		  
 		 console.log("trying to submit");
-		    e.preventDefault(); // avoid to execute the actual submit of the form.
+		    x.preventDefault(); // avoid to execute the actual submit of the form.
+		   
 		    
 		    let form = $(this);
-		    let url = form.attr('action');
+		    //let url = form.attr('action');
 		    console.log("sending");
 		    
 		    let data = new FormData();
@@ -176,10 +399,12 @@ $("#submitButton").click(function() {
 		    data.append('payload', generateJsonLDpayload (context,prepareHumanTaskProvenanceTraceGraph()));
 		    data.append('token',findGetParameter('token') );
 		    
+		    console.log(data);
+		    
 		    $.ajax({
 		           type: "POST",
 		           
-		           url: url,
+		           url: "/uploadHumanTaskProvenanceTrace",
 		           data: data,
 		           cache: false,
 		           contentType: false,
@@ -189,8 +414,12 @@ $("#submitButton").click(function() {
 		           success: function(data)
 		           {
 		              console.log(data); 
-		              
+		              document.getElementById("main").innerHTML = "Thanks! Information has been saved. You can close this window.";
+		           },
+		           error:function (error) {
+		        	   document.getElementById("main").innerHTML = "There has been an error "+ error;
 		           }
+		           
 		         });
 
 		    
@@ -209,12 +438,17 @@ $("#submitButton").click(function() {
 			  console.log(payload);
 			 // xhttp.send(payload);
 			 */
-		});
+	
 	});
 });
 </script>
 
 
 </div>
+
+
+  
+
+
 </body>
 </html>

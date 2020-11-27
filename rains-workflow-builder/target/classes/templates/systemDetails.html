@@ -77,8 +77,9 @@
      <h3>System Accountability Audit</h3>
   
   <p class="clearfix">  To audit the available accountability evidence about this system use the audit manager. 
-   <a role="button" class="btn btn-primary pull-right" target="_blank" href="/auditManager">Open Audit Manager</a>
+ <div id="auditManager"></div>
   </p>
+  
 </div>
 </div>
 
@@ -86,40 +87,47 @@
 
 
 loadingButtons ();
+
+
+
+
 let getplans = fetch("/getSavedPlanForEachStage?systemIri="+document.getElementById("systemIRI").value);
 getplans.then(
 		(data) => {
 			return data.json();
 		}).then(plans => {
 		console.log(plans.length);
-		let buttonsToCreate = ['design','implementation','deployment','operation'];
+		//let buttonsToCreate = ['design','implementation','deployment','operation'];
+		let buttonsToCreate = ['design'];
+
 		for (let i = 0; i < plans.length; i++) {
 			
-			console.log ("Comparing:"+ plans[i].topLevelStepType);
+			console.log ("Comparing:"+ plans[i].planType);
 			console.log (context.DesigStep);
 			
-		switch (plans[i].topLevelStepType) {
+		//switch (plans[i].topLevelStepType) {
+		switch (plans[i].planType) {
 		
-		case context.DesigStep:
-			document.getElementById("design").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=design&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a>   <br>   <a href="workflowBuilder?mode=open&stage=design&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
+		case context.DesignStageAccountabilityPlan :
+			document.getElementById("design").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=design&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+' target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a>   <br>   <a href="workflowBuilder?mode=open&stage=design&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
 			delete buttonsToCreate[0]; 
 		break; 
-		
-		case context.ImplementationStep:
+	/*	
+		case context.ImplementationStageAccountabilityPlan:
 			document.getElementById("implementation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=implementation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a>   <br><a href="workflowBuilder?mode=open&stage=implementation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
 			delete buttonsToCreate[1]; 
 		break; 
 		
-		case context.DeploymentStep:
+		case context.DeploymentStageAccountabilityPlan :
 			document.getElementById("deployment").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=deployment&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a>   <br><a href="workflowBuilder?mode=open&stage=deployment&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
 			delete buttonsToCreate[2]; 
 		break; 
 		
-		case context.OperationStep:
+		case OperationStageAccountabilityPlan:
 			document.getElementById("operation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=operation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a>   <br><a href="workflowBuilder?mode=open&stage=operation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
 			 
 			delete buttonsToCreate[3]; 
-		break; 
+		break;*/ 
 		}
 		}
 		
@@ -129,7 +137,9 @@ getplans.then(
 			}
 		}
 		
-		
+		//create audit manager link
+		document.getElementById('auditManager').innerHTML = '<a role="button" class="btn btn-primary pull-right" target="_blank" href="/auditManager?systemIri='+document.getElementById("systemIRI").value+'">Open Audit Manager</a>';
+
 		
 		}
 	).catch(

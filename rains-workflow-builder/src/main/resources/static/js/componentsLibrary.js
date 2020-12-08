@@ -142,6 +142,10 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 	    			        });
 		
  }
+
+
+
+
  
 //for IRIs with #
     function replaceForNameSpace (str) {

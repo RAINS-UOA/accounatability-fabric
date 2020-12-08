@@ -24,6 +24,8 @@
 <link rel="stylesheet" href="./css/componentsLibrary.css">
 <link rel="stylesheet" href="./css/loader.css">
   <link rel="stylesheet" href="/css/main.css"> 
+  
+   <script src="./js/accountableObjects.js"></script>
 
 <style>
 
@@ -342,10 +344,15 @@ div.scroll {
   <div class="input-group-prepend">
     <label class="input-group-text" for="newVariableType">Variable Type</label>
   </div>
-  <select class="custom-select" id="newVariableType">
+  <select class="custom-select" id="newVariableType"></select>
    
-  </select>
 </div>
+       <div class="input-group mb-3">
+       <div class="input-group-prepend">
+    <label class="input-group-text" for="accountableObjectRel">Relates To Accountable Object</label>
+  </div>
+  <select class="custom-select" id="accountableObjectRel"></select>
+       </div>
  <button type="button" class="close" style="margin-left:10px" data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariableDismissButton">Dismiss</button>
        <button type="button" class="close"  data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariableAddButton">Add</button>
       </div>
@@ -409,6 +416,40 @@ function getAllowedVariablesForSelectedStep (mode) {
   .catch(function (error) {
     console.log('Request failed', error);
   });
+	
+ //getAccountable objects using accountableObjects.js
+ 
+ let objetResult =  getAccountableObjects (findGetParameter('systemIri'));
+	
+ objetResult.then(
+			(data) => {console.log("fetch accountable objects result");	console.log(data);
+			
+			let selectOption = document.getElementById('accountableObjectRel');
+		    selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option><option value="'+findGetParameter('systemIri')+'">This System</option>'+ createOptionsAccountableObjects (data, findGetParameter('systemIri') );
+			
+			
+			
+			}
+			);
+}
+
+function createOptionsAccountableObjects (accountableObjects, parentkey ) {
+	html = "";
+	
+	let childArray = accountableObjects[parentkey];
+	if (childArray!=null) {
+	for (const [key, value] of Object.entries(childArray)) {
+	 
+		 let nestedElement = constructAccountableObjects(accountableObjects, key);
+			 
+		 //addAccountableObjectTo is defined in index.html - if you need it here then you need to change ho wthe link is created (e.g. add id) and attach listener 
+			
+		 html = html + '<option value="'+key+'">'+value+'</option>' 
+		
+		 
+	  }
+	}
+	return html;
 }
 
 
@@ -526,6 +567,8 @@ $('#createVariable').show();
 let type = $('#newVariableType').val();
 let label = $('#newVariableLabel').val();
 let description = $('#newVariableDescription').val();
+let accountableObjectRel = $('#accountableObjectRel').val();
+$('#accountableObjectRel').val("");
 $('#newVariableType').val("");
 $('#newVariableLabel').val("");
 $('#newVariableDescription').val("");
@@ -536,7 +579,7 @@ document.getElementById ("currentPlanNewVariablesList").innerHTML += `<div class
                  <input checked type="checkbox" class="form-check-input" id="${id}">
                  <label class="form-check-label" for="random" data-toggle="tooltip" data-placement="top" title="${description}"> ${label} (${type}) </label>
             </div>`;
-            temporaryVarArray.push({id:id, label:label, type:type, description:description});
+            temporaryVarArray.push({id:id, label:label, type:type, description:description, accountableObjectRel:accountableObjectRel});
 $('body').tooltip({
 	 selector: '[data-toggle="tooltip"]'
 });
@@ -561,7 +604,8 @@ $('#addSelectedVarsBtn').click(
 						rowID = selectedStep['belongsToRow'];
 					}
 					console.log("create variable called in mode" +variableMode )
-					createNewVariable (variableObj.label, variableObj.description, variableObj.type, rowID, variableMode )
+					console.log(variableObj)
+					createNewVariable (variableObj.label, variableObj.description, variableObj.type, rowID, variableMode, variableObj.accountableObjectRel )
 				}
 				}
 			

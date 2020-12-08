@@ -4,10 +4,18 @@ var context = {};
 
 context.wasStartedAtTime = "http://www.w3.org/ns/prov#startedAtTime";
 context.wasAssociatedWith = {"@id":"http://www.w3.org/ns/prov#wasAssociatedWith","@type": "@id"};
+context.wasMemberOf = {"@id":"http://www.w3.org/ns/prov#wasMemberOf","@type": "@id"}
+context.wasGeneratedBy = {"@id":"http://www.w3.org/ns/prov#wasGeneratedBy","@type": "@id"}
+context.used = {"@id":"http://www.w3.org/ns/prov#used","@type": "@id"}
 
 ///SAO context
 context.AccountableAction   = "https://w3id.org/sao#AccountableAction";
 context.AccountableResult   = "https://w3id.org/sao#AccountableResult";
+context.InformationRealization   = "https://w3id.org/sao#InformationRealization";
+context.InformationElement   = "https://w3id.org/sao#InformationElement";
+context.AccountableObject   = "https://w3id.org/sao#AccountableObject";
+context.impacts   = {"@id":"https://w3id.org/sao#impacts","@type": "@id"}; 
+context.relatesTo   = {"@id":"https://w3id.org/sao#relatesTo","@type": "@id"}; 
 
 
 //Rains context

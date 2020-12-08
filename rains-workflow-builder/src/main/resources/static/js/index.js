@@ -193,6 +193,8 @@ populateInspectPane (selectedStep );
 $('#rationaleModal').modal('toggle');
 }
 
+
+
 //to do handle deletions
 function createStepRationaleWidget ( rationale , canDelete) {
 let widget = document.createElement('div');
@@ -509,7 +511,7 @@ function checkTypeInJsonLD (input,type) {
  
 	//assuming it is array 
 	for (let i=0;i < input.length; i++) {
-		console.log("checking: "+ input[i] + " with " +type );
+	//	console.log("checking: "+ input[i] + " with " +type );
 		if (input[i] == type) {result=true;}
 	}
 	return result;
@@ -576,7 +578,9 @@ console.log("creating step with label" + label);
   
 
 
-function createNewVariable (label, description, type, rowId, mode ) {
+function createNewVariable (label, description, type, rowId, mode, accountableObjectRel ) {
+	
+	
 	let variable = {} ;
 	variable ['@id'] = dataPrefix+ uuidv4();
 	variable ['@type'] = [];
@@ -588,6 +592,7 @@ function createNewVariable (label, description, type, rowId, mode ) {
 	variable['belongsToRow'] = rowId;
 	variable['isInputVariableOf'] = [];
 	variable['isOutputVariableOf'] =[];
+	variable['relatesTo'] =accountableObjectRel;
 	
 	if (mode==="Input") {
 		
@@ -1124,5 +1129,7 @@ function getSavedPlan ( systemiri, topLevelStepIri) {
 function getSavedPlan ( systemiri, stage) {
 	return fetch("/getSavedPlan?systemIri="+systemiri+"&stage="+stage);
 }
+
+
 
 

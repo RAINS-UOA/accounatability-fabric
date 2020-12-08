@@ -33,7 +33,7 @@
   <div class="input-group-prepend">
     <span class="input-group-text" >Label</span>
   </div>
-  <input type="text" readonly class="form-control" id="plan_label" th:value="*{systemDetails.getLabel()}">
+  <input type="text" readonly class="form-control" id="systemLabel" th:value="*{systemDetails.getLabel()}">
 </div>
 
 
@@ -46,17 +46,31 @@
  
  <br>
  
-
-       
+    <hr> 
+     <div class="row"> 
+   <h3>Accountable Objects' Hierarchy</h3>
+   <div class="col-md-12"> 
+   <li>   <span class=" caret container typeWidget" th:text = "${systemDetails.getLabel()}"> </span> <ul class="nested container">
+  
+   <div id="MainAddObjectLink"></div>
+   <div id="AccountableObjects"> </div>  
+   
+   </li><br></ul> 
+   
+      </div> 
+   </div> 
    <hr> 
    <h3>Manage Accountability Evidence Collection Protocols For System Life Cycle Stages</h3>
-   
+ 
+  <button id="refresh" >Refresh</button>
+
   
   <div class="list-group-item list-group-item-action clearfix"  >
     Design
     
     <span id="design" class="loadingButton pull-right"></span>
   </div>
+  <!-- 
   <div class="list-group-item list-group-item-action clearfix"   >
     Implementation
     
@@ -72,7 +86,7 @@
     <span id="operation" class="loadingButton pull-right">
   </span>
   </div>
- 
+  -->
  <hr>
      <h3>System Accountability Audit</h3>
   
@@ -81,10 +95,68 @@
   </p>
   
 </div>
+
+
+
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="accountableObjectModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" >Enter Accountable Object Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+         <div class="form-group">
+           
+            <input type="text"  class="form-control" hidden id="accountableObjectImpacts">
+          </div>
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Label:</label>
+            <input type="text" class="form-control" required id="accountableObjectLabel">
+          </div>
+           <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Commment:</label>
+            <input type="text" class="form-control" required id="accountableObjectComment">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#accountableObjectModal" onclick="setAccountableObject ()" >Save</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script id="script">
 
+
+loadAccountableObjectsInDiv ();
+
+//document.getElementById("accountableObjectModal").classList.add("show");
+//document.getElementById("accountableObjectModal").style.display = "inline";
+
+//load Accountable objects for this particular system
+
+	
+
+function toggle () {	
+    this.parentElement.querySelector(".nested").classList.toggle("active");
+    this.classList.toggle("caret-down");	
+}
+
+document.getElementById("refresh").addEventListener("click", refreshSystem);
+
+function refreshSystem () {
+	loadDoc('/system?iri='+document.getElementById("systemIRI").value);
+}
 
 loadingButtons ();
 
@@ -109,7 +181,7 @@ getplans.then(
 		switch (plans[i].planType) {
 		
 		case context.DesignStageAccountabilityPlan :
-			document.getElementById("design").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=design&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+' target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a>   <br>   <a href="workflowBuilder?mode=open&stage=design&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
+			document.getElementById("design").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=design&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a>   <br>   <a href="workflowBuilder?mode=open&stage=design&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
 			delete buttonsToCreate[0]; 
 		break; 
 	/*	

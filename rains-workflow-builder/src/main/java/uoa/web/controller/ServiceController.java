@@ -413,6 +413,57 @@ public class ServiceController {
 		return gson.toJson(list);
 	}
 	
+	@GetMapping("/getActivityDetailsInExecutionTraces")
+	@ResponseBody
+	public String getActivityDetailsInExecutionTraces (@RequestParam String systemIRI,@RequestParam String activityIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+	SystemRecordManager manager = new SystemRecordManager(connectionPool);
+	ArrayList <HashMap> list = manager.getActivityDetailsInExecutionTraces( systemIRI,  activityIRI);
+	manager.shutdown();
+	Gson gson = new Gson(); 
+	return gson.toJson(list);
+}
 	
+	@GetMapping("/getOutputDetailsInExecutionTraces")
+	@ResponseBody
+	public String getOutputDetailsInExecutionTraces (@RequestParam String systemIRI,@RequestParam String infoRealizationIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+	SystemRecordManager manager = new SystemRecordManager(connectionPool);
+	ArrayList <HashMap> list = manager.getOutputDetailsInExecutionTraces( systemIRI,  infoRealizationIRI);
+	manager.shutdown();
+	Gson gson = new Gson(); 
+	return gson.toJson(list);
+}
+	
+	@GetMapping("/getDependingActivities")
+	@ResponseBody
+	public String getDependingActivities (@RequestParam String systemIRI,@RequestParam String entityIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+	SystemRecordManager manager = new SystemRecordManager(connectionPool);
+	ArrayList <HashMap> list = manager.getDependingActivities( systemIRI,  entityIRI);
+	manager.shutdown();
+	Gson gson = new Gson(); 
+	return gson.toJson(list);
+	}
+	
+	@GetMapping("/getAccountableObjects")
+	@ResponseBody
+	public String getAccountableObjects (@RequestParam String systemIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+	
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		HashMap <String,HashMap <String,String >> list = manager.getAccountableObjects( systemIRI);
+	manager.shutdown();
+	Gson gson = new Gson(); 
+	return gson.toJson(list);
+	
+	}
+	
+	@PostMapping("/saveAccountableObject")
+	@ResponseBody
+	public String saveAccountableObject (@RequestParam MultiValueMap<String,String> paramMap) throws NoSuchElementException, IllegalStateException, Exception  {
+		System.out.println(paramMap);
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+
+		manager.saveAccountableObject(paramMap.getFirst("payload"));
+		manager.shutdown();
+		return "{\"result\":\"Received\"}";
+	}
 	
 }

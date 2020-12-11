@@ -39,6 +39,8 @@
 
   
 <script>
+var infoElementsPerInfoRealization = {};
+var agentArray = [];
 var informationElementsArray = [];
 var entityIDArray = [];
 var variableIDArray = [];
@@ -47,6 +49,42 @@ var  dataPrefix =  "https://rainsproject.org/InstanceData/";
 var bundleID = "";
 var currentInformationElementPaneId = "";
 var graphArray = [];
+
+
+function checkIfAccountableAgentExist (agentID) {
+	for (let i=0; i < agentArray.length; i++ ) {
+		if (agentArray[i]['@id'] === agentID) {
+			return true;
+		}
+		else { 
+			return false; 
+	}
+	}
+}
+
+function createAccountableAgent (agentID) {
+	let agent = {}; 
+	agent['@id'] = agentID; 
+	agent ['@type'] = [];
+	agent ['@type'].push (context.AccountableAgent);
+	agent ['isElementOfTrace'] = bundleID; 
+	agentArray.push(agent);
+}
+
+function linkAccountableAgentToEntity (agentID, EntityId) {
+	for (let i=0; i < agentArray.length; i++ ) {
+		if (agentArray[i]['@id'] === agentID) {
+			
+			agentArray[i]['isAccountableFor'] = EntityId;
+			
+			return true;
+		}
+		else { 
+			return false; 
+	}
+	}
+}
+
 
 function getPlanComponets (token) {
 	
@@ -230,8 +268,8 @@ function createOutputInformationRealizationFormInput (id, types, label, ActivyId
 	
 	
 	html = html + '<label>Enter description:</label>'
-	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="information-realization-description-group-'+index+'"><input required type="text" id="information-realization-description-group-'+index+'" class="form-control " > <div class="input-group-append" data-target="#information-realization-description-group-'+index+'" > <div class="input-group-text"><i class="fas fa-align-justify"></i></div></div></div>';
-	html = html + '<br> <button class="btn btn-info btn-sm" data-toggle="modal" data-flag="InformationElementPane'+index+'" data-target="#informationElement"> <span class="fa fa-plus-circle"></span> Add Information Element  </button>'
+	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="information-realization-description-group-'+index+'"><input required type="text" id="information-realization-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#information-realization-description-group-'+index+'" > <div class="input-group-text"><i class="fas fa-align-justify"></i></div></div></div>';
+	html = html + '<br> <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-flag="InformationElementPane'+index+'" data-target="#informationElement"> <span class="fa fa-plus-circle"></span> Add Information Element  </button>'
 	
 	html = html + '<div id="InformationElementPane'+index+'" class = "row" > </div>';
     let formhtml = document.getElementById("form").innerHTML;
@@ -260,7 +298,7 @@ function getAllowedInformationElelementForInformationRealizationType () {
     let selectOption = document.getElementById('informationElementType');
     selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
     for (let i=0;i<data.length;i++) {
-    	if (data[i].includes(rainsPlanPrefix)) {
+    	if (data[i].includes(rainsPlanPrefix)||data[i].includes(saoPrefix)||data[i].includes(mlsPrefix)) {
     	selectOption.innerHTML += ' <option value="'+data[i]+'">'+data[i]+'</option>' ;
     	}
 	}
@@ -312,11 +350,19 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		activity ['@id'] = dataPrefix+ uuidv4();
 		activity ['@type'] = [];
 		activity ['@type'].push (context.MultiActivity);
+		activity ['@type'].push (context.Activity);
+		activity ['@type'].push (context.namedIndividual);
 		//to do load the IRI from component tree properly
 		activity ['isElementOfTrace'] = bundleID; 
 		activity ['correspondsToStep'] = stepIDArray[i];
-		activity ['wasAssociatedWith'] = document.getElementById('agent-input-'+i).value;
-		activity ['wasStartedAtTime'] =  moment(document.getElementById('time-start-input-'+i).value).utc().format('YYYY-MM-DDTHH:mm:ssZZ');
+		let agentIRI = document.getElementById('agent-input-'+i).value;
+		activity ['wasAssociatedWith'] = agentIRI;
+		if (!checkIfAccountableAgentExist (agentIRI)) {
+			createAccountableAgent (agentIRI);
+		}
+		
+		activity ['startedAtTime'] =  moment(document.getElementById('time-start-input-'+i).value).utc().format('YYYY-MM-DDTHH:mm:ss');
+		activity ['endedAtTime'] =  moment(document.getElementById('time-end-input-'+i).value).utc().format('YYYY-MM-DDTHH:mm:ss');
 		
 		traceElementArray.push(activity);
 	}
@@ -328,15 +374,22 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		entityCollection ['@type'] = [];
 		entityCollection ['@type'].push (context.EntityCollection);
 		entityCollection ['@type'].push (context.InformationRealization);
+		entityCollection ['@type'].push (context.namedIndividual);
 		entityCollection ['isElementOfTrace'] = bundleID; 
 		entityCollection ['correspondsToVariable'] = variableIDArray[i];
+		
+		entityCollection ['comment'] = document.getElementById('information-realization-input-'+i).value;
+		
 		//console.log("------>>>>>>>> hadMember");
 		//console.log("------>>>>>>>> hadMember");
 		//entityCollection ['hadMember'] = entityIDArray[i];
 		//console.log("------>>>>>>>> was generated by");
 		//console.log(findActivityGeneratingThisEntity(variableIDArray[i], traceElementArray));
+		let originActivityIRI = findActivityGeneratingThisEntity(variableIDArray[i], traceElementArray);
+		entityCollection ['wasGeneratedBy'] = originActivityIRI;
 		
-		entityCollection ['wasGeneratedBy'] = findActivityGeneratingThisEntity(variableIDArray[i], traceElementArray);
+		//not best way of doing this - as it relies on activities being in the array already and assumes only one agent per activity - to do fix later
+		linkAccountableAgentFromActivityID (originActivityIRI,entityIDArray[i],traceElementArray );
 		
 		//console.log("------>>>>>>>> entity collection");
 		//console.log(entityCollection);
@@ -347,12 +400,22 @@ function prepareHumanTaskProvenanceTraceGraph () {
 	
 	//horrible code but putting it here separatelly because we need to wait until entities are created
 	addUsedRelationships (traceElementArray); 
-	console.log("------>>>");
-	console.log(traceElementArray);
+	console.log("GRAPH PAYLOAD ------>>>");
 	
-	let graph = traceElementArray.concat(informationElementsArray);
 	
+	let graph = traceElementArray.concat(informationElementsArray).concat(agentArray);
+	console.log(graph);
 	return graph; 
+}
+
+function linkAccountableAgentFromActivityID (originActivityIRI, entityIRI, traceElementArray) {
+	for (let i = 0; i<traceElementArray.length;i++) {
+		if (traceElementArray[i]['wasAssociatedWith'] !=null) {
+			let agentIRI = traceElementArray[i]['wasAssociatedWith'];
+			let result = linkAccountableAgentToEntity (agentIRI, entityIRI); 
+			console.log ("Linking agent to informationRealization : "+ result);
+		}
+	}
 }
 
 function findActivityGeneratingThisEntity(correspondingVar, traceElementArray) {
@@ -374,6 +437,9 @@ for (let i=0;i<graphArray.length; i++) {
 			}
 		}
 }
+
+
+
 //find the corresponding activvity
 for (let i=0;i<traceElementArray.length; i++) {
 	let element = traceElementArray[i];
@@ -462,7 +528,7 @@ function addUsedRelationships (traceElementArray) {
            <label class="input-group-text" for="informationElementType">Information Type</label>
            
         </div>
-         <select class="custom-select" id="informationElementType"></select>
+         <select class="custom-select"  id="informationElementType"></select>
         </div>
         
         
@@ -479,6 +545,30 @@ function addUsedRelationships (traceElementArray) {
        <input type="text" class="form-control" id="newInformationElementDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
       </div>  
       
+      <p>Only relevant to type of RealizableObject and it's subtypes</p>
+      <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text" for="newInformationElementThirdParty">Is This Third Party Element </span>
+         </div>
+      &nbsp;&nbsp;&nbsp; <input type="checkbox"  dissabled id="newInformationElementThirdParty"  aria-label="is third party" aria-describedby="newVariableDescription">
+      </div>  
+       <p>Only relevant to type of AccountableAgent</p>
+       <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementAccountableAgentIRI" >Accountable Agent IRI</label>
+           
+        </div>
+         <input class="form-control" type="text" dissabled id="informationElementAccountableAgentIRI">
+        </div>
+  <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementAccountableAgent">Link Realizable Object (optional)</label>
+           
+        </div>
+         <select class="custom-select" dissabled id="informationElementAccountableAgent"></select>
+        </div>
+        
+          
             
         </div>
         
@@ -506,8 +596,14 @@ function addUsedRelationships (traceElementArray) {
 <script>
 $(document).ready(function (e) {
 	
+	$( "#informationElementType" ).change(function() {
+		enableInfoElements ();
+		});
+	
 	$('#informationElement').on('show.bs.modal', function (event) {
 		console.log("modal showing");
+		 
+		enableInfoElements ();
 		getAllowedInformationElelementForInformationRealizationType ();
 		//document.getElementById ("addInformationElementModal").innerHTML ="";
 	     currentInformationElementPaneId = $(event.relatedTarget).data('flag');
@@ -532,6 +628,14 @@ $(document).ready(function (e) {
 		document.getElementById (currentInformationElementPaneId).appendChild ( createInformationElementWidget (entityIndex)); 		
 		//TO DO - Handle storing of the object 
 		
+		//document.getElementById('newInformationElementType').value ="";
+		document.getElementById('informationElementType').value="";
+		 document.getElementById('newInformationElementDescription').value ="";
+		 document.getElementById('newInformationElementLabel').value ="";
+		 document.getElementById('newInformationElementThirdParty').checked = false;
+		 document.getElementById('informationElementAccountableAgent').value ="";
+		 document.getElementById('informationElementAccountableAgentIRI').value ="";
+		
 		$('#informationElement').modal('toggle');
 	}
 	)
@@ -539,15 +643,42 @@ $(document).ready(function (e) {
 	//to do handle deletions
 function createInformationElementWidget (entityIdIndex) {
     let infoElement = {};
-    infoElement ['@id'] = dataPrefix+ uuidv4();;
+    let infoElementType = document.getElementById('informationElementType').value; 
+ 
     infoElement ['label'] = document.getElementById('newInformationElementLabel').value; 
     infoElement ['comment'] = document.getElementById('newInformationElementDescription').value; 
     infoElement['@type'] = [];
-    infoElement ['@type'].push (context.InformationElement);
-    infoElement['@type'].push(document.getElementById('informationElementType').value);
+    //infoElement ['@type'].push (context.InformationElement);
+    infoElement ['@type'].push (context.namedIndividual);
+    infoElement['@type'].push(infoElementType);
     infoElement ['isElementOfTrace'] = bundleID; 
-    infoElement ['wasMemberOf'] = entityIDArray[entityIdIndex]; 
+    infoElement ['wasMemberOf'] = entityIDArray[entityIdIndex];
+    
+    
+    //Only relevant to realizable objects - subtypes should be added dynamically from iontology - to do fix
+    if (infoElementType === context.RealizableObject||infoElementType === context.Dataset||infoElementType === context.Model||infoElementType === context.SupportingInfrastructure) {
+    infoElement ['isReusedObject'] = document.getElementById('newInformationElementThirdParty').checked; 
+    }
+    if (document.getElementById('informationElementType').value == context.AccountableAgent) {
+     if (document.getElementById('informationElementAccountableAgent').value != null) {
+    	console.log("Accountable agent responsibility not null");
+    	 infoElement ['isAccountableFor'] = document.getElementById('informationElementAccountableAgent').value;
+    	 infoElement ['@id'] = document.getElementById('informationElementAccountableAgentIRI').value;
+     }
+    }
+    else {
+    	   infoElement ['@id'] = dataPrefix+ uuidv4();
+    }
    
+    
+    if (infoElementsPerInfoRealization.entityIdIndex == null) {
+    	infoElementsPerInfoRealization.entityIdIndex = [];
+    	infoElementsPerInfoRealization.entityIdIndex.push(infoElement);
+    }
+    else {
+    	infoElementsPerInfoRealization.entityIdIndex.push(infoElement);
+    }
+    
     informationElementsArray.push(infoElement);
     
         
@@ -559,7 +690,40 @@ function createInformationElementWidget (entityIdIndex) {
 
 	}
 
-	
+	function enableInfoElements () {
+		let infoElementType = document.getElementById('informationElementType').value; 
+		console.log (context.Dataset, context.Model, context.SupportingInfrastructure)
+		if (infoElementType === context.RealizableObject||infoElementType === context.Dataset||infoElementType === context.Model||infoElementType === context.SupportingInfrastructure)  {
+			document.getElementById('newInformationElementThirdParty').removeAttribute("disabled");
+		}
+		else {
+			
+			document.getElementById('newInformationElementThirdParty').setAttribute('disabled','disabled');
+		}
+		
+		//check if type accountable Agent and if something to dispaly for agent to be accountable for
+		if (document.getElementById('informationElementType').value == context.AccountableAgent) {
+			document.getElementById('informationElementAccountableAgentIRI').removeAttribute("disabled");
+			let entityIndex = currentInformationElementPaneId.replace("InformationElementPane","")
+			 if (infoElementsPerInfoRealization.entityIdIndex != null) {
+				 let el = document.getElementById('informationElementAccountableAgent');
+				el.innerHTML =  ' <option selected disabled="disabled">Choose...</option>';
+				 for (let i=0;i <infoElementsPerInfoRealization.entityIdIndex.length; i++) {
+					 el.innerHTML +=  ' <option  value="'+infoElementsPerInfoRealization.entityIdIndex[i]['@id']+'">'+infoElementsPerInfoRealization.entityIdIndex[i]['label']+'</option>';
+			}
+			
+				 	
+		    
+			document.getElementById('informationElementAccountableAgent').removeAttribute("disabled");
+			 }
+		}
+		else {
+			
+			document.getElementById('informationElementAccountableAgentIRI').setAttribute('disabled','disabled');
+			document.getElementById('informationElementAccountableAgent').setAttribute('disabled','disabled');
+		}
+		
+	}
 	
 	
 	

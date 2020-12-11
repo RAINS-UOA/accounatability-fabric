@@ -30,5 +30,7 @@ public class Constants {
 	public static final String PROV_NAMESPACE = "http://www.w3.org/ns/prov#";
 	
 	public static final String PREFIXES = "Prefix sao: <"+SAO_NAMESPACE+"> Prefix af: <"+AF_NAMESPACE+"> Prefix ep-plan: <"+EPPLAN_NAMESPACE+"> Prefix rains: <"+RAINS_PLAN_NAMESPACE+"> Prefix prov: <"+PROV_NAMESPACE+"> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>";
+
+	public static final String OWL_NAMESPACE = "http://www.w3.org/2002/07/owl#";
 	
 }

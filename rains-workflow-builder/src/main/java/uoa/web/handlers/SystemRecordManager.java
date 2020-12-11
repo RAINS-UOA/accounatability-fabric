@@ -58,6 +58,7 @@ import uoa.init.graphdb.GraphDBUtils;
 import uoa.model.components.NewSystemForm;
 import uoa.model.components.SystemDetails;
 import uoa.semantic.system.EpPlanOntologyComponents;
+import uoa.semantic.system.OwlOntologyComponents;
 import uoa.semantic.system.RainsOntologyComponents;
 import uoa.semantic.system.SaoOntologyElements;
 import uoa.semantic.system.SystemComponentsIRI;
@@ -175,6 +176,8 @@ public class SystemRecordManager {
 			conn.begin();
 			Resource system = f.createIRI(iri) ;
 			conn.add(system, RDF.TYPE, f.createIRI(RainsOntologyComponents.AI_SYSTEM), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			conn.add(system, RDF.TYPE, f.createIRI(SaoOntologyElements.SYSTEM), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			conn.add(system, RDF.TYPE, f.createIRI(OwlOntologyComponents.NamedIndividual), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
 			conn.add(system, RDF.TYPE, f.createIRI(SaoOntologyElements.AccountableObject), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
 			conn.add(f.createIRI(iri), RDFS.COMMENT, f.createLiteral(newSystem.getDescription()), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
 			conn.add(f.createIRI(iri), RDFS.LABEL, f.createLiteral(newSystem.getLabel()), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
@@ -528,7 +531,7 @@ public void saveUploadToWorkflowComponentLibrary(MultipartFile file) throws RDFP
 public HashMap <String,HashSet <String >> getStepComponentHierarchy () {
 	HashMap <String,HashSet <String >> map = new  HashMap   <String,HashSet <String >> ();
 	//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
-	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:Step. ?step rdfs:subClassOf ?parentStep.} ";
+	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.} ";
 	
 	TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 		   try (TupleQueryResult result = tupleQuery.evaluate()) {
@@ -555,8 +558,8 @@ public HashMap <String,HashSet <String >> getStepComponentHierarchy () {
 public HashMap <String,HashSet <String >> getVariableComponentHierarchy () {
 	HashMap <String,HashSet <String >> map = new  HashMap   <String,HashSet <String >> ();
 	//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
-	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?variable rdfs:subClassOf* ep-plan:Variable. ?variable rdfs:subClassOf ?parentVariable.} ";
-	
+	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?variable rdfs:subClassOf* ep-plan:MultiVariable. ?variable rdfs:subClassOf ?parentVariable.} ";
+	System.out.println("get VariableComponentHierarchy " +queryString);
 	TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 		   try (TupleQueryResult result = tupleQuery.evaluate()) {
 			      while (result.hasNext()) {  // iterate over the result
@@ -907,13 +910,13 @@ public ArrayList <HashMap> getAgentsParticipationDetailsInExecutionTraces(String
 
 public ArrayList <HashMap> getActivityDetailsInExecutionTraces(String systemIRI, String activityIRI) {
 	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
-	String queryString = Constants.PREFIXES + "Select ?start ?stepComment  ?planType ?agent  Where { ?activity prov:startedAtTime ?start; ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType.OPTIONAL {?step rdfs:comment ?stepComment.}FILTER(?planType = rains:DesignStageAccountabilityPlan)}Values (?activity) {(<"+activityIRI+">)}";
+	String queryString = Constants.PREFIXES + "Select Distinct *  Where {  ?activity prov:endedAtTime ?end. ?activity prov:startedAtTime ?start; ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType.OPTIONAL {?step rdfs:comment ?stepComment.}FILTER(?planType = rains:DesignStageAccountabilityPlan)}Values (?activity) {(<"+activityIRI+">)}";
 	System.out.println("Get activity details execution trace query" +queryString);
     TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
 	   try (TupleQueryResult result = tupleQuery.evaluate()) {
 		      while (result.hasNext()) {  // iterate over the result
 		    	HashMap <String,String> row = new HashMap <String,String>(); 
-		        
+		    	/*  
 		    	BindingSet bindingSet = result.next();			         
 		        
 		         Value var = bindingSet.getValue("start");
@@ -930,7 +933,20 @@ public ArrayList <HashMap> getActivityDetailsInExecutionTraces(String systemIRI,
 		          var = bindingSet.getValue("planType");
 		         row.put("planType", var.toString());
 		         resultSet.add(row);
-		      }
+		      }*/
+		         BindingSet bindingSet = result.next();	
+			    	
+			    	Set <String> bindings = bindingSet.getBindingNames();  
+			    	
+			    	Iterator it2 = bindings.iterator();
+			    	while (it2.hasNext()) {
+			    		String key = (String) it2.next();
+			    		if (bindingSet.getValue(key)!=null)
+			    		row.put(key, bindingSet.getValue(key).toString()) ;
+			    	}
+			       
+			         resultSet.add(row);
+			      }
 	
 }
 	   return resultSet;
@@ -938,13 +954,13 @@ public ArrayList <HashMap> getActivityDetailsInExecutionTraces(String systemIRI,
 
 public ArrayList <HashMap> getOutputDetailsInExecutionTraces(String systemIRI, String infoRealizationIRI) {
 	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
-	String queryString = Constants.PREFIXES + "Select ?infoRealizationComment ?infoElementComment  ?infoElementLabel ?infoElementType  Where { ?infoElement prov:wasMemberOf ?infoRealization. ?infoRealization a sao:InformationRealization. ?infoElement a ?infoElementType. OPTIONAL {?infoElement rdfs:label ?infoElementLabel.} OPTIONAL {?infoElement rdfs:comment ?infoElementComment.} OPTIONAL {?infoRealization rdfs:comment ?infoRealizationComment.} FILTER(regex(str(?infoElementType), \"https://w3id.org/rains#\" )) } Values (?infoRealization) {(<"+infoRealizationIRI+">)}";
+	String queryString = Constants.PREFIXES + "Select *  Where {  ?infoRealization a sao:InformationRealization.?infoRealization rdfs:comment ?infoRealizationComment. Optional{ ?infoElement prov:wasMemberOf ?infoRealization.  ?infoElement a ?infoElementType. ?infoElement rdfs:label ?infoElementLabel. ?infoElement rdfs:comment ?infoElementComment. Optional {?infoElement rains:isReusedObject ?reused} Optional{?infoElement sao:isAccountableFor ?isAccountableFor} FILTER(regex(str(?infoElementType), \"https://w3id.org/rains#\" )||regex(str(?infoElementType), \"https://w3id.org/sao#\" )||regex(str(?infoElementType), \"http://www.w3.org/ns/mls#\" ))} } Values (?infoRealization) {(<"+infoRealizationIRI+">)}";
 	System.out.println("Get info realization  details execution trace query" +queryString);
     TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
 	   try (TupleQueryResult result = tupleQuery.evaluate()) {
 		      while (result.hasNext()) {  // iterate over the result
 		    	HashMap <String,String> row = new HashMap <String,String>(); 
-		        
+		        /*
 		    	BindingSet bindingSet = result.next();			         
 		        
 		         Value var = bindingSet.getValue("infoElementType");
@@ -966,7 +982,20 @@ public ArrayList <HashMap> getOutputDetailsInExecutionTraces(String systemIRI, S
 			         row.put("infoElementLabel", var.toString());
 			         }
 		         resultSet.add(row);
-		      }
+		      }*/
+		    	 BindingSet bindingSet = result.next();	
+			    	
+			    	Set <String> bindings = bindingSet.getBindingNames();  
+			    	
+			    	Iterator it2 = bindings.iterator();
+			    	while (it2.hasNext()) {
+			    		String key = (String) it2.next();
+			    		if (bindingSet.getValue(key)!=null)
+			    		row.put(key, bindingSet.getValue(key).toString()) ;
+			    	}
+			       
+			         resultSet.add(row);
+			      }
 	
 }
 	   return resultSet;

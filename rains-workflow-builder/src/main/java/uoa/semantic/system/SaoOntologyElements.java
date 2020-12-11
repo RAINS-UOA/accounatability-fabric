@@ -10,7 +10,8 @@ public class SaoOntologyElements {
 	//public static final String OperationStep =Constants.RAINS_PLAN_NAMESPACE + "Operation";
 	public static final String InformationElement =Constants.SAO_NAMESPACE + "InformationElement";
 	public static final String InformationRealization =Constants.SAO_NAMESPACE + "InformationRealization";
-	public static final String AccountableObject = Constants.SAO_NAMESPACE + "AccountableObject";;
+	public static final String AccountableObject = Constants.SAO_NAMESPACE + "AccountableObject";
+	public static final String SYSTEM = Constants.SAO_NAMESPACE + "System";
 	
 	
 }

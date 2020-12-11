@@ -1,8 +1,15 @@
 var context = {};
 
-//PROV context
+//OWL context
+context.namedIndividual = "http://www.w3.org/2002/07/owl#NamedIndividual";
 
-context.wasStartedAtTime = "http://www.w3.org/ns/prov#startedAtTime";
+//MLS context
+context.Dataset = "http://www.w3.org/ns/mls#Dataset";
+context.Model = "http://www.w3.org/ns/mls#Model";
+
+//PROV context
+context.endedAtTime = {"@id":"http://www.w3.org/ns/prov#endedAtTime","@type": "http://www.w3.org/2001/XMLSchema#dateTime"}; ;
+context.startedAtTime = {"@id":"http://www.w3.org/ns/prov#startedAtTime","@type": "http://www.w3.org/2001/XMLSchema#dateTime"}; 
 context.wasAssociatedWith = {"@id":"http://www.w3.org/ns/prov#wasAssociatedWith","@type": "@id"};
 context.wasMemberOf = {"@id":"http://www.w3.org/ns/prov#wasMemberOf","@type": "@id"}
 context.wasGeneratedBy = {"@id":"http://www.w3.org/ns/prov#wasGeneratedBy","@type": "@id"}
@@ -10,20 +17,25 @@ context.used = {"@id":"http://www.w3.org/ns/prov#used","@type": "@id"}
 
 ///SAO context
 context.AccountableAction   = "https://w3id.org/sao#AccountableAction";
+context.AccountableAgent   = "https://w3id.org/sao#AccountableAgent";
 context.AccountableResult   = "https://w3id.org/sao#AccountableResult";
 context.InformationRealization   = "https://w3id.org/sao#InformationRealization";
 context.InformationElement   = "https://w3id.org/sao#InformationElement";
 context.AccountableObject   = "https://w3id.org/sao#AccountableObject";
 context.impacts   = {"@id":"https://w3id.org/sao#impacts","@type": "@id"}; 
 context.relatesTo   = {"@id":"https://w3id.org/sao#relatesTo","@type": "@id"}; 
+context.isAccountableFor   = {"@id":"https://w3id.org/sao#isAccountableFor","@type": "@id"};
 
 
 //Rains context
 context.AccountabilityPlan   = "https://w3id.org/rains#AccountabilityPlan";
+context.SupportingInfrastructure   = "https://w3id.org/rains#SupportingInfrastructure";
+context.RealizableObject   = "https://w3id.org/rains#RealizableObject";
 context.DesignStageAccountabilityPlan   = "https://w3id.org/rains#DesignStageAccountabilityPlan";
 context.ImplementationStageAccountabilityPlan   = "https://w3id.org/rains#ImplementationStageAccountabilityPlan";
 context.DeploymentStageAccountabilityPlan   = "https://w3id.org/rains#DeploymentStageAccountabilityPlan";
 context.OperationStageAccountabilityPlan   = "https://w3id.org/rains#OperationStageAccountabilityPlan";
+context.isReusedObject   ={"@id":"https://w3id.org/rains#isReusedObject","@type": "http://www.w3.org/2001/XMLSchema#boolean"}; 
 
 //context.DesigStep   = "https://w3id.org/rains#Design";/
 //context.ImplementationStep   = "https://w3id.org/rains#Implementation";

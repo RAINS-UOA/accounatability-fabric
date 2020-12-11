@@ -64,6 +64,7 @@ var graph ={};
 var  dataPrefix =  "https://rainsproject.org/InstanceData/";
 var  rainsPlanPrefix =  "https://w3id.org/rains#";
 var  saoPrefix =  "https://w3id.org/sao#";
+var mlsPrefix = "http://www.w3.org/ns/mls#";
 // var fabricManager = new manageFabric();
 
 var inspectorTemplate =`
@@ -114,6 +115,7 @@ var inspectorTemplate =`
     <div id="StepConstraints" class = "row"> </div>
   </div>
   <hr>
+   <!--
  <div class="form-group">
     <label for="StepRationale">Rationale</label>
      <a href="#" class="btn btn-info btn-sm" data-toggle="modal" data-target="#rationaleModal">
@@ -123,10 +125,15 @@ var inspectorTemplate =`
     <div id="StepRationale" class = "row" > </div>
   </div>
  <br>
-  <hr>
-  <button type="submit" class="btn btn-primary">Apply Changes</button>
+  <hr>-->
+  <button type="button" onclick= "applyChanges()"class="btn btn-primary">Apply Changes</button>
 
 </div>`; 
+
+function applyChanges() {
+	
+	selectedStep['comment'] = document.getElementById ("StepDescription").value;
+}
 
 function resetInspector () {
    let target = document.getElementById ("inspectPane");
@@ -146,6 +153,9 @@ id.value =  element['@id'];
 
 let stepLabel = document.getElementById ("StepLabel");
 stepLabel.value =  element['label'];
+
+let stepComment = document.getElementById ("StepDescription");
+stepComment.value =  element['comment'];
 
 let stepTypes = document.getElementById ("StepTypes");
 stepTypes.innerHTML =  "";
@@ -174,12 +184,13 @@ for (let i=0;i<variablesArray.length;i++) {
     
 stepTypes.appendChild(document.createElement('hr'));
 
+/*
 let stepRationale = document.getElementById ("StepRationale");
 stepRationale.innerHTML =  "";
 for (let i=0;i<element['hasRationale'].length;i++) {
 stepRationale.appendChild (createStepRationaleWidget ( element['hasRationale'][i] , true));
 }
-
+*/
 
 }
 
@@ -526,6 +537,7 @@ console.log("creating step with label" + label);
 	step ['@id'] = id;
 	step ['@type'] = types;
 	step ['label'] = label;
+	
 	step ['isElementOfPlan'] = plan['@id']; 
 	step['hasRationale'] = []; 
 	
@@ -585,6 +597,8 @@ function createNewVariable (label, description, type, rowId, mode, accountableOb
 	variable ['@id'] = dataPrefix+ uuidv4();
 	variable ['@type'] = [];
 	variable ['@type'].push (context.Variable);
+	variable ['@type'].push (context.namedIndividual);
+	variable ['@type'].push (context.MultiVariable);
 	variable ['@type'].push (type);
 	variable ['label'] = label; 
 	variable ['comment'] = description; 
@@ -640,9 +654,12 @@ step.id = uuid;
 step ['@id'] = dataPrefix+ uuid;
 step ['@type'] = [];
 step ['@type'].push (context.Step);
+step ['@type'].push (context.namedIndividual);
+step ['@type'].push (context.MultiStep);
 //to do load the IRI from component tree properly
 step ['@type'].push (data);
 step ['label'] = labelFromIRI (data); 
+step ['comment'] = "default comment";
 step ['isElementOfPlan'] = plan['@id']; 
 //step.types = ["ep-plan:Step", "rains:"+data]; 
 step['hasRationale'] = []; 
@@ -901,7 +918,7 @@ function initNewPlan (mode,stage, ExistingPlanIRI) {
 	plan ['@id'] = IRI;
 	plan ['@type'].push(context.Plan);
 	plan ['@type'].push(context.AccountabilityPlan);
-	
+	plan ['@type'].push (context.namedIndividual);
 		
 	if (mode ==='template')  {
 	switch (stage) {

@@ -298,7 +298,7 @@ function getAllowedInformationElelementForInformationRealizationType () {
     let selectOption = document.getElementById('informationElementType');
     selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
     for (let i=0;i<data.length;i++) {
-    	if (data[i].includes(rainsPlanPrefix)||data[i].includes(saoPrefix)||data[i].includes(mlsPrefix)) {
+    	if (data[i].includes(rainsPlanPrefix)||data[i].includes(saoPrefix)||data[i].includes(mlsPrefix)||data[i].includes(dcPrefix)) {
     	selectOption.innerHTML += ' <option value="'+data[i]+'">'+data[i]+'</option>' ;
     	}
 	}

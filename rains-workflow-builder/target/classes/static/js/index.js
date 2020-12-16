@@ -65,6 +65,7 @@ var  dataPrefix =  "https://rainsproject.org/InstanceData/";
 var  rainsPlanPrefix =  "https://w3id.org/rains#";
 var  saoPrefix =  "https://w3id.org/sao#";
 var mlsPrefix = "http://www.w3.org/ns/mls#";
+var dcPrefix = "http://purl.org/dc/terms/";
 // var fabricManager = new manageFabric();
 
 var inspectorTemplate =`

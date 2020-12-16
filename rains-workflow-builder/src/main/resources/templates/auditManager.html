@@ -23,7 +23,6 @@
 <link rel="stylesheet" href="./css/componentsLibrary.css">
 <link rel="stylesheet" href="./css/loader.css">
   <link rel="stylesheet" href="/css/main.css"> 
-    <link rel="stylesheet" href="/css/main.css"> 
   
    <script src="./js/json-ld_context.js"></script>
     <script src="./js/auditManager.js"></script>
@@ -94,21 +93,22 @@
 <div class="container-fluid">
 
 <div class="row">
-<div class="col-md-4">
+<div class="col-md-3">
  <h3>Agents</h3>
  <p>Click on the agents to explore their accountabilities</p>
  <div id="agent_pane"></div>
 </div>
 
-<div class="col-md-7" style="background-color:lightgray" >
- <h3>Object Details</h3>
-<div id="Info" >
 
- <div class="col-md-12" id="object-details" ><p>Click on the items in the result table to view details.</p> </div>
+<div class="col-md-9 "  >
+ <h3>Object Details</h3>
+<div class="row"></div> <div  id="informationRelaizationDesc" ></div>
+<div class="row"><div class="objectDetails" id="Info" ></div>
+
+ <div class="col-md-12 " id="object-details" ><p>Click on the items in the result table to view details.</p> </div>
 </div>
 </div>
 </div>
-<br>
 <div class="col-md-12" >
 
  <h3>Results</h3>
@@ -117,6 +117,7 @@
 
  <thead>
     <tr>
+      <th scope="col">#</th>
       <th scope="col">Accountable Action</th>
       <th scope="col">Accountable Result Produced</th>
       <th scope="col">Accountable Actions dependent on this Output</th>

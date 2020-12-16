@@ -11,7 +11,7 @@ agents.then(
 				
 				for (let i =0; i <agentsIRI.length; i++) {
 					let div = document.createElement('div');
-					div.innerHTML = '<div id="agent'+i+'" class="agentWidget"> <a > '+agentsIRI[i] + ' </a></div>';
+					div.innerHTML = '<div id="agent'+i+'" class="agentWidget"> <a > '+replaceRainsPrefix(agentsIRI[i]) + ' </a></div>';
 					document.getElementById ("agent_pane").append(div);
 					$('#agent'+i).click(function() {
 						getAgentsParticipationDetailsInExecutionTraces(systemIRI,agentsIRI[i]);
@@ -30,7 +30,7 @@ agents.then(
 
 function replaceRainsPrefix (string) {
 	
-	return (string.replace(rainsPlanPrefix, "rains:"))
+	return (string.replace(rainsPlanPrefix, "rains:").replace(mlsPrefix, "mls:").replace(saoPrefix, "sao:").replace("http://example.com", "ex:").replace("https://en.wikipedia.org/wiki/", "wiki:"))
 }
 /*
 function getAgentsParticipationDetailsInExecutionTraces (systemIRI,agentIRI) {
@@ -134,6 +134,7 @@ function getAgentsParticipationDetailsInExecutionTraces (systemIRI,agentIRI) {
 					resultObjectDependentActionsMerged[details[i].accountableAction]['accountableResultType'] = details[i].accountableResultType;
 					resultObjectDependentActionsMerged[details[i].accountableAction]['accountableResultLabel'] = details[i].accountableResultLabel;
 					resultObjectDependentActionsMerged[details[i].accountableAction]['dependentAccountableActions'] = [];
+					resultObjectDependentActionsMerged[details[i].accountableAction]['reused'] = details[i].reused;
 					
 					if (details[i].dependentAccountableAction!=null) {
 					
@@ -169,15 +170,19 @@ function getAgentsParticipationDetailsInExecutionTraces (systemIRI,agentIRI) {
 				
 				let tableBody = document.getElementById ('agent_result_body');
 				tableBody.innerHTML="";
-				
+				let counter = 1; 
 				for (const [key, value] of Object.entries(resultObjectDependentActionsMerged)) {
 					
+					let rowNumb = document.createElement('th');
+					rowNumb.innerHTML=counter;
+				
+					
 					let th = document.createElement('td');
-					th.innerHTML="<strong>Label:</strong> "+value.accountableActionLabel + "<br><strong> Activity IRI:</strong> "+ replaceDataInstancePrefix(value.activity) +"<br><strong>Action type:</strong> "+ replaceRainsPrefix(value.accountableActionType);
+					th.innerHTML="<div class=\"planWidget\"><strong>Action Name:</strong> "+value.accountableActionLabel + "</div><div class=\"planWidget\" ><strong>Action type:</strong> "+ replaceRainsPrefix(value.accountableActionType)+"</div><div class=\"executionTraceWidget\" ><strong> Corresponding Activity IRI: </strong> "+ replaceDataInstancePrefix(value.activity) +"</div> ";
 					th.addEventListener("click", function(){ getActivityDetailsInExecutionTraces (systemIRI,value.activity) });
 					
 					let th2 = document.createElement('td');
-					th2.innerHTML=value.accountableResultLabel + "<br>" + replaceDataInstancePrefix(value.infoRealization) +"<br>"+ replaceRainsPrefix(value.accountableResultType);
+					th2.innerHTML="<div class=\"planWidget\"><strong>Result Name:</strong> "+value.accountableResultLabel + "</div><div class=\"planWidget\" ><strong>Result type: </strong>" + replaceRainsPrefix(value.accountableResultType +"</div><div class=\"executionTraceWidget\" ><strong> Corresponding Entity IRI: </strong>"+ replaceDataInstancePrefix(value.infoRealization)+"</div> ");
 					th2.addEventListener("click", function(){ getOutputDetailsInExecutionTraces (systemIRI,value.infoRealization) });
 					
 					let th3 = document.createElement('td');
@@ -186,24 +191,27 @@ function getAgentsParticipationDetailsInExecutionTraces (systemIRI,agentIRI) {
 						console.log("creating span")
 					let span = document.createElement('span');
 					
-					span.innerHTML=value.dependentAccountableActions[j].dependentAccountableActionLabel + "<br>" + replaceDataInstancePrefix(value.dependentAccountableActions[j].dependentAccountableActionActivity) +"<br>"+ replaceRainsPrefix(value.dependentAccountableActions[j].dependentAccountableActionType)+"<br>";
+					span.innerHTML="<div class=\"planWidget\"><strong>Action Name:</strong> "+value.dependentAccountableActions[j].dependentAccountableActionLabel + "</div><div class=\"planWidget\" ><strong>Action type:</strong> " +replaceRainsPrefix(value.dependentAccountableActions[j].dependentAccountableActionType)  +"</div><div class=\"executionTraceWidget\" ><strong> Corresponding Activity IRI: </strong>"+replaceDataInstancePrefix(value.dependentAccountableActions[j].dependentAccountableActionActivity) +"</div> ";
 					span.addEventListener("click", function(){ getActivityDetailsInExecutionTraces (systemIRI,value.dependentAccountableActions[j].dependentAccountableActionActivity) });
 					
 					th3.append(span);
 					}
 					
 					let th4 = document.createElement('td');
-					th4.innerHTML=value.accountableObjectLabel ;
+					th4.innerHTML="<div class=\"planWidget\"><strong>Accountable Object Name:</strong> "+value.accountableObjectLabel+ "</div><div class=\"executionTraceWidget\" ><strong> Object IRI: </strong>"+replaceDataInstancePrefix(value.accountableObject) +"</div> ";
 					//th4.addEventListener("click", function(){ getOutputDetailsInExecutionTraces (systemIRI,details[i]['entity']) });
 					
 					
 					let tr = document.createElement('tr'); 
+					
+					tr.append(rowNumb);
 					tr.append(th);
 					tr.append(th2);
 					tr.append(th3);
 					tr.append(th4);
 					tableBody.append(tr);
-				
+					
+					counter++;
 				}
 				
 				
@@ -220,7 +228,32 @@ function replaceDataInstancePrefix (string) {
   return 	string.replace("https://rainsproject.org/InstanceData/","rains-data:")
 }
 
-function getOutputDetailsInExecutionTraces (systemIRI,entityIRI) {
+function  createInfoElementDetails (index) {
+	console.log("clicked");
+	
+	for (let i=0;i<detailsInfoElementElementArray.length;i++) {
+		document.getElementById ('link'+i).style = "background:white;  width:100%;padding-left:15px;"; 
+	}
+	document.getElementById ('link'+index).style = "background:#e6eefa;  width:100%;padding-left:15px;"; 
+	
+	let infoElement = detailsInfoElementElementArray[index];
+	let html = "";
+	html = "<br><strong>IRI:</strong>" + replaceDataInstancePrefix(infoElement.infoElement);
+	html += "<br><strong>Name:</strong>" + infoElement.infoElementLabel;
+	html += "<br><strong>Comment:</strong>" + infoElement.infoElementComment;
+	
+	if (infoElement.reused!=null) {
+		html += "<br><strong>Reused Object: </strong>" + infoElement.reused.replace ('"','').replace('"^^','');
+	}
+	
+	if (infoElement.isAccountableFor!=null) {
+		html += "<br><strong>Accountable For: </strong>" + replaceDataInstancePrefix(infoElement.isAccountableFor);
+	}
+	
+	document.getElementById ('elementsDetail').innerHTML = html; 
+}
+
+function getOutputDetailsInExecutionTraces (systemIRI,entityIRI, infoRealizationComment) {
 	let details = fetch("getOutputDetailsInExecutionTraces?systemIRI="+ systemIRI+"&infoRealizationIRI="+entityIRI);
 	details.then(
 			(data) => {
@@ -228,36 +261,83 @@ function getOutputDetailsInExecutionTraces (systemIRI,entityIRI) {
 				return data.json();
 			}).then(data => {
 				//data = JSON.stringify(data);
+				console.log("This Data");
 				console.log(data);
 				
+				document.getElementById ('informationRelaizationDesc').innerHTML = '<div class="row"><div class="col-md-12 list"><strong>Output Description</strong><p>'+data[0].infoRealizationComment+' </p></div></div><hr>';
+				
+				document.getElementById ('object-details').innerHTML = '<div class="row"> <div class="col-md-5" id="elementsList"></div><div class="col-md-6" id="elementsDetail" style="background:#e0e0eb"></div></div>';
+				
+				detailsInfoElementElementArray =[];
+				
+				let listHTML ="<strong>Information Elements:</strong><br><ul>";
+				if (data[0].infoElement!=null) {
+				for (let i=0; i<data.length;i++) {
+					listHTML +='<li id ="link'+i+'"><a  href="#" onclick="createInfoElementDetails ('+i+')">'+replaceRainsPrefix(data[i].infoElementType)+'</a></li>';
+					
+					detailsInfoElementElementArray.push (data[i]); 
+				}
+				listHTML +="</ul>";
+				
+				document.getElementById ('elementsList').innerHTML =  listHTML;
+				
+				
+				createInfoElementDetails (0);
+				}
+				else {
+					document.getElementById ('elementsDetail').innerHTML =  "No information elements found";
+				}
+				
+				//let transformArray = [];
+				//transformArray.push ({"<>":"div class= \"infoElementBox\"","html":[{"<>":"div","html":[ {"<>":"h5","text":"${infoElementType}"}]});
+				//transformArray.push ({"<>":"div class= \"infoElementBox\"","html":[{"<>":"div","html":[ {"<>":"h5","text":"${infoElementType}"}]});
+				
+				/*
+				let detailsDiv ;
+				
+			    detailsDiv = [
+			    	{"<>":"div class= \"infoElementBox\"","html":[
+				        {"<>":"div","html":[
+				            {"<>":"h5","text":"${infoElementType}"}
+				        ]},
+				        {"<>":"div","text":"Name: ${infoElementLabel}"},
+				        {"<>":"div","text":"Comment: ${infoElementComment}"},
+				    ]}];
+				console.log(data[0].reused);
+				if (data[0].reused!="") {
+					detailsDiv = [
+				    	{"<>":"div class= \"infoElementBox\"","html":[
+					        {"<>":"div","html":[
+					            {"<>":"h5","text":"${infoElementType}"}
+					        ]},
+					        {"<>":"div","text":"Name: ${infoElementLabel}"},
+					        {"<>":"div","text":"Comment: ${infoElementComment}"},
+					        {"<>":"div","text":"Is Reused Object: ${reused}"}
+					    ]}];
+				}
 				
 				let transforms = {
 					    "list":{"<>":"ul","html":function(){
 					        return($.json2html(data,transforms.items));   
 					    }},
 					    
-					    "items":{"<>":"li","html":function(obj,index){
+					    "items":{"<>":"li class=\"infoElement\" ","html":function(obj,index){
 					                return( replaceRainsPrefix (obj.infoElementType));
 					            },"onclick":function(e){
 					        $("#object-details .details").empty().json2html(e.obj,transforms.details);
 					    }},
 					    
-					    "details":[
-					        {"<>":"div","html":[
-					            {"<>":"h5","text":"${infoElementType}"}
-					        ]},
-					        {"<>":"div","text":"Name: ${infoElementLabel}"},
-					        {"<>":"div","text":"Comment: ${infoElementComment}"},
-					    ]
+					    "details":detailsDiv
 					};
 				
 				
                let objectDetailsPane = document.getElementById ('object-details');
 				
-				objectDetailsPane.innerHTML = '<div class="row"><div class="col-md-4 list"></div><div class="col-md-4 details"></div></div> ';
+				objectDetailsPane.innerHTML = '<div class="row"><div class="col-md-4 list"></div><div class="col-md-6 details"></div></div> ';
+				
 				$("#object-details .list").json2html({},transforms.list);
-				
-				
+				let transformedHTML = objectDetailsPane.innerHTML; 
+				*/
 				
 				
 				
@@ -282,9 +362,17 @@ function getActivityDetailsInExecutionTraces (systemIRI,activityIRI) {
 				
 				console.log(details);
 				
+				document.getElementById ('informationRelaizationDesc').innerHTML = '<div class="row"><div class="col-md-12 list"><strong>Action Description</strong><p>'+details[0].stepComment+' </p></div></div>';
+				
 				let objectDetailsPane = document.getElementById ('object-details');
 				
-				objectDetailsPane.innerHTML = JSON.stringify(details);
+				let html = "<strong>Start:</strong>" + details[0].start.replace ('"','').replace('"^^','');
+				    html += "<br><strong>End:</strong>" + details[0].end.replace ('"','').replace('"^^','');
+				    html += "<br><strong>Part of Plan:</strong>" + replaceDataInstancePrefix(details[0].plan);
+				    html += "<br><strong>Plan Type:</strong>" + replaceRainsPrefix(details[0].planType);
+				
+				   console.log(details)
+				objectDetailsPane.innerHTML =  html;
 				
 				
 				

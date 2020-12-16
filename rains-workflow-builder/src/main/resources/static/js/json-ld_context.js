@@ -23,7 +23,7 @@ context.InformationRealization   = "https://w3id.org/sao#InformationRealization"
 context.InformationElement   = "https://w3id.org/sao#InformationElement";
 context.AccountableObject   = "https://w3id.org/sao#AccountableObject";
 context.impacts   = {"@id":"https://w3id.org/sao#impacts","@type": "@id"}; 
-context.relatesTo   = {"@id":"https://w3id.org/sao#relatesTo","@type": "@id"}; 
+context.relatesTo   = {"@id":"https://w3id.org/sao#relatesToAccountableObject","@type": "@id"}; 
 context.isAccountableFor   = {"@id":"https://w3id.org/sao#isAccountableFor","@type": "@id"};
 
 

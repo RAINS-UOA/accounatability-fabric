@@ -31,7 +31,3 @@ mvn spring-boot:run
 ````
 
 Go to localhost:8080 and you should see the landing page of the Accounatbility Fabric
-
-(Please note that if you downloaded and imported the project (as opposed to pulling it from github) you will need to do the following:
-1. Comment out line 49 so that the project complies properly (import org.omg.CORBA.portable.InputStream;).
-2. Create a folder named ‘sqlite’ under the folder src/main/resources.)

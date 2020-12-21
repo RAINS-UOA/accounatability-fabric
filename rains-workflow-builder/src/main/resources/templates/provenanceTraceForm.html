@@ -35,10 +35,56 @@
  <script src="./js/json-ld_context.js"></script>
  <script src="./js/provenanceCollector.js"></script>
   <script src="./js/index.js"></script>
+  
+
+  
 <script>
+var infoElementsPerInfoRealization = {};
+var agentArray = [];
+var informationElementsArray = [];
+var entityIDArray = [];
+var variableIDArray = [];
 var stepIDArray = [];
 var  dataPrefix =  "https://rainsproject.org/InstanceData/";
 var bundleID = "";
+var currentInformationElementPaneId = "";
+var graphArray = [];
+
+
+function checkIfAccountableAgentExist (agentID) {
+	for (let i=0; i < agentArray.length; i++ ) {
+		if (agentArray[i]['@id'] === agentID) {
+			return true;
+		}
+		else { 
+			return false; 
+	}
+	}
+}
+
+function createAccountableAgent (agentID) {
+	let agent = {}; 
+	agent['@id'] = agentID; 
+	agent ['@type'] = [];
+	agent ['@type'].push (context.AccountableAgent);
+	agent ['isElementOfTrace'] = bundleID; 
+	agentArray.push(agent);
+}
+
+function linkAccountableAgentToEntity (agentID, EntityId) {
+	for (let i=0; i < agentArray.length; i++ ) {
+		if (agentArray[i]['@id'] === agentID) {
+			
+			agentArray[i]['isAccountableFor'] = EntityId;
+			
+			return true;
+		}
+		else { 
+			return false; 
+	}
+	}
+}
+
 
 function getPlanComponets (token) {
 	
@@ -50,8 +96,8 @@ function getPlanComponets (token) {
     			}).then(planComponentsJSONLD => {
     			
     			//console.log(planComponentsJSONLD);
-    			
-    			parsePlanStructureJsonLD (planComponentsJSONLD);
+    			graphArray = planComponentsJSONLD;
+    			parsePlanStructureJsonLD ();
     			
     			}
 	    		).catch(
@@ -64,13 +110,32 @@ function getPlanComponets (token) {
 	
 }
 
-function parsePlanStructureJsonLD (graphArray) {
+function parsePlanStructureJsonLD () {
 	
-	console.log(graphArray.length);
+	console.log(graphArray);
+	
+
+	//Find number of rows in the plan as per the plan designer
+	let maxRowCount = 0; 
+	for (let i=0;i<graphArray.length; i++) {
+		let element = graphArray[i];
+		if (element[context.belongsToRow]!=null) {
+			console.log(element[context.belongsToRow][0]['@value']);
+			let rowId = element[context.belongsToRow][0]['@value'];
+			rowId = rowId.replace("step_row_", "");
+			console.log (rowId);
+			if (rowId>maxRowCount) {
+				maxRowCount = rowId;
+			}
+		}
+	}
+console.log("Found max step row index  "+ maxRowCount + " in the plan");
+
+for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
 	for (let i=0;i<graphArray.length; i++) {
 		
 		let element = graphArray[i];
-		console.log( graphArray[i]);
+		
 		if (element['@type']!=null) {
 			
 			if (checkTypeInJsonLD (element['@type'],context.ExecutionTraceBundle)) {
@@ -78,7 +143,7 @@ function parsePlanStructureJsonLD (graphArray) {
 				bundleID = element['@id'];
 			}
 			
-			if (checkTypeInJsonLD (element['@type'],context.Step)) {
+			if ((checkTypeInJsonLD (element['@type'],context.Step))&&(element[context.belongsToRow][0]['@value']=="step_row_"+stepRowIndex)) {
 				console.log("found element with @type STEP");
 				//ASSUMPTION THERE IS ALWAYS LABEL (WE ALWAYS FORCE DEFAULT LABEL) AND THERE IS ONLY ONE
 				let label = "default value";
@@ -88,12 +153,165 @@ function parsePlanStructureJsonLD (graphArray) {
 					console.log("saved label: "+ label);
 				} 
 				
+				createStepFormInput (element['@id'], element['@type'], label);
 				
-				createStepFormInput (element['@id'], element['@type'], label)
-			}			
+				//console.log("hasOutputVariable "+ element[context.hasOutputVariable['@id']]);
+				if (element[context.hasInputVariable['@id']]!=null) {
+					let inputVariables =  [];
+					for (let j=0;j<element[context.hasInputVariable['@id']].length; j++) {
+					for (let x=0;x<graphArray.length; x++) {
+						let element2 = graphArray[x];
+						console.log ("looking for input")
+						console.log ( element[context.hasInputVariable['@id']][j]['@id'])
+						if (checkTypeInJsonLD (element2['@type'],context.Variable)&& (element2['@id']==element[context.hasInputVariable['@id']][j]['@id']) ) {
+							inputVariables.push(element2);
+						}
+					}
+					}
+				createStepInputsList (inputVariables);
+				}
+				
+				if ( element[context.hasOutputVariable['@id']]!=null){
+				
+				let outputVariables =   element[context.hasOutputVariable['@id']]; 
+				console.log ("------->");
+				//console.log (outputVariables);
+				
+				for (let j=0;j<outputVariables.length; j++) {
+					for (let x=0;x<graphArray.length; x++) {
+						let element2 = graphArray[x];
+						
+						outputVarID = outputVariables[j]; 
+						console.log ("*******");
+						console.log (element2['@type'],context.Variable);
+						console.log (element2['@id']);
+						console.log (outputVariables[j]['@id']);
+						
+						if (checkTypeInJsonLD (element2['@type'],context.Variable)&& (element2['@id']==outputVariables[j]['@id']) ) {
+							console.log ("------->");
+							console.log("FOUND OUTPUT!!!");
+						
+						     //ASSUMPTION THERE IS ALWAYS LABEL (WE ALWAYS FORCE DEFAULT LABEL) AND THERE IS ONLY ONE
+						    let label = "default value";
+						
+						    if (element2[context.label][0]['@value']!=null) {
+							label = element2[context.label][0]['@value'];
+							console.log("saved label: "+ label);
+						 } 
+						
+						
+						createOutputInformationRealizationFormInput (element2['@id'], element2['@type'], label)
+						
+					}
+					}
+				
+				}
+			}	
+				
+			}	
+			
+				
+			
 		} 	
 	}
 }
+}
+
+
+
+function createStepInputsList (variableInputs){
+	let html = "";
+	console.log("---------------------------------------->") 
+	console.log(variableInputs.length) 
+	console.log(variableInputs[0][context.label]) 
+	html = html + '<h4>Inputs</h4> ';
+
+	html = html + "<hr>";
+	html = html + '<p>Below is the list of entities used by the activity realizing this step. These entities would have been recorded as outputs of previous steps and will be linked automatically. </p> ';
+	for (let j=0;j<variableInputs.length; j++) {
+		  if (variableInputs[j][context.label][0]['@value']!=null) {
+				let label = variableInputs[j][context.label][0]['@value'];
+				html=html+"<p> "+label+"</p>"
+			 } 
+	
+	//	html=html+"<p>"+variableInputs[j]['@id']+"</p>"
+	}
+
+	
+	
+    let formhtml = document.getElementById("form").innerHTML;
+	document.getElementById("form").innerHTML = formhtml + html;
+	
+
+
+}
+
+
+function createOutputInformationRealizationFormInput (id, types, label, ActivyIdGenearatingThis){
+	let html = "";
+	
+	console.log(types);
+	console.log(id);
+	console.log(label);
+	
+	//carefull (not ideal as push in both arrays must happen at teh same time so teh indexes match)
+	variableIDArray.push(id);
+	let entityID =dataPrefix+ uuidv4();
+	entityIDArray.push(entityID);
+
+	let index = variableIDArray.length - 1;
+	html = html + "<hr>";
+	html = html + "<h4>Outputs</h4>";
+	html = html + "<hr>";
+	html=html+"<h5>"+label+"</h5>"
+	html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
+	
+	
+	html = html + '<label>Enter description:</label>'
+	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="information-realization-description-group-'+index+'"><input required type="text" id="information-realization-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#information-realization-description-group-'+index+'" > <div class="input-group-text"><i class="fas fa-align-justify"></i></div></div></div>';
+	html = html + '<br> <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-flag="InformationElementPane'+index+'" data-target="#informationElement"> <span class="fa fa-plus-circle"></span> Add Information Element  </button>'
+	
+	html = html + '<div id="InformationElementPane'+index+'" class = "row" > </div>';
+    let formhtml = document.getElementById("form").innerHTML;
+	document.getElementById("form").innerHTML = formhtml + html;
+
+}
+
+
+
+function getAllowedInformationElelementForInformationRealizationType () { 
+	let property ;
+    
+	
+	
+	//!!!! TO DO - Need to call to query constraints to see whihc type corresponds to variable
+    informationRealizationType = "https://w3id.org/sao#ModelSpecification";
+	
+	fetch("/getAllowedInformationElelementForInformationRealizationType?informationRealizationType="+encodeURIComponent(btoa(informationRealizationType))+"&restrictionPropertyIRI="+encodeURIComponent(btoa(property)) ) 
+	.then((data) => {
+		
+		return data.json();
+	})
+  .then(function (data) {
+	
+    console.log('Request succeeded with JSON response', data);
+    let selectOption = document.getElementById('informationElementType');
+    selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
+    for (let i=0;i<data.length;i++) {
+    	if (data[i].includes(rainsPlanPrefix)||data[i].includes(saoPrefix)||data[i].includes(mlsPrefix)||data[i].includes(dcPrefix)) {
+    	selectOption.innerHTML += ' <option value="'+data[i]+'">'+data[i]+'</option>' ;
+    	}
+	}
+    
+    
+  })
+  .catch(function (error) {
+    console.log('Request failed', error);
+  });
+}
+
+
+
 
 
 function createStepFormInput (id, types, label) {
@@ -101,17 +319,20 @@ function createStepFormInput (id, types, label) {
 	//use this to keep track of which input belongs to which plan element as we cannot use iri as part of element id - JQUERY complaining
 	stepIDArray.push(id);
 	let index = stepIDArray.length - 1;
-	html=html+"<h3>"+label+"</h3>"
+	html = html + "<hr>";
+	html = html + "<h3>Step - "+label+"</h3>";
+	html = html + "<hr>";
 	html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
-	html = html + '<label>Select time when activity ended</label>'
-	html = html + '<div class="form-group"><div class=" input-group input-group-lg date" id="time-end-group-'+index+'" data-target-input="nearest"><input required type="text" id="time-end-input-'+index+'" class="form-control datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';
-	
+	html = html + '<div class="class="input-group"">'
+	html = html + '<div class=" input-group date" id="time-start-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-start-input-'+index+'" class=" datetimepicker-input" data-target="#time-start-group-'+index+'"> <div class="input-group-append" data-target="#time-start-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
+	html = html + '<div class="input-group  date" id="time-end-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-end-input-'+index+'" class=" datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
+	html = html + '</div>'
 	//add agent field
-	html = html + '<br><br><label>Who performed the task?</label>'
+	html = html + '<label>Who performed the task?</label>'
 	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="agent-group-'+index+'"><input required type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div>';
 	
 	
-	html = html + "<hr>";
+	
 	
 	let formhtml = document.getElementById("form").innerHTML;
 	
@@ -122,53 +343,404 @@ function createStepFormInput (id, types, label) {
 
 function prepareHumanTaskProvenanceTraceGraph () {
 	
-	
-	
-	
 	let traceElementArray = [];
 	
 	for (let i=0;i<stepIDArray.length;i++) {
 		let activity = {};
 		activity ['@id'] = dataPrefix+ uuidv4();
 		activity ['@type'] = [];
+		activity ['@type'].push (context.MultiActivity);
 		activity ['@type'].push (context.Activity);
+		activity ['@type'].push (context.namedIndividual);
 		//to do load the IRI from component tree properly
 		activity ['isElementOfTrace'] = bundleID; 
 		activity ['correspondsToStep'] = stepIDArray[i];
-		activity ['wasAssociatedWith'] = document.getElementById('agent-input-'+i).value;
-		activity ['wasStartedAtTime'] =  moment(document.getElementById('time-end-input-'+i).value).utc().format('YYYY-MM-DDTHH:mm:ssZZ');
+		let agentIRI = document.getElementById('agent-input-'+i).value;
+		activity ['wasAssociatedWith'] = agentIRI;
+		if (!checkIfAccountableAgentExist (agentIRI)) {
+			createAccountableAgent (agentIRI);
+		}
+		
+		activity ['startedAtTime'] =  moment(document.getElementById('time-start-input-'+i).value).utc().format('YYYY-MM-DDTHH:mm:ss');
+		activity ['endedAtTime'] =  moment(document.getElementById('time-end-input-'+i).value).utc().format('YYYY-MM-DDTHH:mm:ss');
 		
 		traceElementArray.push(activity);
 	}
 	
+	//generating entities
+	for (let i=0;i<variableIDArray.length;i++) {
+		let entityCollection = {};
+		entityCollection ['@id'] = entityIDArray[i];
+		entityCollection ['@type'] = [];
+		entityCollection ['@type'].push (context.EntityCollection);
+		entityCollection ['@type'].push (context.InformationRealization);
+		entityCollection ['@type'].push (context.namedIndividual);
+		entityCollection ['isElementOfTrace'] = bundleID; 
+		entityCollection ['correspondsToVariable'] = variableIDArray[i];
+		
+		entityCollection ['comment'] = document.getElementById('information-realization-input-'+i).value;
+		
+		//console.log("------>>>>>>>> hadMember");
+		//console.log("------>>>>>>>> hadMember");
+		//entityCollection ['hadMember'] = entityIDArray[i];
+		//console.log("------>>>>>>>> was generated by");
+		//console.log(findActivityGeneratingThisEntity(variableIDArray[i], traceElementArray));
+		let originActivityIRI = findActivityGeneratingThisEntity(variableIDArray[i], traceElementArray);
+		entityCollection ['wasGeneratedBy'] = originActivityIRI;
+		
+		//not best way of doing this - as it relies on activities being in the array already and assumes only one agent per activity - to do fix later
+		linkAccountableAgentFromActivityID (originActivityIRI,entityIDArray[i],traceElementArray );
+		
+		//console.log("------>>>>>>>> entity collection");
+		//console.log(entityCollection);
+		
+		traceElementArray.push(entityCollection);
+		
+	}
 	
-	return traceElementArray; 
+	//horrible code but putting it here separatelly because we need to wait until entities are created
+	addUsedRelationships (traceElementArray); 
+	console.log("GRAPH PAYLOAD ------>>>");
+	
+	
+	let graph = traceElementArray.concat(informationElementsArray).concat(agentArray);
+	console.log(graph);
+	return graph; 
+}
+
+function linkAccountableAgentFromActivityID (originActivityIRI, entityIRI, traceElementArray) {
+	for (let i = 0; i<traceElementArray.length;i++) {
+		if (traceElementArray[i]['wasAssociatedWith'] !=null) {
+			let agentIRI = traceElementArray[i]['wasAssociatedWith'];
+			let result = linkAccountableAgentToEntity (agentIRI, entityIRI); 
+			console.log ("Linking agent to informationRealization : "+ result);
+		}
+	}
+}
+
+function findActivityGeneratingThisEntity(correspondingVar, traceElementArray) {
+let stepID = "";	
+let activityID = "";
+for (let i=0;i<graphArray.length; i++) {		
+		let element = graphArray[i];
+		if (element['@type']!=null) {
+			//console.log(element[context.hasOutputVariable['@id']]);
+			//console.log(correspondingVar);
+			if (element[context.hasOutputVariable['@id']]!=null) {
+			for (let z=0;z<element[context.hasOutputVariable['@id']].length; z++) {	
+			if ((checkTypeInJsonLD (element['@type'],context.Step))&&(element[context.hasOutputVariable['@id']][z]['@id'] == correspondingVar)) {
+				//console.log("found element with @type STEP producing this variable");
+				stepID =  element['@id'];
+				
+			}
+			}
+			}
+		}
+}
+
+
+
+//find the corresponding activvity
+for (let i=0;i<traceElementArray.length; i++) {
+	let element = traceElementArray[i];
+	if (element['correspondsToStep']!=null) {
+		console.log("step id");
+		console.log(stepID);
+		console.log(element['correspondsToStep']);
+		if (element['correspondsToStep'] ==stepID) {
+			console.log("found correpsonding activity");
+			activityID = element['@id'];
+			break;
+		}
+	
+    }
+}
+
+return activityID;
+}
+
+function addUsedRelationships (traceElementArray) {
+	for (let i=0;i<graphArray.length; i++) {
+		let element = graphArray[i];
+		if (element[context.hasInputVariable['@id']]!=null) {
+			//we found step now we need the activity
+		console.log("found step with inputs");
+		let activityIndex = "";
+		let stepID = element['@id'];
+			for (let j=0;j<traceElementArray.length; j++) {
+				
+				if (traceElementArray[j]['correspondsToStep']!=null) {
+					console.log("found stepin trace array");
+					console.log("checking" + stepID);
+					console.log(traceElementArray[j]['correspondsToStep']);
+					if (traceElementArray[j]['correspondsToStep'] ==stepID) {
+						console.log("found correpsonding activity");
+						activityIndex = j;
+						break;
+					}
+				
+			    }
+		}
+		
+		let inputVariables = element[context.hasInputVariable['@id']];
+		
+		for (let x=0;x<inputVariables.length; x++) {
+		   
+			let variableID = inputVariables[x]['@id']; 
+			
+		    for (let y=0;y<traceElementArray.length; y++) {
+		    	let element2 = traceElementArray[y];
+		    	if (element2['correspondsToVariable']!=null) {
+		    		if (element2['correspondsToVariable'] ==variableID) {
+		    			console.log("found correpsonding entity - linking");
+		    			traceElementArray[activityIndex]['used'] = 	element2['@id'];
+		    			
+		    		}
+		    	
+		        }
+		    }
+		}
+		
+		}
+	}
+	
 }
 
 </script>
 <body>
- <div class="container">
+
+ <!-- The Modal  ADD Variables  -->
+  <div class="modal" id="informationElement">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title"> Information Element</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body" >
+       <div class="card">
+           <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementType">Information Type</label>
+           
+        </div>
+         <select class="custom-select"  id="informationElementType"></select>
+        </div>
+        
+        
+         <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text" >Label</span>
+         </div>
+       <input type="text" class="form-control" id="newInformationElementLabel" placeholder="Default Label" aria-label="label" aria-describedby="newInformationElementLabel">
+      </div>  
+        <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text">Description</span>
+         </div>
+       <input type="text" class="form-control" id="newInformationElementDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
+      </div>  
+      
+      <p>Only relevant to type of RealizableObject and it's subtypes</p>
+      <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text" for="newInformationElementThirdParty">Is This Third Party Element </span>
+         </div>
+      &nbsp;&nbsp;&nbsp; <input type="checkbox"  dissabled id="newInformationElementThirdParty"  aria-label="is third party" aria-describedby="newVariableDescription">
+      </div>  
+       <p>Only relevant to type of AccountableAgent</p>
+       <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementAccountableAgentIRI" >Accountable Agent IRI</label>
+           
+        </div>
+         <input class="form-control" type="text" dissabled id="informationElementAccountableAgentIRI">
+        </div>
+  <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementAccountableAgent">Link Realizable Object (optional)</label>
+           
+        </div>
+         <select class="custom-select" dissabled id="informationElementAccountableAgent"></select>
+        </div>
+        
+          
+            
+        </div>
+        
+         
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" data-dismiss="modal" id="addInfoElementBtn">Add Element</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+ <div class="container" id="main">
 <script>getPlanComponets (findGetParameter('token'));
 </script>
 
 <h2>Please complete the requested information below</h2> <br><br>
-<form id="form" action="/uploadHumanTaskProvenanceTrace">
+<form id="form" action="/uploadHumanTaskProvenanceTrace"  method="post">
 <button class="btn btn-primary" id="submitButton">Submit</button>
 </form>
 
 <script>
-$(document).ready(function () {
-$("#submitButton").click(function() {
+$(document).ready(function (e) {
+	
+	$( "#informationElementType" ).change(function() {
+		enableInfoElements ();
+		});
+	
+	$('#informationElement').on('show.bs.modal', function (event) {
+		console.log("modal showing");
+		 
+		enableInfoElements ();
+		getAllowedInformationElelementForInformationRealizationType ();
+		//document.getElementById ("addInformationElementModal").innerHTML ="";
+	     currentInformationElementPaneId = $(event.relatedTarget).data('flag');
+		
+		 // displayCurrentPlanVariables ('currentPlanExistingVariablesList',variableMode);
+		 // $(this).find('#variablesTitle').html(variableMode);
+		  //hold teh info about temporary 
+		//  temporaryVarArray = [];
+		//  if (variableMode!="Output") {
+		//  document.getElementById ("currentPlanNewVariablesList").innerHTML="";
+		  //}
+		 
+		  
+		});
+	
+	$(function () {
+		  $('[data-toggle="tooltip"]').tooltip()
+		}) 
+	
+	$('#addInfoElementBtn').on("click",function(x) {
+		let entityIndex = currentInformationElementPaneId.replace("InformationElementPane","")
+		document.getElementById (currentInformationElementPaneId).appendChild ( createInformationElementWidget (entityIndex)); 		
+		//TO DO - Handle storing of the object 
+		
+		//document.getElementById('newInformationElementType').value ="";
+		document.getElementById('informationElementType').value="";
+		 document.getElementById('newInformationElementDescription').value ="";
+		 document.getElementById('newInformationElementLabel').value ="";
+		 document.getElementById('newInformationElementThirdParty').checked = false;
+		 document.getElementById('informationElementAccountableAgent').value ="";
+		 document.getElementById('informationElementAccountableAgentIRI').value ="";
+		
+		$('#informationElement').modal('toggle');
+	}
+	)
+	
+	//to do handle deletions
+function createInformationElementWidget (entityIdIndex) {
+    let infoElement = {};
+    let infoElementType = document.getElementById('informationElementType').value; 
+ 
+    infoElement ['label'] = document.getElementById('newInformationElementLabel').value; 
+    infoElement ['comment'] = document.getElementById('newInformationElementDescription').value; 
+    infoElement['@type'] = [];
+    //infoElement ['@type'].push (context.InformationElement);
+    infoElement ['@type'].push (context.namedIndividual);
+    infoElement['@type'].push(infoElementType);
+    infoElement ['isElementOfTrace'] = bundleID; 
+    infoElement ['wasMemberOf'] = entityIDArray[entityIdIndex];
+    
+    
+    //Only relevant to realizable objects - subtypes should be added dynamically from iontology - to do fix
+    if (infoElementType === context.RealizableObject||infoElementType === context.Dataset||infoElementType === context.Model||infoElementType === context.SupportingInfrastructure) {
+    infoElement ['isReusedObject'] = document.getElementById('newInformationElementThirdParty').checked; 
+    }
+    if (document.getElementById('informationElementType').value == context.AccountableAgent) {
+     if (document.getElementById('informationElementAccountableAgent').value != null) {
+    	console.log("Accountable agent responsibility not null");
+    	 infoElement ['isAccountableFor'] = document.getElementById('informationElementAccountableAgent').value;
+    	 infoElement ['@id'] = document.getElementById('informationElementAccountableAgentIRI').value;
+     }
+    }
+    else {
+    	   infoElement ['@id'] = dataPrefix+ uuidv4();
+    }
+   
+    
+    if (infoElementsPerInfoRealization.entityIdIndex == null) {
+    	infoElementsPerInfoRealization.entityIdIndex = [];
+    	infoElementsPerInfoRealization.entityIdIndex.push(infoElement);
+    }
+    else {
+    	infoElementsPerInfoRealization.entityIdIndex.push(infoElement);
+    }
+    
+    informationElementsArray.push(infoElement);
+    
+        
+	let widget = document.createElement('div');
+	widget.className = 'outputVariableWidget';
+	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${infoElement['@type']} <br> <strong>Description</strong>:${infoElement['comment']}"> ${infoElement['label']} </label>`;
+	
+	return widget;
+
+	}
+
+	function enableInfoElements () {
+		let infoElementType = document.getElementById('informationElementType').value; 
+		console.log (context.Dataset, context.Model, context.SupportingInfrastructure)
+		if (infoElementType === context.RealizableObject||infoElementType === context.Dataset||infoElementType === context.Model||infoElementType === context.SupportingInfrastructure)  {
+			document.getElementById('newInformationElementThirdParty').removeAttribute("disabled");
+		}
+		else {
+			
+			document.getElementById('newInformationElementThirdParty').setAttribute('disabled','disabled');
+		}
+		
+		//check if type accountable Agent and if something to dispaly for agent to be accountable for
+		if (document.getElementById('informationElementType').value == context.AccountableAgent) {
+			document.getElementById('informationElementAccountableAgentIRI').removeAttribute("disabled");
+			let entityIndex = currentInformationElementPaneId.replace("InformationElementPane","")
+			 if (infoElementsPerInfoRealization.entityIdIndex != null) {
+				 let el = document.getElementById('informationElementAccountableAgent');
+				el.innerHTML =  ' <option selected disabled="disabled">Choose...</option>';
+				 for (let i=0;i <infoElementsPerInfoRealization.entityIdIndex.length; i++) {
+					 el.innerHTML +=  ' <option  value="'+infoElementsPerInfoRealization.entityIdIndex[i]['@id']+'">'+infoElementsPerInfoRealization.entityIdIndex[i]['label']+'</option>';
+			}
+			
+				 	
+		    
+			document.getElementById('informationElementAccountableAgent').removeAttribute("disabled");
+			 }
+		}
+		else {
+			
+			document.getElementById('informationElementAccountableAgentIRI').setAttribute('disabled','disabled');
+			document.getElementById('informationElementAccountableAgent').setAttribute('disabled','disabled');
+		}
+		
+	}
+	
+	
+	
+	
+	$('#form').on("submit",function(x) {
 	 console.log("trying to submit");
 	 console.log($("#form"));
-	 $("#form").submit(function(e) {
+	 
 		  
 		 console.log("trying to submit");
-		    e.preventDefault(); // avoid to execute the actual submit of the form.
+		    x.preventDefault(); // avoid to execute the actual submit of the form.
+		   
 		    
 		    let form = $(this);
-		    let url = form.attr('action');
-		    console.log("sending");
+		    //let url = form.attr('action');
+		    console.log("sending PYLOAD");
+		    console.log( generateJsonLDpayload (context,prepareHumanTaskProvenanceTraceGraph()));
 		    
 		    let data = new FormData();
 		   
@@ -176,10 +748,12 @@ $("#submitButton").click(function() {
 		    data.append('payload', generateJsonLDpayload (context,prepareHumanTaskProvenanceTraceGraph()));
 		    data.append('token',findGetParameter('token') );
 		    
+		    console.log(data);
+		    
 		    $.ajax({
 		           type: "POST",
 		           
-		           url: url,
+		           url: "/uploadHumanTaskProvenanceTrace",
 		           data: data,
 		           cache: false,
 		           contentType: false,
@@ -189,8 +763,12 @@ $("#submitButton").click(function() {
 		           success: function(data)
 		           {
 		              console.log(data); 
-		              
+		              document.getElementById("main").innerHTML = "Thanks! Information has been saved. You can close this window.";
+		           },
+		           error:function (error) {
+		        	   document.getElementById("main").innerHTML = "There has been an error "+ error;
 		           }
+		           
 		         });
 
 		    
@@ -209,12 +787,17 @@ $("#submitButton").click(function() {
 			  console.log(payload);
 			 // xhttp.send(payload);
 			 */
-		});
+	
 	});
 });
 </script>
 
 
 </div>
+
+
+  
+
+
 </body>
 </html>

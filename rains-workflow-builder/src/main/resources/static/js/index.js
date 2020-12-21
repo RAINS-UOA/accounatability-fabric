@@ -62,7 +62,10 @@ var constraintsArray =[];
 
 var graph ={};
 var  dataPrefix =  "https://rainsproject.org/InstanceData/";
-var  rainsPlanPrefix =  "https://w3id.org/rains-plan#";
+var  rainsPlanPrefix =  "https://w3id.org/rains#";
+var  saoPrefix =  "https://w3id.org/sao#";
+var mlsPrefix = "http://www.w3.org/ns/mls#";
+var dcPrefix = "http://purl.org/dc/terms/";
 // var fabricManager = new manageFabric();
 
 var inspectorTemplate =`
@@ -113,6 +116,7 @@ var inspectorTemplate =`
     <div id="StepConstraints" class = "row"> </div>
   </div>
   <hr>
+   <!--
  <div class="form-group">
     <label for="StepRationale">Rationale</label>
      <a href="#" class="btn btn-info btn-sm" data-toggle="modal" data-target="#rationaleModal">
@@ -122,10 +126,15 @@ var inspectorTemplate =`
     <div id="StepRationale" class = "row" > </div>
   </div>
  <br>
-  <hr>
-  <button type="submit" class="btn btn-primary">Apply Changes</button>
+  <hr>-->
+  <button type="button" onclick= "applyChanges()"class="btn btn-primary">Apply Changes</button>
 
 </div>`; 
+
+function applyChanges() {
+	
+	selectedStep['comment'] = document.getElementById ("StepDescription").value;
+}
 
 function resetInspector () {
    let target = document.getElementById ("inspectPane");
@@ -145,6 +154,9 @@ id.value =  element['@id'];
 
 let stepLabel = document.getElementById ("StepLabel");
 stepLabel.value =  element['label'];
+
+let stepComment = document.getElementById ("StepDescription");
+stepComment.value =  element['comment'];
 
 let stepTypes = document.getElementById ("StepTypes");
 stepTypes.innerHTML =  "";
@@ -173,13 +185,13 @@ for (let i=0;i<variablesArray.length;i++) {
     
 stepTypes.appendChild(document.createElement('hr'));
 
+/*
 let stepRationale = document.getElementById ("StepRationale");
 stepRationale.innerHTML =  "";
 for (let i=0;i<element['hasRationale'].length;i++) {
 stepRationale.appendChild (createStepRationaleWidget ( element['hasRationale'][i] , true));
 }
-
-console.log(element['@type']);
+*/
 
 }
 
@@ -190,8 +202,10 @@ document.getElementById ('rationaleLink').value="";
 console.log(link);
 selectedStep['hasRationale'].push (link);
 populateInspectPane (selectedStep );
-$('#rationaleModal').modal('toggle')
+$('#rationaleModal').modal('toggle');
 }
+
+
 
 //to do handle deletions
 function createStepRationaleWidget ( rationale , canDelete) {
@@ -509,7 +523,7 @@ function checkTypeInJsonLD (input,type) {
  
 	//assuming it is array 
 	for (let i=0;i < input.length; i++) {
-		console.log("checking: "+ input[i] + " with " +type );
+	//	console.log("checking: "+ input[i] + " with " +type );
 		if (input[i] == type) {result=true;}
 	}
 	return result;
@@ -524,6 +538,7 @@ console.log("creating step with label" + label);
 	step ['@id'] = id;
 	step ['@type'] = types;
 	step ['label'] = label;
+	
 	step ['isElementOfPlan'] = plan['@id']; 
 	step['hasRationale'] = []; 
 	
@@ -576,11 +591,15 @@ console.log("creating step with label" + label);
   
 
 
-function createNewVariable (label, description, type, rowId, mode ) {
+function createNewVariable (label, description, type, rowId, mode, accountableObjectRel ) {
+	
+	
 	let variable = {} ;
 	variable ['@id'] = dataPrefix+ uuidv4();
 	variable ['@type'] = [];
 	variable ['@type'].push (context.Variable);
+	variable ['@type'].push (context.namedIndividual);
+	variable ['@type'].push (context.MultiVariable);
 	variable ['@type'].push (type);
 	variable ['label'] = label; 
 	variable ['comment'] = description; 
@@ -588,6 +607,7 @@ function createNewVariable (label, description, type, rowId, mode ) {
 	variable['belongsToRow'] = rowId;
 	variable['isInputVariableOf'] = [];
 	variable['isOutputVariableOf'] =[];
+	variable['relatesTo'] =accountableObjectRel;
 	
 	if (mode==="Input") {
 		
@@ -607,6 +627,8 @@ function createNewVariable (label, description, type, rowId, mode ) {
 				stepsArray[i]['hasInputVariable'].push( variable["@id"]);
 			}
 			if (mode==="Output") {
+				console.log("index.js line 610 pushing output variable to " + selectedStep["@id"]);
+				console.log("index.js line 610 pushing var " + variable["@id"]);
 				stepsArray[i]['hasOutputVariable'].push( variable["@id"]);
 			}
 			break;
@@ -633,9 +655,12 @@ step.id = uuid;
 step ['@id'] = dataPrefix+ uuid;
 step ['@type'] = [];
 step ['@type'].push (context.Step);
+step ['@type'].push (context.namedIndividual);
+step ['@type'].push (context.MultiStep);
 //to do load the IRI from component tree properly
 step ['@type'].push (data);
 step ['label'] = labelFromIRI (data); 
+step ['comment'] = "default comment";
 step ['isElementOfPlan'] = plan['@id']; 
 //step.types = ["ep-plan:Step", "rains:"+data]; 
 step['hasRationale'] = []; 
@@ -777,19 +802,21 @@ function createStepRow (element) {
 function initLayout (mode, stage, systemiri, topLevelStepIri) {	
 	console.log(systemiri);	
     if (mode ==='open') {
-    	let p1 = getSavedPlan(systemiri, topLevelStepIri);
+    	let p1 = getSavedPlan(systemiri, stage);
+    	//let p1 = getSavedPlan(systemiri, topLevelStepIri);
     	p1.then(
     			(data) => {
     				console.log(data);
     				return data.json();
-    			}).then(topLevelPlanDetails => {
-    			 
+    			//}).then(topLevelPlanDetails => {
+    			}).then(planDetails => {
     			  //console.log(topLevelPlanDetails);
     			 
     			  for (let i=0; i<15;i++) {
     			       createStepRow(document.getElementById('workflowStepsPane'));
     			} 
-    			  parseSavedPlanJsonLD (topLevelPlanDetails);
+    			  //parseSavedPlanJsonLD (topLevelPlanDetails);
+    			  parseSavedPlanJsonLD (planDetails);
     			}
     		).catch(
     		        // Log the rejection reason
@@ -802,7 +829,7 @@ function initLayout (mode, stage, systemiri, topLevelStepIri) {
 	
 	if (mode==='new') {
 	    //load the details of top level plan  
-		
+		/*
 		let p1 = getTopLevelPlan(systemiri);
 		p1.then(
 			(data) => {
@@ -821,7 +848,25 @@ function initLayout (mode, stage, systemiri, topLevelStepIri) {
 			            console.log('Handle rejected promise ('+reason+') here.');
 			           
 			        });
-		
+		*/
+		let p1 = getStagePlanIRI (systemiri,stage);
+		p1.then(
+			(data) => {
+				return data.json();
+			}).then(plan => {
+			 
+			  
+			  initNewPlan (mode,stage, plan.planIRI);
+			  for (let i=0; i<15;i++) {
+			       createStepRow(document.getElementById('workflowStepsPane'));
+			} 
+			}
+		).catch(
+		        // Log the rejection reason
+			       (reason) => {
+			            console.log('Handle rejected promise ('+reason+') here.');
+			           
+			        });
 	
 	
 	}
@@ -862,12 +907,19 @@ function findGetParameter(parameterName) {
  * 
  * @returns IRI of the new plan object
  */
-function initNewPlan (mode,stage, topLevelPlan) {
-	let IRI = dataPrefix + uuidv4(); 
+function initNewPlan (mode,stage, ExistingPlanIRI) {
+	let IRI ="";
+	if (ExistingPlanIRI=="") {
+	 IRI = dataPrefix + uuidv4();
+	}else{
+	 IRI = ExistingPlanIRI;
+	}
+	console.log("Empty plan IRI is: "+ IRI);
 	// save into global variable
 	plan ['@id'] = IRI;
 	plan ['@type'].push(context.Plan);
-	
+	plan ['@type'].push(context.AccountabilityPlan);
+	plan ['@type'].push (context.namedIndividual);
 		
 	if (mode ==='template')  {
 	switch (stage) {
@@ -891,8 +943,9 @@ function initNewPlan (mode,stage, topLevelPlan) {
 	}
 	
 	if (mode ==='new') {
-		console.log(topLevelPlan.designStep);
-		plan ['@type'].push(context.AccountabilityPlan);
+		//console.log(topLevelPlan.designStep);
+		//plan ['@type'].push(context.AccountabilityPlan);
+		/*
 		plan ['isSubPlanOfPlan'] = topLevelPlan.plan;
 		
 		switch (stage) {
@@ -913,6 +966,8 @@ function initNewPlan (mode,stage, topLevelPlan) {
 			plan ['decomposesMultiStep']= topLevelPlan.operationStep;
 		break; 
 		}
+		*/
+		
 		
 	}
 	
@@ -953,12 +1008,17 @@ function generateJsonLDpayload (context, graph) {
 	return JSON.stringify(jsonld); 
 }
 
-
+/*
 // to do all XMLH should be rewritten as promise
 function getTopLevelPlan (systemiri) {
 	return fetch("/getTopLevelPlan?systemIri="+systemiri);
 }
-	
+*/	
+
+//to do all XMLH should be rewritten as promise
+function getStagePlanIRI (systemiri, stage) {
+	return fetch("/getStagePlanIRI?systemIri="+systemiri+"&stage="+stage);
+}
 
 function savePlan () {
 	
@@ -1079,9 +1139,15 @@ function importTemplate (templatePlanIRI) {
     xmlhttp.send();
 }
 
+/*
 function getSavedPlan ( systemiri, topLevelStepIri) {
 	return fetch("/getSavedPlan?systemIri="+systemiri+"&topLevelStepIri="+topLevelStepIri);
 }
+*/
+function getSavedPlan ( systemiri, stage) {
+	return fetch("/getSavedPlan?systemIri="+systemiri+"&stage="+stage);
+}
+
 
 
 

@@ -9,7 +9,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
@@ -56,7 +58,9 @@ import uoa.init.graphdb.GraphDBUtils;
 import uoa.model.components.NewSystemForm;
 import uoa.model.components.SystemDetails;
 import uoa.semantic.system.EpPlanOntologyComponents;
+import uoa.semantic.system.OwlOntologyComponents;
 import uoa.semantic.system.RainsOntologyComponents;
+import uoa.semantic.system.SaoOntologyElements;
 import uoa.semantic.system.SystemComponentsIRI;
 import uoa.web.storage.AuthorisationCacheStorage;
 
@@ -89,7 +93,7 @@ public class SystemRecordManager {
 		
 		HashMap <String,String > map = new  HashMap <String,String >  ();
 		
-		String queryString = " Prefix rains:<"+Constants.RAINS_PLAN_NAMESPACE+"> SELECT DISTINCT ?system ?label FROM <"+Constants.SYSTEMS_NAMED_GRAPH_IRI+"> WHERE { ?system a rains:AiSystem. OPTIONAL {?system rdfs:label ?label} } ";
+		String queryString = " Prefix rains:<"+Constants.RAINS_PLAN_NAMESPACE+"> SELECT DISTINCT ?system ?label FROM <"+Constants.SYSTEMS_NAMED_GRAPH_IRI+"> WHERE { ?system a <"+RainsOntologyComponents.AI_SYSTEM+">. OPTIONAL {?system rdfs:label ?label} } ";
 		   TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 			   try (TupleQueryResult result = tupleQuery.evaluate()) {
 				      while (result.hasNext()) {  // iterate over the result
@@ -170,8 +174,11 @@ public class SystemRecordManager {
 			System.out.println("New "+iri);
 			
 			conn.begin();
-			
-			conn.add(f.createIRI(iri), RDF.TYPE, f.createIRI(RainsOntologyComponents.AI_SYSTEM), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			Resource system = f.createIRI(iri) ;
+			conn.add(system, RDF.TYPE, f.createIRI(RainsOntologyComponents.AI_SYSTEM), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			conn.add(system, RDF.TYPE, f.createIRI(SaoOntologyElements.SYSTEM), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			conn.add(system, RDF.TYPE, f.createIRI(OwlOntologyComponents.NamedIndividual), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			conn.add(system, RDF.TYPE, f.createIRI(SaoOntologyElements.AccountableObject), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
 			conn.add(f.createIRI(iri), RDFS.COMMENT, f.createLiteral(newSystem.getDescription()), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
 			conn.add(f.createIRI(iri), RDFS.LABEL, f.createLiteral(newSystem.getLabel()), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
 			
@@ -189,9 +196,33 @@ public class SystemRecordManager {
 				e.printStackTrace();
 			}
 			*/
-			Resource plan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
-			conn.add(plan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			//Resource plan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
+			//conn.add(plan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
 			
+			
+			/*
+			 * Create accountability plans for four different stages
+			 */
+			
+			Resource designPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
+			conn.add(designPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.DesignStageAccountabilityPlan), planNamedGraphContext);
+			conn.add(designPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			conn.add(designPlan, f.createIRI(RainsOntologyComponents.specifiedForSystem),system, planNamedGraphContext);
+			
+			Resource implementationPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
+			conn.add(implementationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.ImplementationStageAccountabilityPlan), planNamedGraphContext);
+			conn.add(implementationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			
+			
+			Resource deploymentPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
+			conn.add(deploymentPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.DeploymentStageAccountabilityPlan), planNamedGraphContext);
+			conn.add(deploymentPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			
+			Resource operationPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
+			conn.add(operationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.OperationStageAccountabilityPlan), planNamedGraphContext);
+			conn.add(operationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			
+			/*
 			Resource designStep = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
 			conn.add(designStep, RDF.TYPE, f.createIRI(EpPlanOntologyComponents.MultiStep), planNamedGraphContext);
 			conn.add(designStep, RDF.TYPE, f.createIRI(RainsOntologyComponents.DesignStep), planNamedGraphContext);
@@ -216,6 +247,9 @@ public class SystemRecordManager {
 			conn.add(operationStep, RDF.TYPE, f.createIRI(RainsOntologyComponents.OperationStep), planNamedGraphContext);
 			conn.add(operationStep, f.createIRI(EpPlanOntologyComponents.isElementOfPlan), plan, planNamedGraphContext);
 			conn.add(operationStep, f.createIRI(EpPlanOntologyComponents.isPreceededBy), deploymentStep, planNamedGraphContext);	
+			*/
+			
+			
 			
 			conn.commit();
 			
@@ -333,6 +367,7 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 		return iri.toString();
 	}
 
+	/*
 	public HashMap <String,String > getTopLevelPlan(String systemIri) {
 HashMap <String,String > map = new  HashMap <String,String >  ();
 		//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
@@ -356,13 +391,55 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 			   }
 		return map;
 	}
+*/
+	
+	
+	public HashMap <String,String > getStagePlanIRI(String systemIri, String stage) {
+HashMap <String,String > map = new  HashMap <String,String >  ();
+		//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+		
+		String stageIRI ="";
+		switch (stage)  {
+
+		case "design":
+			stageIRI = RainsOntologyComponents.DesignStageAccountabilityPlan;
+		break; 
+		
+		case "implementation":
+			stageIRI = RainsOntologyComponents.ImplementationStageAccountabilityPlan;
+		break; 
+		
+		case "deployment":
+			stageIRI = RainsOntologyComponents.DeploymentStageAccountabilityPlan;
+		break; 
+		
+		case "operation":
+			stageIRI =  RainsOntologyComponents.OperationStageAccountabilityPlan;
+		break; 
+		
+		}
+
+        String queryString = Constants.PREFIXES + "SELECT ?plan FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan a <"+stageIRI+">; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">}";
+		System.out.println(queryString);
+        TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+				      while (result.hasNext()) {  // iterate over the result
+				         BindingSet bindingSet = result.next();
+				         Value iri = bindingSet.getValue("plan");				        
+				         map.put("planIRI",iri.toString());
+				      }
+				   
+			   }
+		return map;
+	}
 
 	
 	public ArrayList <HashMap <String,String >> getSavedPlanForEachStage(String systemIri) {
   ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
 		//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
-		String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
-		System.out.println(queryString);
+		//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+       String queryString = Constants.PREFIXES + "Select Distinct ?plan ?planType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan a ?planType; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  Filter (?planType = <"+RainsOntologyComponents.DesignStageAccountabilityPlan+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStageAccountabilityPlan+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStageAccountabilityPlan+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStageAccountabilityPlan+">)}";
+       System.out.println(queryString);
 		TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 			   try (TupleQueryResult result = tupleQuery.evaluate()) {
 				      while (result.hasNext()) {  // iterate over the result
@@ -370,10 +447,14 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 				         BindingSet bindingSet = result.next();
 				         Value iri = bindingSet.getValue("plan");				        
 				         map.put("plan",iri.toString());
-				         iri = bindingSet.getValue("topLevelStepType");				        
-				         map.put("topLevelStepType",iri.toString());
-				         iri = bindingSet.getValue("topLevelStep");				        
-				         map.put("topLevelStep",iri.toString());
+				          iri = bindingSet.getValue("planType");	
+				          map.put("planType",iri.toString());
+					    
+				        // map.put("topLevelStepType",iri.toString());
+				        // iri = bindingSet.getValue("topLevelStepType");				        
+				        // map.put("topLevelStepType",iri.toString());
+				         //iri = bindingSet.getValue("topLevelStep");				        
+				         //map.put("topLevelStep",iri.toString());
 				         list.add(map);
 				      }			   
 			   }
@@ -398,13 +479,35 @@ public String getSavedPlanPartsForHumanTaskForm (String planIri, String systemIr
 	}	
 	
 	
-public String getSavedPlan (String topLevelStepIri, String systemIri)  {
+public String getSavedPlan (String stage, String systemIri)  {
 		
-        System.out.println(topLevelStepIri+" : "+systemIri)	;
+        System.out.println(stage+" : "+systemIri)	;
 	
 		String ldjson ="error";	
+		
+		String stageIRI ="";
+		switch (stage)  {
+
+		case "design":
+			stageIRI = RainsOntologyComponents.DesignStageAccountabilityPlan;
+		break; 
+		
+		case "implementation":
+			stageIRI = RainsOntologyComponents.ImplementationStageAccountabilityPlan;
+		break; 
+		
+		case "deployment":
+			stageIRI = RainsOntologyComponents.DeploymentStageAccountabilityPlan;
+		break; 
+		
+		case "operation":
+			stageIRI =  RainsOntologyComponents.OperationStageAccountabilityPlan;
+		break; 
+		
+		}
 			
-		String query =  Constants.PREFIXES + "Construct FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep  ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.} Values (?topLevelStep) { (<"+topLevelStepIri+">)}"   ;
+		//String query =  Constants.PREFIXES + "Construct FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep  ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.} Values (?topLevelStep) { (<"+topLevelStepIri+">)}"   ;
+		String query =  Constants.PREFIXES + "Construct FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan  a <"+stageIRI+">; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.}"   ;
 			
 		System.out.println(query);
 		//Model m = Repositories.graphQuery(repository,query, r -> QueryResults.asModel(r));
@@ -428,7 +531,7 @@ public void saveUploadToWorkflowComponentLibrary(MultipartFile file) throws RDFP
 public HashMap <String,HashSet <String >> getStepComponentHierarchy () {
 	HashMap <String,HashSet <String >> map = new  HashMap   <String,HashSet <String >> ();
 	//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
-	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:Step. ?step rdfs:subClassOf ?parentStep.} ";
+	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.} ";
 	
 	TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 		   try (TupleQueryResult result = tupleQuery.evaluate()) {
@@ -455,8 +558,8 @@ public HashMap <String,HashSet <String >> getStepComponentHierarchy () {
 public HashMap <String,HashSet <String >> getVariableComponentHierarchy () {
 	HashMap <String,HashSet <String >> map = new  HashMap   <String,HashSet <String >> ();
 	//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
-	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?variable rdfs:subClassOf* ep-plan:Variable. ?variable rdfs:subClassOf ?parentVariable.} ";
-	
+	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?variable rdfs:subClassOf* ep-plan:MultiVariable. ?variable rdfs:subClassOf ?parentVariable.} ";
+	System.out.println("get VariableComponentHierarchy " +queryString);
 	TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 		   try (TupleQueryResult result = tupleQuery.evaluate()) {
 			      while (result.hasNext()) {  // iterate over the result
@@ -488,8 +591,13 @@ public String createNewExecutionBundle(String planIRI, String systemIRI) {
 	//create named graph for storing execution trace
 	conn.add(f.createIRI(executionBundleIRI), RDF.TYPE, f.createIRI(EpPlanOntologyComponents.ExecutionTraceBundle), f.createIRI(executionBundleIRI));
 	
+	//save info in the system graph so we can link the trace and plan easily
+	conn.add(f.createIRI(executionBundleIRI), f.createIRI(Constants.PROV_NAMESPACE+"wasDerivedFrom"),f.createIRI(planIRI) , f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	conn.add(f.createIRI(executionBundleIRI), f.createIRI(Constants.PROV_NAMESPACE+"wasDerivedFrom"),f.createIRI(planIRI) , f.createIRI(executionBundleIRI));
+	
+	
 	//save the link between plan and execution trace bundle into systems named graph as well so we can later find it
-	conn.add(f.createIRI(systemIRI), f.createIRI(RainsOntologyComponents.hasAccountabilityTrace), f.createIRI(executionBundleIRI), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	conn.add(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasAccountabilityTrace), f.createIRI(executionBundleIRI), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
 	conn.commit();
 	
 	return executionBundleIRI;
@@ -503,7 +611,10 @@ if (map.get("status")!=null) {
 	if (map.get("status").equals("Active")) {
 		String planIRI = map.get("planIRI");
 		String executiontraceBundleIRI = map.get("executiontraceBundleIRI");
-		RepositoryResult<Statement> res= conn.getStatements(null, f.createIRI(RainsOntologyComponents.hasAccountabilityTrace), f.createIRI(executiontraceBundleIRI), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+		RepositoryResult<Statement> res= conn.getStatements(null, f.createIRI(SystemComponentsIRI.hasAccountabilityTrace), f.createIRI(executiontraceBundleIRI), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+		
+		
+		
 		// get system iri there should only be one added by createNewExecutionBundle(String planIRI, String systemIRI) 
 		Statement stm  = res.next();
 		Value system = stm.getSubject();
@@ -523,6 +634,8 @@ public String saveHumanTaskProvenanceTrace(String payload, String token) {
 		if (map.get("status").equals("Active")) {
 			String planIRI = map.get("planIRI");
 			String executiontraceBundleIRI = map.get("executiontraceBundleIRI");
+			
+			
 			
 			Model results = null;
 			try {
@@ -586,15 +699,17 @@ String queryString = Constants.PREFIXES + "SELECT ?allowedPropertyRange From <"+
 	//if no restrictions found add all available types
     if (allowedTypes.size() == 0) {
     
-    queryString = Constants.PREFIXES + "Select Distinct ?variable FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?variable rdfs:subClassOf* ep-plan:Variable. }order  by asc(?variable) ";
+    queryString = Constants.PREFIXES + "Select Distinct ?variable FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?variable rdfs:subClassOf* ep-plan:MultiVariable. }order  by asc(?variable) ";
+    System.out.println("Allowed Variable Query" +queryString);
     tupleQuery = conn.prepareTupleQuery(queryString);
 	   try (TupleQueryResult result = tupleQuery.evaluate()) {
 		      while (result.hasNext()) {  // iterate over the result
 		    	
 		         BindingSet bindingSet = result.next();			         
 		        
-		         Value step = bindingSet.getValue("variable");
-		         allowedTypes.add(step.toString());
+		         Value var = bindingSet.getValue("variable");
+		         allowedTypes.add(var.toString());
+		         System.out.println("Allowed Variable "+var.toString());
 		      }			   
 	   }
     	
@@ -604,6 +719,382 @@ String queryString = Constants.PREFIXES + "SELECT ?allowedPropertyRange From <"+
 	
  	return allowedTypes;
 }
+
+public ArrayList <String> getAllowedInformationElelementForInformationRealizationType(String informationRealizationType) {
+	// TODO Auto-generated method stub
+	ArrayList <String> allowedTypes = new ArrayList <String> ();
+	
+	String queryString = Constants.PREFIXES + "SELECT ?allowedPropertyRange From <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> WHERE { ?subject rdfs:subClassOf ?restriction. ?restriction owl:onProperty ?property. { ?restriction owl:allValuesFrom ?allowedPropertyRange ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first ?allowedPropertyRange.} FILTER (!isBlank(?allowedPropertyRange)) }order  by asc(?allowedPropertyRange) Values (?subject ?property ) {(<"+informationRealizationType+"> <prov:hadMember>) } ";
+		
+		TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+				      while (result.hasNext()) {  // iterate over the result
+				    	
+				         BindingSet bindingSet = result.next();			         
+				        
+				         Value step = bindingSet.getValue("allowedPropertyRange");
+				         allowedTypes.add(step.toString());
+				      }			   
+			   }
+		//if no restrictions found add all available types
+	    if (allowedTypes.size() == 0) {
+	    
+	    queryString = Constants.PREFIXES + "Select Distinct ?infoElement FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> Where { ?infoElement rdfs:subClassOf* <"+SaoOntologyElements.InformationElement+">. }order  by asc(?infoElement) ";
+	    System.out.println("Allowed Variable Query" +queryString);
+	    tupleQuery = conn.prepareTupleQuery(queryString);
+		   try (TupleQueryResult result = tupleQuery.evaluate()) {
+			      while (result.hasNext()) {  // iterate over the result
+			    	
+			         BindingSet bindingSet = result.next();			         
+			        
+			         Value var = bindingSet.getValue("infoElement");
+			         allowedTypes.add(var.toString());
+			         System.out.println("Allowed Information Elemets "+var.toString());
+			      }			   
+		   }
+	    	
+	    	
+	    }
+			   
+		
+	 	return allowedTypes;
+
+}
+
+
+public HashSet getAgentsInExecutionTraces(String systemIRI) {
+
+		RepositoryResult<Statement> res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasAccountabilityTrace), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+				
+		// find named graphs for execution traces 
+		HashSet <String> namedGraphsToQuery = new HashSet <String> ();
+		while (res.hasNext()) {
+			namedGraphsToQuery.add(res.next().getObject().toString());
+		}
+		// find named graphs for plans
+		res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasPlansStoredInGraph), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+		namedGraphsToQuery.add(res.next().getObject().toString());
+		
+		String fromPart = "";
+		Iterator <String> it = namedGraphsToQuery.iterator();
+		while (it.hasNext()) {
+			fromPart = fromPart +  "FROM <" +it.next()+"> "; 
+		}
+		
+		HashSet <String> resultSet = new HashSet <String> ();
+		String queryString = Constants.PREFIXES + "Select Distinct ?agent "+fromPart+" Where { ?activity  prov:wasAssociatedWith ?agent. }";
+		    System.out.println("Get agents execution trace query" +queryString);
+		    TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
+			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+				      while (result.hasNext()) {  // iterate over the result
+				    	
+				         BindingSet bindingSet = result.next();			         
+				        
+				         Value var = bindingSet.getValue("agent");
+				         resultSet.add(var.toString());
+				        
+			   }
+		    	
+		    	
+		    }
+				
+		
+		return resultSet;		
+
+
+}
+
+/*
+public ArrayList <HashMap> getAgentsParticipationDetailsInExecutionTraces(String systemIRI, String agentIRI) {
+
+	RepositoryResult<Statement> res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasAccountabilityTrace), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			
+	// find named graphs for execution traces 
+	HashSet <String> namedGraphsToQuery = new HashSet <String> ();
+	while (res.hasNext()) {
+		namedGraphsToQuery.add(res.next().getObject().toString());
+	}
+	// find named graphs for plans
+	res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasPlansStoredInGraph), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	namedGraphsToQuery.add(res.next().getObject().toString());
+	
+	String fromPart = "";
+	Iterator <String> it = namedGraphsToQuery.iterator();
+	while (it.hasNext()) {
+		fromPart = fromPart +  "FROM <" +it.next()+"> "; 
+	}
+	
+	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+	String queryString = Constants.PREFIXES + "Select Distinct ?stepType ?activity ?entity ?outputType "+fromPart+" Where {?entity prov:wasGeneratedBy ?activity; ep-plan:correspondsToVariable ?var. ?var a ?outputType. ?activity  prov:wasAssociatedWith ?agent; ep-plan:correspondsToStep ?step. ?step a ?stepType FILTER(regex(str(?stepType), \"https://w3id.org/rains#\" ) && regex(str(?outputType), \"https://w3id.org/rains#\" ) )  } Values (?agent) {(<"+agentIRI+">)}";
+	    System.out.println("Get agents execution trace query" +queryString);
+	    TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
+		   try (TupleQueryResult result = tupleQuery.evaluate()) {
+			      while (result.hasNext()) {  // iterate over the result
+			    	HashMap <String,String> row = new HashMap <String,String>(); 
+			        
+			    	BindingSet bindingSet = result.next();			         
+			        
+			         Value var = bindingSet.getValue("stepType");
+			         row.put("stepType", var.toString());
+			         
+			          var = bindingSet.getValue("entity");
+			         row.put("entity", var.toString());
+			         
+			         if (bindingSet.getValue("outputType")!=null) {
+				         var = bindingSet.getValue("outputType");
+				         row.put("outputType", var.toString());
+				         }
+			         
+			         var = bindingSet.getValue("activity");
+			         row.put("activity", var.toString());
+			         resultSet.add(row);
+			      }
+	    	
+	    	
+	    }
+			
+	
+	return resultSet;		
+}
+*/
+public ArrayList <HashMap> getAgentsParticipationDetailsInExecutionTraces(String systemIRI, String agentIRI) {
+
+	RepositoryResult<Statement> res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasAccountabilityTrace), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			
+	// find named graphs for execution traces 
+	HashSet <String> namedGraphsToQuery = new HashSet <String> ();
+	while (res.hasNext()) {
+		namedGraphsToQuery.add(res.next().getObject().toString());
+	}
+	// find named graphs for plans
+	res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasPlansStoredInGraph), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	namedGraphsToQuery.add(res.next().getObject().toString());
+	
+	String fromPart = "";
+	Iterator <String> it = namedGraphsToQuery.iterator();
+	while (it.hasNext()) {
+		fromPart = fromPart +  "FROM <" +it.next()+"> "; 
+	}
+	
+	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.SYSTEMS_NAMED_GRAPH_IRI+"> "+fromPart+" Where {?infoRealization prov:wasGeneratedBy ?activity; ep-plan:correspondsToVariable ?accountableResult. ?accountableResult a ?accountableResultType; sao:relatesToAccountableObject ?accountableObject; rdfs:label ?accountableResultLabel. ?accountableObject rdfs:label ?accountableObjectLabel. ?activity  prov:wasAssociatedWith ?agent; ep-plan:correspondsToStep ?accountableAction.?accountableAction a ?accountableActionType; ep-plan:hasOutputVariable ?accountableResult; rdfs:label ?accountableActionLabel. OPTIONAL {?dependentAccountableActionActivity ep-plan:correspondsToStep ?dependentAccountableAction. ?dependentAccountableAction ep-plan:hasInputVariable ?accountableResult; a ?dependentAccountableActionType; rdfs:label ?dependentAccountableActionLabel. FILTER (regex(str(?dependentAccountableActionType), \"https://w3id.org/rains#\" ))}FILTER(regex(str(?accountableActionType), \"https://w3id.org/rains#\" ) && regex(str(?accountableResultType), \"https://w3id.org/rains#\" ) )  }  Values (?agent) {(<"+agentIRI+">)}";
+	    System.out.println("Get agents execution trace query" +queryString);
+	    TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
+		   try (TupleQueryResult result = tupleQuery.evaluate()) {
+			      while (result.hasNext()) {  // iterate over the result
+			    	HashMap <String,String> row = new HashMap <String,String>(); 
+			        
+			    	
+			    	
+			    	BindingSet bindingSet = result.next();	
+			    	
+			    	Set <String> bindings = bindingSet.getBindingNames();  
+			    	
+			    	Iterator it2 = bindings.iterator();
+			    	while (it2.hasNext()) {
+			    		String key = (String) it2.next();
+			    		if (bindingSet.getValue(key)!=null)
+			    		row.put(key, bindingSet.getValue(key).toString()) ;
+			    	}
+			       
+			         resultSet.add(row);
+			      }
+	    	
+	    	
+	    }
+			
+	
+	return resultSet;		
+}
+
+
+public ArrayList <HashMap> getActivityDetailsInExecutionTraces(String systemIRI, String activityIRI) {
+	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+	String queryString = Constants.PREFIXES + "Select Distinct *  Where {  ?activity prov:endedAtTime ?end. ?activity prov:startedAtTime ?start; ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType.OPTIONAL {?step rdfs:comment ?stepComment.}FILTER(?planType = rains:DesignStageAccountabilityPlan)}Values (?activity) {(<"+activityIRI+">)}";
+	System.out.println("Get activity details execution trace query" +queryString);
+    TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
+	   try (TupleQueryResult result = tupleQuery.evaluate()) {
+		      while (result.hasNext()) {  // iterate over the result
+		    	HashMap <String,String> row = new HashMap <String,String>(); 
+		    	/*  
+		    	BindingSet bindingSet = result.next();			         
+		        
+		         Value var = bindingSet.getValue("start");
+		         row.put("start", var.toString());
+		         
+		      
+		         
+		         if (bindingSet.getValue("stepComment")!=null) {
+		         var = bindingSet.getValue("stepComment");
+		         row.put("stepComment", var.toString());
+		         }
+		          var = bindingSet.getValue("agent");
+		         row.put("agent", var.toString());
+		          var = bindingSet.getValue("planType");
+		         row.put("planType", var.toString());
+		         resultSet.add(row);
+		      }*/
+		         BindingSet bindingSet = result.next();	
+			    	
+			    	Set <String> bindings = bindingSet.getBindingNames();  
+			    	
+			    	Iterator it2 = bindings.iterator();
+			    	while (it2.hasNext()) {
+			    		String key = (String) it2.next();
+			    		if (bindingSet.getValue(key)!=null)
+			    		row.put(key, bindingSet.getValue(key).toString()) ;
+			    	}
+			       
+			         resultSet.add(row);
+			      }
+	
+}
+	   return resultSet;
+}
+
+public ArrayList <HashMap> getOutputDetailsInExecutionTraces(String systemIRI, String infoRealizationIRI) {
+	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+	String queryString = Constants.PREFIXES + "Select *  Where {  ?infoRealization a sao:InformationRealization.?infoRealization rdfs:comment ?infoRealizationComment. Optional{ ?infoElement prov:wasMemberOf ?infoRealization.  ?infoElement a ?infoElementType. ?infoElement rdfs:label ?infoElementLabel. ?infoElement rdfs:comment ?infoElementComment. Optional {?infoElement rains:isReusedObject ?reused} Optional{?infoElement sao:isAccountableFor ?isAccountableFor} FILTER(regex(str(?infoElementType), \"https://w3id.org/rains#\" )||regex(str(?infoElementType), \"https://w3id.org/sao#\" )||regex(str(?infoElementType), \"http://www.w3.org/ns/mls#\" ))} } Values (?infoRealization) {(<"+infoRealizationIRI+">)}";
+	System.out.println("Get info realization  details execution trace query" +queryString);
+    TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
+	   try (TupleQueryResult result = tupleQuery.evaluate()) {
+		      while (result.hasNext()) {  // iterate over the result
+		    	HashMap <String,String> row = new HashMap <String,String>(); 
+		        /*
+		    	BindingSet bindingSet = result.next();			         
+		        
+		         Value var = bindingSet.getValue("infoElementType");
+		         row.put("infoElementType", var.toString());
+		        
+		         if (bindingSet.getValue("infoElementComment")!=null) {
+			         var = bindingSet.getValue("infoElementComment");
+			         row.put("infoElementComment", var.toString());
+			         }
+		      
+		         
+		         if (bindingSet.getValue("infoRealizationComment")!=null) {
+		         var = bindingSet.getValue("infoRealizationComment");
+		         row.put("infoRealizationComment", var.toString());
+		         }
+		         
+		         if (bindingSet.getValue("infoElementLabel")!=null) {
+			         var = bindingSet.getValue("infoElementLabel");
+			         row.put("infoElementLabel", var.toString());
+			         }
+		         resultSet.add(row);
+		      }*/
+		    	 BindingSet bindingSet = result.next();	
+			    	
+			    	Set <String> bindings = bindingSet.getBindingNames();  
+			    	
+			    	Iterator it2 = bindings.iterator();
+			    	while (it2.hasNext()) {
+			    		String key = (String) it2.next();
+			    		if (bindingSet.getValue(key)!=null)
+			    		row.put(key, bindingSet.getValue(key).toString()) ;
+			    	}
+			       
+			         resultSet.add(row);
+			      }
+	
+}
+	   return resultSet;
+}
+
+
+public ArrayList <HashMap> getDependingActivities(String systemIRI, String entityIRI) {
+	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+	String queryString = Constants.PREFIXES + "Select Distinct ?activity ?stepType  Where { ?entity ep-plan:correspondsToVariable ?outputType. ?activity  prov:used ?entity; ep-plan:correspondsToStep ?step. ?step a ?stepType FILTER(regex(str(?stepType), \"https://w3id.org/rains#\" ))}Values (?entity) {(<"+entityIRI+">)}";
+	System.out.println("Get depending details execution trace query" +queryString);
+    TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
+	   try (TupleQueryResult result = tupleQuery.evaluate()) {
+		      while (result.hasNext()) {  // iterate over the result
+		    	HashMap <String,String> row = new HashMap <String,String>(); 
+		        
+		    	BindingSet bindingSet = result.next();			         
+	        
+		        	 Value    var = bindingSet.getValue("activity");
+		         row.put("activity", var.toString());
+		         
+		          var = bindingSet.getValue("stepType");
+		         row.put("stepType", var.toString());
+		         
+		         
+		          
+		         resultSet.add(row);
+		      }
+	
+}
+	   return resultSet;
+}
+
+
+public HashMap <String,HashMap <String,String >>getAccountableObjects (String systemIRI) {
+	HashMap <String,HashMap <String,String >> map = new  HashMap   <String,HashMap <String, String >> ();
+	String queryString = Constants.PREFIXES + "Select Distinct  ?object ?parentObject ?objectLabel Where { ?object sao:impacts* ?system; rdfs:label ?objectLabel. ?object sao:impacts ?parentObject. } Values (?system) {(<"+systemIRI+">)}";
+	System.out.println("getAccountableObjects query" +queryString);
+    TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
+	   try (TupleQueryResult result = tupleQuery.evaluate()) {
+		      while (result.hasNext()) {  // iterate over the result
+		    	HashMap <String,String> row = new HashMap <String,String>(); 
+		        
+		    	BindingSet bindingSet = result.next();			         
+		      
+		      
+		         Value object = bindingSet.getValue("object");
+		         Value parentObject = bindingSet.getValue("parentObject");
+		         if (object!=null&&parentObject!=null) {
+		         if (map.containsKey(parentObject.toString())) {			        	
+		        	 map.get(parentObject.toString()).put(object.toString(),bindingSet.getValue("objectLabel").toString() );
+		         }
+		         else {
+		        	 HashMap <String, String> map2 = new HashMap <String, String> ();
+		        	 map2.put(object.toString(),bindingSet.getValue("objectLabel").toString());
+		        	 map.put(parentObject.toString(), map2);
+		         }
+		         }
+		      }
+	
+}
+	   return map;
+}
+
+public void saveAccountableObject(String jsonPayload) {
+
+	Model results = null;
+	try {
+		  // rdfParser.parse(inputStream	, null);
+		   
+		    RDFParser parser = Rio.createParser(RDFFormat.JSONLD);
+		    parser.set(JSONSettings.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,true);
+		    //parser.parse(new StringReader(jsonld_dummy), null);
+		   
+		    results = Rio.parse(new StringReader(jsonPayload), null, RDFFormat.JSONLD);
+		}
+		catch (IOException e) {
+		  // handle IO problems (e.g. the file could not be read)
+			System.out.println(e.getLocalizedMessage());
+		}
+		catch (RDFParseException e) {
+		  // handle unrecoverable parse error
+			System.out.println(e.getLocalizedMessage());
+		}
+		catch (RDFHandlerException e) {
+		  // handle a problem encountered by the RDFHandler
+			System.out.println(e.getLocalizedMessage());
+		}
+		
+	
+	if (results!=null) {
+		System.out.println("model size" +results.size() );
+	conn.add(results.getStatements(null, null, null, (Resource)null), f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	}
+	else {
+		System.out.println("model is null");
+	}
+	
+}
+
 
 
 }

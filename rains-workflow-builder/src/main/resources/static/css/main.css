@@ -73,7 +73,7 @@ padding:10px;
 
 .agentWidget {
 float:left;
-min-width: 100px;
+
 
 min-height: 40px;
 border-radius: 25px;
@@ -90,6 +90,47 @@ padding:10px;
     white-space: -pre-wrap; /* Opera 4-6 */
     white-space: -o-pre-wrap; /* Opera 7 */
     word-wrap: break-word; /* Internet Explorer 5.5+ */
+
+}
+
+.planWidget {
+
+  background: lightgray;
+padding-left:5px;
+
+
+}
+
+.objectDetails {
+	 background: lightgray;
+	 
+	
+	}
+
+.infoElement {
+
+  background: black;
+    color: white;
+padding-left:5px;
+margin:10px;
+
+}
+
+.infoElementBox {
+	 background: black;
+    color: white;
+	 margin:10px;
+	  min-height: 180px;
+	   min-width: 400px;
+	   padding:10px;
+}
+
+.executionTraceWidget {
+
+  background: lightgreen;
+padding:5px;
+margin-top:10px;
+margin-bottom:10px;
 
 }
 

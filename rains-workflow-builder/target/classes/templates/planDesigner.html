@@ -24,6 +24,8 @@
 <link rel="stylesheet" href="./css/componentsLibrary.css">
 <link rel="stylesheet" href="./css/loader.css">
   <link rel="stylesheet" href="/css/main.css"> 
+  
+   <script src="./js/accountableObjects.js"></script>
 
 <style>
 
@@ -220,7 +222,7 @@ div.scroll {
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Design </button>
       
        <script>
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.DesigStep, true);
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
       </script>
     
        </div>  
@@ -230,7 +232,7 @@ div.scroll {
        
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Implementation </button>
       <script>
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.ImplementationStep, true);
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
       </script>
        </div> 
        
@@ -239,7 +241,7 @@ div.scroll {
        
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Deployment </button>
     <script>
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.DeploymentStep, true);
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
       </script>
        </div> 
        
@@ -248,7 +250,7 @@ div.scroll {
        
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Operation </button>
       <script>
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.OperationStep, true);
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
       </script>
        </div> 
        <div id="stepsMessage"></div>
@@ -342,10 +344,15 @@ div.scroll {
   <div class="input-group-prepend">
     <label class="input-group-text" for="newVariableType">Variable Type</label>
   </div>
-  <select class="custom-select" id="newVariableType">
+  <select class="custom-select" id="newVariableType"></select>
    
-  </select>
 </div>
+       <div class="input-group mb-3">
+       <div class="input-group-prepend">
+    <label class="input-group-text" for="accountableObjectRel">Relates To Accountable Object</label>
+  </div>
+  <select class="custom-select" id="accountableObjectRel"></select>
+       </div>
  <button type="button" class="close" style="margin-left:10px" data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariableDismissButton">Dismiss</button>
        <button type="button" class="close"  data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariableAddButton">Add</button>
       </div>
@@ -381,6 +388,7 @@ function getAllowedVariablesForSelectedStep (mode) {
 	//TO DO - ASSUMPTION HERE ! here we only select the first type with prefix rains-plan, if other types need to be handled in the fiuture this needs to change
     let stepType;
 	for (let i=0;i<selectedStep['@type'].length;i++) {
+		console.log("Selected Step types"+selectedStep['@type'][i]);
 		if (selectedStep['@type'][i].includes(rainsPlanPrefix)) {
 			stepType = selectedStep['@type'][i];
 			break;
@@ -389,10 +397,12 @@ function getAllowedVariablesForSelectedStep (mode) {
 	
 	fetch("/getAllowedVariableTypesForStepType?stepTypeIRI="+encodeURIComponent(btoa(stepType))+"&restrictionPropertyIRI="+encodeURIComponent(btoa(property)) ) 
 	.then((data) => {
+		  console.log ("here1");
 		return data.json();
 	})
   .then(function (data) {
-   // console.log('Request succeeded with JSON response', data);
+	  console.log ("here2");
+    console.log('Request succeeded with JSON response', data);
     let selectOption = document.getElementById('newVariableType');
     selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
     for (let i=0;i<data.length;i++) {
@@ -406,6 +416,40 @@ function getAllowedVariablesForSelectedStep (mode) {
   .catch(function (error) {
     console.log('Request failed', error);
   });
+	
+ //getAccountable objects using accountableObjects.js
+ 
+ let objetResult =  getAccountableObjects (findGetParameter('systemIri'));
+	
+ objetResult.then(
+			(data) => {console.log("fetch accountable objects result");	console.log(data);
+			
+			let selectOption = document.getElementById('accountableObjectRel');
+		    selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option><option value="'+findGetParameter('systemIri')+'">This System</option>'+ createOptionsAccountableObjects (data, findGetParameter('systemIri') );
+			
+			
+			
+			}
+			);
+}
+
+function createOptionsAccountableObjects (accountableObjects, parentkey ) {
+	html = "";
+	
+	let childArray = accountableObjects[parentkey];
+	if (childArray!=null) {
+	for (const [key, value] of Object.entries(childArray)) {
+	 
+		 let nestedElement = constructAccountableObjects(accountableObjects, key);
+			 
+		 //addAccountableObjectTo is defined in index.html - if you need it here then you need to change ho wthe link is created (e.g. add id) and attach listener 
+			
+		 html = html + '<option value="'+key+'">'+value+'</option>' 
+		
+		 
+	  }
+	}
+	return html;
 }
 
 
@@ -523,6 +567,8 @@ $('#createVariable').show();
 let type = $('#newVariableType').val();
 let label = $('#newVariableLabel').val();
 let description = $('#newVariableDescription').val();
+let accountableObjectRel = $('#accountableObjectRel').val();
+$('#accountableObjectRel').val("");
 $('#newVariableType').val("");
 $('#newVariableLabel').val("");
 $('#newVariableDescription').val("");
@@ -533,7 +579,7 @@ document.getElementById ("currentPlanNewVariablesList").innerHTML += `<div class
                  <input checked type="checkbox" class="form-check-input" id="${id}">
                  <label class="form-check-label" for="random" data-toggle="tooltip" data-placement="top" title="${description}"> ${label} (${type}) </label>
             </div>`;
-            temporaryVarArray.push({id:id, label:label, type:type, description:description});
+            temporaryVarArray.push({id:id, label:label, type:type, description:description, accountableObjectRel:accountableObjectRel});
 $('body').tooltip({
 	 selector: '[data-toggle="tooltip"]'
 });
@@ -542,7 +588,7 @@ $('body').tooltip({
 
 $('#addSelectedVarsBtn').click(
 		function () {
-			
+			console.log("-------->")
 			console.log('add variables clicked');
 			let inputelements = $('#currentPlanNewVariablesList').find(':input');
 			for (let i = 0; i<inputelements.length;i++ ) {
@@ -557,34 +603,37 @@ $('#addSelectedVarsBtn').click(
 					if (variableMode == "Output") {
 						rowID = selectedStep['belongsToRow'];
 					}
-					
-					createNewVariable (variableObj.label, variableObj.description, variableObj.type, rowID, variableMode )
+					console.log("create variable called in mode" +variableMode )
+					console.log(variableObj)
+					createNewVariable (variableObj.label, variableObj.description, variableObj.type, rowID, variableMode, variableObj.accountableObjectRel )
 				}
 				}
 			
 			let inputElementsExisting = $('#currentPlanExistingVariablesList').find(':input');
+			
+			console.log("-------->")
+				console.log("mode" +variableMode )
+					console.log(inputElementsExisting)
+						
 			
 			for (let i = 0; i<inputElementsExisting.length;i++ ) {
 				if(inputElementsExisting[i].checked == true){
 					let variableid = inputElementsExisting[i].id;
 					//CLEAN: TO DO put ifs inside one for loop
 					if (variableMode == "Input") {
-						
-						console.log ("variable id is :"+ variableid); 
-						
+					  console.log ("variable id is :"+ variableid); 
 						for (let i = 0; i< variablesArray.length;i++) {
 							 if (variablesArray[i]['@id']===variableid ) {
 								 variablesArray[i]['isInputVariableOf'].push(selectedStep["@id"]);
 							 }
-						 }
-						
-						
-					}
+						}
+				    }
 					if (variableMode == "Output") {
-						
+						console.log ("here  :"+ variableid); 
 						for (let i = 0; i< variablesArray.length;i++) {
 							 if (variablesArray[i]['@id']===variableid ) {
-								 variablesArray[i]['isOutputVariableOf'].push(selectedStep["@id"]);
+								 console.log ("here1");
+							//	 variablesArray[i]['isOutputVariableOf'].push(selectedStep["@id"]);
 							 }
 						 }
 					}
@@ -592,29 +641,29 @@ $('#addSelectedVarsBtn').click(
 					//add inverse relationships to steps as well
 					for (let i=0; i< stepsArray.length;i++ ) {
 						if (stepsArray[i]['@id']===selectedStep["@id"]) {
-							if (variableMode==="Input") {
-								stepsArray[i]['hasInputVariable'].push( variableid);
-							}
-							if (variableMode==="Output") {
-								stepsArray[i]['hasOutputVariable'].push( variableid);
-							}
-							break;
+							console.log("////////////////");
+							console.log(selectedStep["@id"]);
+							console.log(stepsArray[i]['hasOutputVariable']);
 							
+							if (variableMode==="Input") {
+								stepsArray[i]['hasInputVariable'].push(variableid);
+							}
+							
+							if (variableMode==="Output") {
+								console.log("pushing var to step 614 plan designer" +stepsArray[i]['@id']);
+								console.log("pushing var id" +variableid);
+								//stepsArray[i]['hasOutputVariable'].push(variableid);
+						    }	
 						}
 						
-					}
-					
+					}	
 				}
 			}
 			
 			populateInspectPane (selectedStep );
-			
 			//currently not used as not working as expected
 			//connectSteps ();
-			
-			}
-		
-		);
+			});
 
 </script>
 

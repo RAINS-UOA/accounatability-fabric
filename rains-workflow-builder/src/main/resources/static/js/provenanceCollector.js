@@ -9,6 +9,9 @@ function findGetBase64Parameter(parameterName) {
     var items = location.search.substr(1).split("&");
     for (var index = 0; index < items.length; index++) {
         tmp = items[index].split("=");
+        console.log ("decoding");
+        console.log (tmp[1]);
+        console.log (decodeURIComponent(tmp[1]));
         if (tmp[0] === parameterName) result = atob(decodeURIComponent(tmp[1]));
     }
     return result;
@@ -44,7 +47,7 @@ function fetchHumanTasks (planIRI ) {
     			
     			if (tasks.length >0 ) {
     				for (let i=0;i<tasks.length;i++) {
-    					document.getElementById ('taskTableBody').innerHTML	= '<tr> <th scope="row">'+i+'</th> <td>'+tasks[i]['agentIRI']+'</td><td>'+tasks[i]['executiontraceBundleIRI']+'</td><td>'+tasks[i]['status']+'</td><td><a href="/createProvenanceTrace?token='+tasks[i]['token']+'" target="_blank">click to complete task</a></td></tr>';
+    					document.getElementById ('taskTableBody').innerHTML	= '<tr> <th scope="row">'+i+'</th> <td>'+tasks[i]['executiontraceBundleIRI']+'</td><td>'+tasks[i]['status']+'</td><td><a href="/createProvenanceTrace?token='+tasks[i]['token']+'" target="_blank">click to complete task</a></td></tr>';
     					document.getElementById ('taskTableMessage').innerHTML = '';
     				}
     			}

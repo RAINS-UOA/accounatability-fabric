@@ -9,6 +9,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.4.0/json2html.min.js"></script>
 <style>
     .bs-example{
         margin: 20px;
@@ -22,9 +23,10 @@
 <link rel="stylesheet" href="./css/componentsLibrary.css">
 <link rel="stylesheet" href="./css/loader.css">
   <link rel="stylesheet" href="/css/main.css"> 
-    <link rel="stylesheet" href="/css/main.css"> 
   
    <script src="./js/json-ld_context.js"></script>
+    <script src="./js/auditManager.js"></script>
+     <script src="./js/index.js"></script>
    
    <script>
     $(document).ready(function(){
@@ -39,6 +41,10 @@
         }).on('hide.bs.collapse', function(){
         	$(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-plus");
         });
+        
+        getAgents (findGetParameter('systemIri'));    
+        
+        
     });
 </script>
 <body>
@@ -51,9 +57,10 @@
 
 
     
-<div class="jumbotron">
+<div class="jumbotron" style="height:150px">
 
 <h3>Audit Manager </h3>
+<!--  
   <div class="input-group mb-3">
   <div class="input-group-prepend">
     <span class="input-group-text" >System IRI</span>
@@ -61,6 +68,8 @@
   <input type="text" readonly class="form-control" id="systemIRI" >
  
 </div>
+-->
+<!--  
   
 <div class="input-group mb-3">
   <div class="input-group-prepend">
@@ -76,17 +85,54 @@
   </div>
    <textarea class="form-control" placeholder="not yet implemented"></textarea>
    </div>
+
+-->
+
 </div>
   
 <div class="container-fluid">
-<div class="col-md-12">
+
+<div class="row">
+<div class="col-md-3">
  <h3>Agents</h3>
  <p>Click on the agents to explore their accountabilities</p>
- 
-<div class="agentWidget"> <a href="/entityExplorer?agentIri=" target="_blank"> ExampleAgent </a></div>
-<br><br><br>
+ <div id="agent_pane"></div>
 </div>
 
+
+<div class="col-md-9 "  >
+ <h3>Object Details</h3>
+<div class="row"></div> <div  id="informationRelaizationDesc" ></div>
+<div class="row"><div class="objectDetails" id="Info" ></div>
+
+ <div class="col-md-12 " id="object-details" ><p>Click on the items in the result table to view details.</p> </div>
+</div>
+</div>
+</div>
+<div class="col-md-12" >
+
+ <h3>Results</h3>
+
+<table class="table">
+
+ <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Accountable Action</th>
+      <th scope="col">Accountable Result Produced</th>
+      <th scope="col">Accountable Actions dependent on this Output</th>
+      <th scope="col">Accountable Result relates to Accountable Object </th>
+    </tr>
+  </thead>
+  <tbody id="agent_result_body">
+    
+  </tbody>
+
+</table>
+
+</div>
+
+<!-- 
 <div class="col-md-12">
  <h3>Queries</h3>
  <p>Click on the query to run it</p>
@@ -171,6 +217,9 @@
 
 </div>
    </div>
+ 
+ -->  
+   
    
 </div>
 

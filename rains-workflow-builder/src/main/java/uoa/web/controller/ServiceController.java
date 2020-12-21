@@ -215,7 +215,7 @@ public class ServiceController {
 		Gson gson = new Gson(); 
 		return gson.toJson(map);
 	}
-	
+	/*
 	@GetMapping("/getTopLevelPlan")
 	@ResponseBody
 	public String getTopLevelPlan (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
@@ -225,6 +225,19 @@ public class ServiceController {
 		Gson gson = new Gson(); 
 		return gson.toJson(map);
 	}
+	*/
+	
+	
+	@GetMapping("/getStagePlanIRI")
+	@ResponseBody
+	public String getTopLevelPlan (@RequestParam String systemIri ,@RequestParam String stage) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		HashMap<String, String> map = manager.getStagePlanIRI(systemIri, stage);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(map);
+	}
+	
 	
 	@GetMapping("/getStepComponentHierarchy")
 	@ResponseBody
@@ -250,9 +263,9 @@ public class ServiceController {
 	
 	@GetMapping("/getSavedPlan")
 	@ResponseBody
-	public String getSavedPlan (@RequestParam String systemIri,@RequestParam String topLevelStepIri) throws NoSuchElementException, IllegalStateException, Exception  {
+	public String getSavedPlan (@RequestParam String systemIri,@RequestParam String stage) throws NoSuchElementException, IllegalStateException, Exception  {
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
-		String jsonResult = manager.getSavedPlan (new String(Base64.base64ToByteArray(topLevelStepIri)),  systemIri);
+		String jsonResult = manager.getSavedPlan (stage,  systemIri);
 		manager.shutdown();
 		return jsonResult;
 		
@@ -314,11 +327,22 @@ public class ServiceController {
 	public String getAllowedVariableTypesForStepType(@RequestParam String stepTypeIRI, @RequestParam String restrictionPropertyIRI) throws NoSuchElementException, IllegalStateException, Exception {
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
 		Gson gson = new Gson();
+		//System.out.println(new String(Base64.base64ToByteArray(stepTypeIRI)));
+		//System.out.println(new String(Base64.base64ToByteArray(restrictionPropertyIRI)));
 		return gson.toJson(manager.getAllowedVariableTypesForStepType(new String(Base64.base64ToByteArray(stepTypeIRI)),new String(Base64.base64ToByteArray(restrictionPropertyIRI))));
 	}
 	
 	
 	
+	@GetMapping("/getAllowedInformationElelementForInformationRealizationType")
+	@ResponseBody
+	public String getAllowedInformationElelementForInformationRealizationType(@RequestParam String informationRealizationType) throws NoSuchElementException, IllegalStateException, Exception {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		Gson gson = new Gson();
+		//System.out.println(new String(Base64.base64ToByteArray(stepTypeIRI)));
+		//System.out.println(new String(Base64.base64ToByteArray(restrictionPropertyIRI)));
+		return gson.toJson(manager.getAllowedInformationElelementForInformationRealizationType(new String(Base64.base64ToByteArray(informationRealizationType))));
+	}
 	@GetMapping("/createHumanProvenaceGenerationTask")
 	@ResponseBody
 	public String createHumanProvenaceGenerationTask (@RequestParam String planIRI,@RequestParam String systemIRI) throws NoSuchElementException, IllegalStateException, Exception  {
@@ -350,17 +374,96 @@ public class ServiceController {
 	
 	@GetMapping("/createProvenanceTrace")
 	public String createProvenanceTrace (@RequestParam String token) throws NoSuchElementException, IllegalStateException, Exception  {
+		//TO- DO check the token and see if the form has already been completed 
+		
 		return "provenanceTraceForm";
 	}
+	
+	
 	
 	@PostMapping("/uploadHumanTaskProvenanceTrace")
 	@ResponseBody
 	public String uploadHumanTaskProvenanceTrace (@RequestParam String payload, @RequestParam String token) throws NoSuchElementException, IllegalStateException, Exception  {
 		//to do need to check token again
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
-		String response = manager.saveHumanTaskProvenanceTrace(payload, token);
+		System.out.println("Creating trace");
+		String response = manager.saveHumanTaskProvenanceTrace(payload,token);
 		manager.shutdown();
 		return response;
+	}
+	
+	
+	@GetMapping("/getAgentsInExecutionTraces")
+	@ResponseBody
+	public String getAgentsInExecutionTraces (@RequestParam String systemIRI) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		HashSet hashSet = manager.getAgentsInExecutionTraces (systemIRI);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(hashSet);
+	}
+	
+	@GetMapping("/getAgentsParticipationDetailsInExecutionTraces")
+	@ResponseBody
+	public String getAgentsInExecutionTraces (@RequestParam String systemIRI,@RequestParam String agentIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap> list = manager.getAgentsParticipationDetailsInExecutionTraces (systemIRI, agentIRI);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(list);
+	}
+	
+	@GetMapping("/getActivityDetailsInExecutionTraces")
+	@ResponseBody
+	public String getActivityDetailsInExecutionTraces (@RequestParam String systemIRI,@RequestParam String activityIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+	SystemRecordManager manager = new SystemRecordManager(connectionPool);
+	ArrayList <HashMap> list = manager.getActivityDetailsInExecutionTraces( systemIRI,  activityIRI);
+	manager.shutdown();
+	Gson gson = new Gson(); 
+	return gson.toJson(list);
+}
+	
+	@GetMapping("/getOutputDetailsInExecutionTraces")
+	@ResponseBody
+	public String getOutputDetailsInExecutionTraces (@RequestParam String systemIRI,@RequestParam String infoRealizationIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+	SystemRecordManager manager = new SystemRecordManager(connectionPool);
+	ArrayList <HashMap> list = manager.getOutputDetailsInExecutionTraces( systemIRI,  infoRealizationIRI);
+	manager.shutdown();
+	Gson gson = new Gson(); 
+	return gson.toJson(list);
+}
+	
+	@GetMapping("/getDependingActivities")
+	@ResponseBody
+	public String getDependingActivities (@RequestParam String systemIRI,@RequestParam String entityIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+	SystemRecordManager manager = new SystemRecordManager(connectionPool);
+	ArrayList <HashMap> list = manager.getDependingActivities( systemIRI,  entityIRI);
+	manager.shutdown();
+	Gson gson = new Gson(); 
+	return gson.toJson(list);
+	}
+	
+	@GetMapping("/getAccountableObjects")
+	@ResponseBody
+	public String getAccountableObjects (@RequestParam String systemIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+	
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		HashMap <String,HashMap <String,String >> list = manager.getAccountableObjects( systemIRI);
+	manager.shutdown();
+	Gson gson = new Gson(); 
+	return gson.toJson(list);
+	
+	}
+	
+	@PostMapping("/saveAccountableObject")
+	@ResponseBody
+	public String saveAccountableObject (@RequestParam MultiValueMap<String,String> paramMap) throws NoSuchElementException, IllegalStateException, Exception  {
+		System.out.println(paramMap);
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+
+		manager.saveAccountableObject(paramMap.getFirst("payload"));
+		manager.shutdown();
+		return "{\"result\":\"Received\"}";
 	}
 	
 }

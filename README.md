@@ -4,9 +4,9 @@
 
 Prerequisites
 
-Java 1.8 +
-Maven
-Git 
+Java 1.8 +,
+Maven,
+Git, 
 Graph DB download form <a href="https://graphdb.ontotext.com/">here</a>
 
 ## Set up Graph DB

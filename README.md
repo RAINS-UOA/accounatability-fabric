@@ -7,7 +7,7 @@ Prerequisites
 Java 1.8 +,
 Maven,
 Git, 
-Graph DB download form <a href="https://graphdb.ontotext.com/">here</a>
+Graph DB download from <a href="https://graphdb.ontotext.com/">here</a>
 
 ## Set up Graph DB
 Launch GraphDB, by default, you can access GraphDB from a browser on localhost:7200.

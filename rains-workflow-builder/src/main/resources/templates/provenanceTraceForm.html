@@ -112,6 +112,8 @@ function getPlanComponets (token) {
 
 function parsePlanStructureJsonLD () {
 	
+	console.log("GRAPH JSON LD");
+	
 	console.log(graphArray);
 	
 
@@ -153,7 +155,7 @@ for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
 					console.log("saved label: "+ label);
 				} 
 				
-				createStepFormInput (element['@id'], element['@type'], label);
+				createStepFormInput (element['@id'], element['@type'], label,element['http://www.w3.org/2000/01/rdf-schema#comment'][0]['@value']);
 				
 				//console.log("hasOutputVariable "+ element[context.hasOutputVariable['@id']]);
 				if (element[context.hasInputVariable['@id']]!=null) {
@@ -314,7 +316,7 @@ function getAllowedInformationElelementForInformationRealizationType () {
 
 
 
-function createStepFormInput (id, types, label) {
+function createStepFormInput (id, types, label, comment) {
 	let html = "";
 	//use this to keep track of which input belongs to which plan element as we cannot use iri as part of element id - JQUERY complaining
 	stepIDArray.push(id);
@@ -322,6 +324,7 @@ function createStepFormInput (id, types, label) {
 	html = html + "<hr>";
 	html = html + "<h3>Step - "+label+"</h3>";
 	html = html + "<hr>";
+	html = html + comment;
 	html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
 	html = html + '<div class="class="input-group"">'
 	html = html + '<div class=" input-group date" id="time-start-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-start-input-'+index+'" class=" datetimepicker-input" data-target="#time-start-group-'+index+'"> <div class="input-group-append" data-target="#time-start-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	

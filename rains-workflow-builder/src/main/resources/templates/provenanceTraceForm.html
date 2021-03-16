@@ -324,6 +324,7 @@ function createStepFormInput (id, types, label, comment) {
 	html = html + "<hr>";
 	html = html + "<h3>Step - "+label+"</h3>";
 	html = html + "<hr>";
+	html = html + "<p>Comment:</p>";
 	html = html + comment;
 	html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
 	html = html + '<div class="class="input-group"">'
@@ -331,7 +332,7 @@ function createStepFormInput (id, types, label, comment) {
 	html = html + '<div class="input-group  date" id="time-end-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-end-input-'+index+'" class=" datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
 	html = html + '</div>'
 	//add agent field
-	html = html + '<label>Who performed the task?</label>'
+	html = html + '<label>Who performed the task (must be a valid IRI)?</label>'
 	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="agent-group-'+index+'"><input required type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div>';
 	
 	

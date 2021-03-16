@@ -394,6 +394,15 @@ public class ServiceController {
 	@PostMapping("/uploadHumanTaskProvenanceTrace")
 	@ResponseBody
 	public String uploadHumanTaskProvenanceTrace (@RequestParam String payload, @RequestParam String token) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		/*ugly fix 
+		There seems to be be a problem with connection when submitting larger plans after a period of time. The problem goes away is service is restarted. 
+		No time to fix properly so we will just reset teh connection pool before the plan gets saved*/
+		System.out.println ("Reseting connection to GraphDB");
+		repository = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager());
+		connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
+		System.out.println ("Reseting connection to GraphDB - done");
+		
 		//to do need to check token again
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
 		System.out.println("Creating trace");

@@ -49,6 +49,8 @@ import uoa.web.storage.FileUploadStorageService;
 
 @Controller
 public class ServiceController {
+	
+	
 	Repository repository = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager());
 	
 	private ObjectPool<RepositoryConnection>  connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
@@ -167,9 +169,17 @@ public class ServiceController {
 	@PostMapping("/savePlan")
 	@ResponseBody
 	public String savePlan (@RequestParam MultiValueMap<String,String> paramMap) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		/*ugly fix 
+		There seems to be be a problem with connection when submitting larger plans after a period of time. The problem goes away is service is restarted. 
+		No time to fix properly so we will just reset teh connection pool before the plan gets saved*/
+		System.out.println ("Reseting connection to GraphDB");
+		repository = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager());
+		connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
+		System.out.println ("Reseting connection to GraphDB - done");
+		
 		System.out.println(paramMap);
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
-
 		manager.savePlanFromJSONLD(paramMap.getFirst("systemIri"),paramMap.getFirst("payload"));
 		manager.shutdown();
 		return "{\"result\":\"Received\"}";

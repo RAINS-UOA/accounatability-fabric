@@ -370,6 +370,8 @@ function getActivityDetailsInExecutionTraces (systemIRI,activityIRI) {
 				    html += "<br><strong>End:</strong>" + details[0].end.replace ('"','').replace('"^^','');
 				    html += "<br><strong>Part of Plan:</strong>" + replaceDataInstancePrefix(details[0].plan);
 				    html += "<br><strong>Plan Type:</strong>" + replaceRainsPrefix(details[0].planType);
+				    
+				    html += "<br><strong>Accountable Agent:</strong>" + replaceRainsPrefix(details[0].agent);
 				
 				   console.log(details)
 				objectDetailsPane.innerHTML =  html;

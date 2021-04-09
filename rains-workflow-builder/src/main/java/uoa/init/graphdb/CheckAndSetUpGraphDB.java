@@ -5,6 +5,7 @@ package uoa.init.graphdb;
 
 
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -18,9 +19,11 @@ import org.eclipse.rdf4j.model.vocabulary.PROV;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
 import org.eclipse.rdf4j.repository.manager.RepositoryManager;
+import org.eclipse.rdf4j.rio.RDFParseException;
 
 import uoa.semantic.system.SystemComponentsIRI;
 import uoa.web.storage.AuthorisationCacheStorage;
@@ -79,7 +82,14 @@ public static void checkRepositorySetUp () {
 		
 		//Resource componentCollection = f.createIRI(Constants.TEMPLATES_NAMED_GRAPH_IRI+"/"+UUID.randomUUID());
 		IRI context = f.createIRI( Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI);
-		conn.add(f.createIRI( Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI), RDF.TYPE, f.createIRI(SystemComponentsIRI.COMPONENT_COLLECTION), context); 		
+		conn.add(f.createIRI( Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI), RDF.TYPE, f.createIRI(SystemComponentsIRI.COMPONENT_COLLECTION), context); 
+		
+		try {
+			GraphDBUtils.addDefaultSystemComponentNamedGraphOntologies(context,conn);
+		} catch (RDFParseException | RepositoryException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	

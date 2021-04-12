@@ -296,6 +296,29 @@ div.scroll {
   </div>
 </div>
 
+<!-- Modal - Import Template -->
+<div class="modal" id="addConstraints" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Constraints</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="constraintList" style="min-height:200px;">
+       
+     
+      </div>
+      <div class="modal-footer">
+       <button type="button" class="btn btn-success" disabled data-dismiss="modal" id="addConstraintBtn">Save</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+
+      </div>
+    </div>
+  </div>
+</div>
 
 
  <!-- The Modal  ADD Variables  -->
@@ -544,7 +567,59 @@ $('#linkVariables').on('show.bs.modal', function (event) {
 	 
 	  
 	});
+
+
+//reset the modal content every time add constriants is clicked (+) in the element inspector
+$('#addConstraints').on('show.bs.modal', function (event) {
+let html = `Constraint Type: 
+	        <select class="custom-select" id='constraintTypeSelect' > 
+            <option selected disabled="disabled" >Select Constraint Type</option><option value="https://w3id.org/rains#HumanConstraint">Human-Validated Constraint (i.e., checkbox)</option>
+            <option value="https://w3id.org/rains#AutoConstraint">Auto-Validated Constraint (i.e., SHACL rule)</option>
+            </select>
+	        <div id="constraintCreatorPane"></div>
+           `;
+
+$('#constraintList').html(html);
+
+$('#constraintTypeSelect').change( function (event) {
+	$('#addConstraintBtn').prop('disabled', false)
+	console.log("Selection")
 	
+	let html =`<label for="constraintLabel" class="col-form-label">Name the constraint</label>
+		 <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Label</span>
+          </div>
+        <input type="text" class="form-control" id="constraintLabel" placeholder="Add some label" aria-label="label" aria-describedby="constraintLabel">
+       </div>
+        <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Description</span>
+          </div>
+        <input type="text" class="form-control" id="constraintDescription" placeholder="Add some description" aria-label="description" aria-describedby="constraintDescription">
+       </div>
+		
+		`; 
+		
+		$('#constraintCreatorPane').html (html); 
+	
+	if ($(this).val() == "human") {	
+	}
+ });
+
+
+});
+
+$('#addConstraintBtn').click(  
+
+		function () {
+			createNewConstraint ($('#constraintLabel').val(), $('#constraintDescription').val(), $('#constraintTypeSelect').val() );
+			populateInspectPane (selectedStep );
+		}
+);
+
+
+
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()
 }) 

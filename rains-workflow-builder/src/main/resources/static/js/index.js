@@ -109,9 +109,10 @@ var inspectorTemplate =`
    <hr>
   <div class="form-group">
     <label for="StepConstraints">Constraints</label>
-     <a href="#" class="btn btn-info btn-sm">
+     <button class="btn btn-info btn-sm" data-toggle="modal" data-flag="Output" data-target="#addConstraints">
           <span class="fa fa-plus-circle"></span>  
-        </a>
+          </button>
+        
      <br>
     <div id="StepConstraints" class = "row"> </div>
   </div>
@@ -180,6 +181,16 @@ for (let i=0;i<variablesArray.length;i++) {
 	if (variablesArray[i]['isOutputVariableOf'].includes(element['@id'])) {
 	
 		outputs.appendChild (createOutputVariableWidget ( variablesArray[i] , false));
+	}
+}
+
+let constraints = document.getElementById ("StepConstraints");
+
+for (let i=0;i<constraintsArray.length;i++) {
+	
+	if (constraintsArray[i]['constrains'].includes(element['@id'])) {
+	
+		constraints.appendChild (createConstraintWidget ( constraintsArray[i] , false));
 	}
 }
     
@@ -316,6 +327,27 @@ function createOutputVariableWidget ( output , canDelete) {
 	let widget = document.createElement('div');
 	widget.className = 'outputVariableWidget';
 	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${output['@type']} <br> <strong>Description</strong>:${output['comment']}"> ${output['label']} </label>`;
+
+
+	return widget;
+
+	}
+
+function createConstraintWidget ( constraint , canDelete) {
+    
+	//change to handle differences betwee human and automated constraints (i.e. show different colors)
+	let widget = document.createElement('div');
+	
+	console.log(constraint)
+	
+	if (constraint ['@type'].includes(context.AutoConstraint)) {
+		widget.className = 'autoConstraintWidget';
+	}
+	if (constraint ['@type'].includes(context.HumanConstraint))  {
+		widget.className = 'humanConstraintWidget';
+	}
+	
+	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${constraint['@type']} <br> <strong>Description</strong>:${constraint['comment']}"> ${constraint['label']} </label>`;
 
 
 	return widget;
@@ -642,6 +674,26 @@ function createNewVariable (label, description, type, rowId, mode, accountableOb
 
 	
 	
+}
+
+function createNewConstraint (label, description, type ) {
+	let constraint = {} ;
+	constraint ['@id'] = dataPrefix+ uuidv4();
+	constraint ['@type'] = [];
+	constraint ['@type'].push (context.Constraint);
+	constraint ['@type'].push (context.namedIndividual);
+	constraint ['@type'].push (type);
+	constraint ['label'] = label; 
+	constraint ['comment'] = description; 
+	constraint ['isElementOfPlan'] = plan['@id'];
+	constraint ['constrains']=[];
+	constraint ['constrains'].push(selectedStep["@id"]);
+	
+	
+	
+	// to do add additional links if SHACL rule also provided ep-plan:hasConstraintImplementation
+	
+	constraintsArray.push(constraint);
 }
 
 

@@ -28,6 +28,8 @@ context.isAccountableFor   = {"@id":"https://w3id.org/sao#isAccountableFor","@ty
 
 
 //Rains context
+context.HumanConstraint   = "https://w3id.org/rains#HumanConstraint";
+context.AutoConstraint   = "https://w3id.org/rains#AutoConstraint";
 context.AccountabilityPlan   = "https://w3id.org/rains#AccountabilityPlan";
 context.SupportingInfrastructure   = "https://w3id.org/rains#SupportingInfrastructure";
 context.RealizableObject   = "https://w3id.org/rains#RealizableObject";

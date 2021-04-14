@@ -677,6 +677,10 @@ function createNewVariable (label, description, type, rowId, mode, accountableOb
 }
 
 function createNewConstraint (label, description, type ) {
+	
+	console.log('CREATING CONSTRAINT PLAN ID IS ')
+	console.log(plan['@id'])
+	
 	let constraint = {} ;
 	constraint ['@id'] = dataPrefix+ uuidv4();
 	constraint ['@type'] = [];
@@ -1069,7 +1073,11 @@ function getTopLevelPlan (systemiri) {
 
 //to do all XMLH should be rewritten as promise
 function getStagePlanIRI (systemiri, stage) {
+	console.log ("QUERYING PLAN IRI for STAGE")
+	console.log (stage)
 	return fetch("/getStagePlanIRI?systemIri="+systemiri+"&stage="+stage);
+	
+	
 }
 
 function savePlan () {

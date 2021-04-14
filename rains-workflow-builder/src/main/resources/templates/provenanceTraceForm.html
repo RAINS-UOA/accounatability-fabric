@@ -115,12 +115,33 @@ function parsePlanStructureJsonLD () {
 	console.log("GRAPH JSON LD");
 	
 	console.log(graphArray);
-	
+	constraints = {};
 
 	//Find number of rows in the plan as per the plan designer
 	let maxRowCount = 0; 
 	for (let i=0;i<graphArray.length; i++) {
 		let element = graphArray[i];
+		
+		//sort constraints 
+		if (element['@type'].includes(context.HumanConstraint)) {
+			console.log ("FOUND CONSTRAINT"); 
+			console.log (context.constrains['@id'])
+			
+			for (let j =0; j<element[context.constrains['@id']].length;j++) {
+			
+			if (constraints[element[context.constrains['@id']][j]['@id']] != null) {
+				constraints[element[context.constrains['@id']][j]['@id']].push(element)
+			}
+			else {
+				console.log("creating index")
+				console.log(constraints[element[context.constrains['@id']][j]['@id']])
+				constraints[element[context.constrains['@id']][j]['@id']]=[]
+				constraints[element[context.constrains['@id']][j]['@id']].push(element)
+			}
+			
+			}
+		}
+		
 		if (element[context.belongsToRow]!=null) {
 			console.log(element[context.belongsToRow][0]['@value']);
 			let rowId = element[context.belongsToRow][0]['@value'];
@@ -131,6 +152,10 @@ function parsePlanStructureJsonLD () {
 			}
 		}
 	}
+	
+	
+	console.log(constraints)	
+	
 console.log("Found max step row index  "+ maxRowCount + " in the plan");
 
 for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
@@ -155,7 +180,7 @@ for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
 					console.log("saved label: "+ label);
 				} 
 				
-				createStepFormInput (element['@id'], element['@type'], label,element['http://www.w3.org/2000/01/rdf-schema#comment'][0]['@value']);
+				createStepFormInput (element['@id'], element['@type'], label,element['http://www.w3.org/2000/01/rdf-schema#comment'][0]['@value'], constraints[element['@id']]);
 				
 				//console.log("hasOutputVariable "+ element[context.hasOutputVariable['@id']]);
 				if (element[context.hasInputVariable['@id']]!=null) {
@@ -316,7 +341,7 @@ function getAllowedInformationElelementForInformationRealizationType () {
 
 
 
-function createStepFormInput (id, types, label, comment) {
+function createStepFormInput (id, types, label, comment, constraints) {
 	let html = "";
 	//use this to keep track of which input belongs to which plan element as we cannot use iri as part of element id - JQUERY complaining
 	stepIDArray.push(id);
@@ -324,9 +349,11 @@ function createStepFormInput (id, types, label, comment) {
 	html = html + "<hr>";
 	html = html + "<h3>Step - "+label+"</h3>";
 	html = html + "<hr>";
-	html = html + "<p>Comment:</p>";
-	html = html + comment;
-	html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
+	html = html + "<label>Comment:</label>";
+	html = html + "<p>" + comment + "</p>";
+	html = html + '<label>This step has following types</label>'
+	html=html+"<p>"+types.toString().replaceAll(',','<br>')+"</p>"
+	html = html + '<label>Select time when this activity was performed</label>'
 	html = html + '<div class="class="input-group"">'
 	html = html + '<div class=" input-group date" id="time-start-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-start-input-'+index+'" class=" datetimepicker-input" data-target="#time-start-group-'+index+'"> <div class="input-group-append" data-target="#time-start-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
 	html = html + '<div class="input-group  date" id="time-end-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-end-input-'+index+'" class=" datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
@@ -335,7 +362,18 @@ function createStepFormInput (id, types, label, comment) {
 	html = html + '<label>Who performed the task (must be a valid IRI)?</label>'
 	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="agent-group-'+index+'"><input required type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div>';
 	
+	html = html + "<label>Constraints (tick if the following was complied with):</label>";
 	
+	
+	for (let i =0 ; i < constraints.length;i++) {
+		//TO DO just selecting the first label and comment we find add @lang support later 
+		html = html+ `<h4>Constraint - ${constraints[i][context.label][0]['@value']} </h4>
+		        <hr>
+		        Comment: ${constraints[i][context.label][0]['@value']}</p>
+		        <div class="form-group"> <div class="input-group input-group-lg" ><input class="form-check-input" type="checkbox" value="" id="constraint"><label class="form-check-label" for="constraint">
+		        This constraint was satsfied
+		        </label></div></div>`;
+	}
 	
 	
 	let formhtml = document.getElementById("form").innerHTML;

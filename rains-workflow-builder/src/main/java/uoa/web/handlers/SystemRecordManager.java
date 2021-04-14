@@ -207,20 +207,27 @@ public class SystemRecordManager {
 			Resource designPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
 			conn.add(designPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.DesignStageAccountabilityPlan), planNamedGraphContext);
 			conn.add(designPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			conn.add(designPlan, RDF.TYPE, f.createIRI(OwlOntologyComponents.NamedIndividual), planNamedGraphContext);
 			conn.add(designPlan, f.createIRI(RainsOntologyComponents.specifiedForSystem),system, planNamedGraphContext);
 			
 			Resource implementationPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
 			conn.add(implementationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.ImplementationStageAccountabilityPlan), planNamedGraphContext);
 			conn.add(implementationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			conn.add(implementationPlan, RDF.TYPE, f.createIRI(OwlOntologyComponents.NamedIndividual), planNamedGraphContext);
+			conn.add(implementationPlan, f.createIRI(RainsOntologyComponents.specifiedForSystem),system, planNamedGraphContext);
 			
 			
 			Resource deploymentPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
 			conn.add(deploymentPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.DeploymentStageAccountabilityPlan), planNamedGraphContext);
 			conn.add(deploymentPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			conn.add(deploymentPlan, RDF.TYPE, f.createIRI(OwlOntologyComponents.NamedIndividual), planNamedGraphContext);
+			conn.add(deploymentPlan, f.createIRI(RainsOntologyComponents.specifiedForSystem),system, planNamedGraphContext);
 			
 			Resource operationPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
 			conn.add(operationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.OperationStageAccountabilityPlan), planNamedGraphContext);
 			conn.add(operationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			conn.add(operationPlan, RDF.TYPE, f.createIRI(OwlOntologyComponents.NamedIndividual), planNamedGraphContext);
+			conn.add(operationPlan, f.createIRI(RainsOntologyComponents.specifiedForSystem),system, planNamedGraphContext);
 			
 			/*
 			Resource designStep = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
@@ -438,7 +445,7 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
   ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
 		//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
 		//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
-       String queryString = Constants.PREFIXES + "Select Distinct ?plan ?planType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan a ?planType; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  Filter (?planType = <"+RainsOntologyComponents.DesignStageAccountabilityPlan+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStageAccountabilityPlan+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStageAccountabilityPlan+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStageAccountabilityPlan+">)}";
+       String queryString = Constants.PREFIXES + "Select Distinct ?plan ?planType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan a ?planType; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  Filter (?planType = <"+RainsOntologyComponents.DesignStageAccountabilityPlan+"> || ?planType = <"+RainsOntologyComponents.ImplementationStageAccountabilityPlan+"> || ?planType = <"+RainsOntologyComponents.DeploymentStageAccountabilityPlan+"> || ?planType = <"+RainsOntologyComponents.OperationStageAccountabilityPlan+">)}";
        System.out.println(queryString);
 		TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 			   try (TupleQueryResult result = tupleQuery.evaluate()) {

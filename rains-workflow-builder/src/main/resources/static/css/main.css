@@ -98,7 +98,7 @@ padding:10px;
 .typeWidget {
 float:left;
 min-width: 100px;
-
+z-index:1000;
 min-height: 40px;
 border-radius: 25px;
   background: #93e9be;

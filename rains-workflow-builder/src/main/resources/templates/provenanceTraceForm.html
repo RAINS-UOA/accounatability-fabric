@@ -49,6 +49,7 @@ var  dataPrefix =  "https://rainsproject.org/InstanceData/";
 var bundleID = "";
 var currentInformationElementPaneId = "";
 var graphArray = [];
+var html = "";
 
 
 function checkIfAccountableAgentExist (agentID) {
@@ -200,9 +201,13 @@ for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
 				
 				if ( element[context.hasOutputVariable['@id']]!=null){
 				
+				html = html + '<div class="outputsTraceWidget"><h5><i class="fas fa-sign-out-alt"></i> Outputs</h5></div>';	
+					
 				let outputVariables =   element[context.hasOutputVariable['@id']]; 
 				console.log ("------->");
 				//console.log (outputVariables);
+				
+				
 				
 				for (let j=0;j<outputVariables.length; j++) {
 					for (let x=0;x<graphArray.length; x++) {
@@ -239,26 +244,38 @@ for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
 			
 				
 			
-		} 	
+		} 
+		html = html +"</div>"
 	}
+	
 }
+
+let formhtml = document.getElementById("form").innerHTML;
+
+document.getElementById("form").innerHTML = formhtml + html;
+
 }
 
 
 
 function createStepInputsList (variableInputs){
-	let html = "";
+//	let html = "";
 	console.log("---------------------------------------->") 
 	console.log(variableInputs.length) 
 	console.log(variableInputs[0][context.label]) 
-	html = html + '<h4>Inputs</h4> ';
-
-	html = html + "<hr>";
-	html = html + '<p>Below is the list of entities used by the activity realizing this step. These entities would have been recorded as outputs of previous steps and will be linked automatically. </p> ';
+	html = html + '<div class="inputsTraceWidget"><h5><i class="fas fa-sign-in-alt"></i> Inputs (<i class="fas fa-info" data-toggle="tooltip" title="Below is the list of entities used by the activity realizing this step. These entities would have been recorded as outputs of previous steps and will be linked automatically"></i>)</h5></div> ';
+    
 	for (let j=0;j<variableInputs.length; j++) {
-		  if (variableInputs[j][context.label][0]['@value']!=null) {
-				let label = variableInputs[j][context.label][0]['@value'];
-				html=html+"<p> "+label+"</p>"
+		let = randomId = uuidv4();  
+		if (variableInputs[j][context.label][0]['@value']!=null) {
+				let label = variableInputs[j][context.label][0]['@value'];	
+				let types = variableInputs[j]['@type'];
+				html=html+`<div class="instanceWidgetWrapper"><div data-toggle="collapse" data-target="#${randomId}" class="instanceTraceWidget"> ${label} (<i class="fas fa-info" data-toggle="tooltip" title="${types}"></i>)</div> 
+				<div class="collapse smallTraceWidgetCommentBox" id="${randomId}">
+				<div class="card card-body">
+		        <label>Comment</label><p> ${variableInputs[j][context.comment][0]['@value']}</p>
+		        </div>
+		        </div></div>`
 			 } 
 	
 	//	html=html+"<p>"+variableInputs[j]['@id']+"</p>"
@@ -266,8 +283,8 @@ function createStepInputsList (variableInputs){
 
 	
 	
-    let formhtml = document.getElementById("form").innerHTML;
-	document.getElementById("form").innerHTML = formhtml + html;
+   // let formhtml = document.getElementById("form").innerHTML;
+//	document.getElementById("form").innerHTML = formhtml + html;
 	
 
 
@@ -275,7 +292,7 @@ function createStepInputsList (variableInputs){
 
 
 function createOutputInformationRealizationFormInput (id, types, label, ActivyIdGenearatingThis){
-	let html = "";
+	//let html = "";
 	
 	console.log(types);
 	console.log(id);
@@ -287,20 +304,20 @@ function createOutputInformationRealizationFormInput (id, types, label, ActivyId
 	entityIDArray.push(entityID);
 
 	let index = variableIDArray.length - 1;
-	html = html + "<hr>";
-	html = html + "<h4>Outputs</h4>";
-	html = html + "<hr>";
-	html=html+"<h5>"+label+"</h5>"
-	html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
+
+	
+	html = html + '<div class="instanceTraceWidgetLarge">';
+	html=html+'<div class="instanceTraceWidgetLargeHeader">'+label+' (<i class="fas fa-info" data-toggle="tooltip" title="'+types.toString().replaceAll(',','\n')+'"></i>)</div>'
+	//html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
 	
 	
 	html = html + '<label>Enter description:</label>'
 	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="information-realization-description-group-'+index+'"><input required type="text" id="information-realization-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#information-realization-description-group-'+index+'" > <div class="input-group-text"><i class="fas fa-align-justify"></i></div></div></div>';
 	html = html + '<br> <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-flag="InformationElementPane'+index+'" data-target="#informationElement"> <span class="fa fa-plus-circle"></span> Add Information Element  </button>'
 	
-	html = html + '<div id="InformationElementPane'+index+'" class = "row" > </div>';
-    let formhtml = document.getElementById("form").innerHTML;
-	document.getElementById("form").innerHTML = formhtml + html;
+	html = html + '<div id="InformationElementPane'+index+'" class = "row" > </div></div></div>';
+//    let formhtml = document.getElementById("form").innerHTML;
+//	document.getElementById("form").innerHTML = formhtml + html;
 
 }
 
@@ -342,43 +359,44 @@ function getAllowedInformationElelementForInformationRealizationType () {
 
 
 function createStepFormInput (id, types, label, comment, constraints) {
-	let html = "";
+//	let html = "";
 	//use this to keep track of which input belongs to which plan element as we cannot use iri as part of element id - JQUERY complaining
 	stepIDArray.push(id);
 	let index = stepIDArray.length - 1;
-	html = html + "<hr>";
-	html = html + "<h3>Step - "+label+"</h3>";
-	html = html + "<hr>";
-	html = html + "<label>Comment:</label>";
-	html = html + "<p>" + comment + "</p>";
-	html = html + '<label>This step has following types</label>'
-	html=html+"<p>"+types.toString().replaceAll(',','<br>')+"</p>"
-	html = html + '<label>Select time when this activity was performed</label>'
+	html = html + '<div class="card stepCard" ><div class="card-body">';
+	html = html + '<div  data-toggle="collapse" data-target="#collapseStepComment'+index+'" class="stepTraceWidget card-header"> <h4><i class="fas fa-cogs"></i>  '+label+' (<i class="fas fa-info" data-toggle="tooltip" title="'+types.toString().replaceAll(',','\n')+'"></i>)</h4></div>';
+	
+	html = html + '<div class="collapse" id="collapseStepComment'+index+'"><div class="card card-body"><label>Comment:</label>';
+	html = html + "<p>" + comment + "</p></div></div>";
+	
+	//add agent field
+	html = html + '<div class="agentInputWrapper"><label>Who performed the task (must be a valid IRI)?</label>'
+	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="agent-group-'+index+'"><input required type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div></div>';
+	html = html + '</div>';
+	//html = html + '<label>This step has following types</label>'
+	//html=html+"<p>"+types.toString().replaceAll(',','<br>')+"</p>"
+	html = html + '<div class="dateInputWrapper"><label>Select time when this activity was performed</label>'
 	html = html + '<div class="class="input-group"">'
 	html = html + '<div class=" input-group date" id="time-start-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-start-input-'+index+'" class=" datetimepicker-input" data-target="#time-start-group-'+index+'"> <div class="input-group-append" data-target="#time-start-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
-	html = html + '<div class="input-group  date" id="time-end-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-end-input-'+index+'" class=" datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
-	html = html + '</div>'
-	//add agent field
-	html = html + '<label>Who performed the task (must be a valid IRI)?</label>'
-	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="agent-group-'+index+'"><input required type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div>';
+	html = html + '<div class="input-group  date" id="time-end-group-'+index+'" data-target-input="nearest"><input placeholder="End" required type="text" id="time-end-input-'+index+'" class=" datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
+	html = html + '</div></div>'
 	
-	html = html + "<label>Constraints (tick if the following was complied with):</label>";
+	html = html + '<div class="constraintTraceWidget"><h5><i class="fas fa-check"></i> Constraints (tick if the following was complied with):</h5></div>';
 	
 	
 	for (let i =0 ; i < constraints.length;i++) {
 		//TO DO just selecting the first label and comment we find add @lang support later 
-		html = html+ `<h4>Constraint - ${constraints[i][context.label][0]['@value']} </h4>
-		        <hr>
-		        Comment: ${constraints[i][context.label][0]['@value']}</p>
-		        <div class="form-group"> <div class="input-group input-group-lg" ><input class="form-check-input" type="checkbox" value="" id="constraint"><label class="form-check-label" for="constraint">
-		        This constraint was satsfied
-		        </label></div></div>`;
+		html = html+ `<div class="instanceTraceWidgetLarge"><div class="instanceTraceWidgetLargeHeader" data-toggle="collapse" data-target="#collapseConstraintComment${index}${i}"> <h7> ${constraints[i][context.label][0]['@value']} </h7></div><br><select><option>Select Option</option><option>Complied</option><option>Not complied</option></select></div>
+		        <div class="collapse constraintTraceWidgetCommentBox" id="collapseConstraintComment${index}${i}"><div class="card card-body">
+		        <label>Comment</label><p> ${constraints[i][context.comment][0]['@value']}</p>
+		        </div></div>
+		        `;
 	}
 	
 	
-	let formhtml = document.getElementById("form").innerHTML;
+	//let formhtml = document.getElementById("form").innerHTML;
 	
-	document.getElementById("form").innerHTML = formhtml + html;
+	//document.getElementById("form").innerHTML = formhtml + html;
 	
 	$('#time-end-group-'+index).datetimepicker();
 }
@@ -768,7 +786,12 @@ function createInformationElementWidget (entityIdIndex) {
 	}
 	
 	
-	
+	 $(document).ready(function(){
+	        $("#tooltipex").tooltip({
+	        	   show:0
+	        });
+	        $('[data-toggle="tooltip"]').tooltip();
+	    });
 	
 	$('#form').on("submit",function(x) {
 	 console.log("trying to submit");

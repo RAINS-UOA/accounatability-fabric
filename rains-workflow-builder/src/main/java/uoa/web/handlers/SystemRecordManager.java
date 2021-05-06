@@ -731,6 +731,7 @@ public ArrayList <String> getAllowedInformationElelementForInformationRealizatio
 	// TODO Auto-generated method stub
 	ArrayList <String> allowedTypes = new ArrayList <String> ();
 	
+	// this doesn't work atm
 	String queryString = Constants.PREFIXES + "SELECT ?allowedPropertyRange From <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> WHERE { ?subject rdfs:subClassOf ?restriction. ?restriction owl:onProperty ?property. { ?restriction owl:allValuesFrom ?allowedPropertyRange ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first ?allowedPropertyRange.} FILTER (!isBlank(?allowedPropertyRange)) }order  by asc(?allowedPropertyRange) Values (?subject ?property ) {(<"+informationRealizationType+"> <prov:hadMember>) } ";
 		
 		TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
@@ -740,22 +741,33 @@ public ArrayList <String> getAllowedInformationElelementForInformationRealizatio
 				         BindingSet bindingSet = result.next();			         
 				        
 				         Value step = bindingSet.getValue("allowedPropertyRange");
+				         
+				         
 				         allowedTypes.add(step.toString());
 				      }			   
 			   }
 		//if no restrictions found add all available types
 	    if (allowedTypes.size() == 0) {
 	    
-	    queryString = Constants.PREFIXES + "Select Distinct ?infoElement FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> Where { ?infoElement rdfs:subClassOf* <"+SaoOntologyElements.InformationElement+">. }order  by asc(?infoElement) ";
+	    queryString = Constants.PREFIXES + "Select Distinct ?infoElement ?infoElementComment FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> Where {  ?infoElement rdfs:subClassOf* <"+SaoOntologyElements.InformationElement+">.OPTIONAL {?infoElement rdfs:comment ?infoElementComment.} }order  by asc(?infoElement) ";
 	    System.out.println("Allowed Variable Query" +queryString);
 	    tupleQuery = conn.prepareTupleQuery(queryString);
 		   try (TupleQueryResult result = tupleQuery.evaluate()) {
 			      while (result.hasNext()) {  // iterate over the result
 			    	
 			         BindingSet bindingSet = result.next();			         
-			        
+			         String jsonString = "";
 			         Value var = bindingSet.getValue("infoElement");
-			         allowedTypes.add(var.toString());
+			         if (bindingSet.getValue("infoElementComment")!=null) {
+			         Value var2 = bindingSet.getValue("infoElementComment");
+			         
+			          jsonString = "{\"iri\":\""+var.toString()+"\", \"comment\":"+var2.toString()+"}";
+			         }
+			         else {
+			        	  jsonString = "{\"iri\":\""+var.toString()+"\", \"comment\":\"please add comment to ontology\"}";
+			         }
+			         
+			         allowedTypes.add(jsonString);
 			         System.out.println("Allowed Information Elemets "+var.toString());
 			      }			   
 		   }

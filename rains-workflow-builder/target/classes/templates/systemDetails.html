@@ -1,0 +1,242 @@
+<div th:fragment="systems-details" xmlns:th="http://www.thymeleaf.org" th:remove="tag">
+    <!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="#" onclick="loadDoc('/home')" >Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto">
+ 
+        <li class="nav-item">
+          <a class="nav-link" href="/settings">Settings</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div style="padding-top:150px;" class="container" id="firstpage-content">
+ 
+   <h3> System Details </h3>
+ 
+   <div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" >System IRI</span>
+  </div>
+  <input type="text" readonly class="form-control" id="systemIRI" th:value="*{systemDetails.getIri()}" >
+ 
+</div>
+  
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" >Label</span>
+  </div>
+  <input type="text" readonly class="form-control" id="systemLabel" th:value="*{systemDetails.getLabel()}">
+</div>
+
+
+   <div class="input-group">
+   <div class="input-group-prepend">
+    <span class="input-group-text">Comment</span>
+  </div>
+   <textarea class="form-control" readonly th:text = "${systemDetails.getDescription()}" ></textarea>
+   </div>
+ 
+ <br>
+ 
+    <hr> 
+     <div class="row"> 
+   <h3>Accountable Objects' Hierarchy</h3>
+   <div class="col-md-12"> 
+   <li>   <span class=" caret container typeWidget" th:text = "${systemDetails.getLabel()}"> </span> <ul class="nested container">
+  
+   <div id="MainAddObjectLink"></div>
+   <div id="AccountableObjects"> </div>  
+   
+   </li><br></ul> 
+   
+      </div> 
+   </div> 
+   <hr> 
+   <h3>Manage Accountability Evidence Collection Protocols For System Life Cycle Stages</h3>
+ 
+  <button id="refresh" >Refresh</button>
+
+  
+  <div class="list-group-item list-group-item-action clearfix"  >
+    Design
+    
+    <span id="design" class="loadingButton pull-right"></span>
+  </div>
+ 
+  <div class="list-group-item list-group-item-action clearfix"   >
+    Implementation
+    
+    <span id="implementation" class="loadingButton pull-right"> </span>
+  </div>
+   <!-- 
+  <div class="list-group-item list-group-item-action clearfix"   >
+    Deployment
+    
+     <span id="deployment" class="loadingButton pull-right"> </span>
+  </div>
+  <div class="list-group-item list-group-item-action clearfix"     >
+    Operation
+    <span id="operation" class="loadingButton pull-right">
+  </span>
+  </div>
+  -->
+ <hr>
+     <h3>System Accountability Audit</h3>
+  
+  <p class="clearfix">  To audit the available accountability evidence about this system use the audit manager. 
+ <div id="auditManager"></div>
+  </p>
+  
+</div>
+
+
+
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="accountableObjectModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" >Enter Accountable Object Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+         <div class="form-group">
+           
+            <input type="text"  class="form-control" hidden id="accountableObjectImpacts">
+          </div>
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Label:</label>
+            <input type="text" class="form-control" required id="accountableObjectLabel">
+          </div>
+           <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Commment:</label>
+            <input type="text" class="form-control" required id="accountableObjectComment">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#accountableObjectModal" onclick="setAccountableObject ()" >Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="script">
+
+
+loadAccountableObjectsInDiv ();
+
+//document.getElementById("accountableObjectModal").classList.add("show");
+//document.getElementById("accountableObjectModal").style.display = "inline";
+
+//load Accountable objects for this particular system
+
+	
+
+function toggle () {	
+    this.parentElement.querySelector(".nested").classList.toggle("active");
+    this.classList.toggle("caret-down");	
+}
+
+document.getElementById("refresh").addEventListener("click", refreshSystem);
+
+function refreshSystem () {
+	loadDoc('/system?iri='+document.getElementById("systemIRI").value);
+}
+
+loadingButtons ();
+
+
+
+
+let getplans = fetch("/getSavedPlanForEachStage?systemIri="+document.getElementById("systemIRI").value);
+getplans.then(
+		(data) => {
+			return data.json();
+		}).then(plans => {
+		console.log(plans.length);
+		//let buttonsToCreate = ['design','implementation','deployment','operation'];
+		let buttonsToCreate = ['design','implementation'];
+
+		for (let i = 0; i < plans.length; i++) {
+			
+			console.log ("Comparing:"+ plans[i].planType);
+			console.log (context.DesigStep);
+			
+		//switch (plans[i].topLevelStepType) {
+		switch (plans[i].planType) {
+		
+		case context.DesignStageAccountabilityPlan :
+			document.getElementById("design").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=design&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a>   <br>   <a href="workflowBuilder?mode=open&stage=design&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
+		//	document.getElementById("design").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=design&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a></div> ';
+						
+			delete buttonsToCreate[0]; 
+		break; 
+		
+		case context.ImplementationStageAccountabilityPlan:
+			document.getElementById("implementation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=implementation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a>   <br><a href="workflowBuilder?mode=open&stage=implementation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
+			delete buttonsToCreate[1]; 
+		break; 
+		/*	
+		case context.DeploymentStageAccountabilityPlan :
+			document.getElementById("deployment").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=deployment&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a>   <br><a href="workflowBuilder?mode=open&stage=deployment&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
+			delete buttonsToCreate[2]; 
+		break; 
+		
+		case OperationStageAccountabilityPlan:
+			document.getElementById("operation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=operation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Generate Provenance Collection Interface</a>   <br><a href="workflowBuilder?mode=open&stage=operation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
+			 
+			delete buttonsToCreate[3]; 
+		break;*/ 
+		}
+		}
+		
+		for (let i = 0; i < buttonsToCreate.length; i++) {
+			if (buttonsToCreate[i] != null ) {
+				document.getElementById(buttonsToCreate[i]).innerHTML = '<a href="workflowBuilder?mode=new&stage='+buttonsToCreate[i]+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Create Plan</a>';;
+			}
+		}
+		
+		//create audit manager link
+		document.getElementById('auditManager').innerHTML = '<a role="button" class="btn btn-primary pull-right" target="_blank" href="/auditManager?systemIri='+document.getElementById("systemIRI").value+'">Open Audit Manager</a>';
+
+		
+		}
+	).catch(
+	        // Log the rejection reason
+		       (reason) => {
+		            console.log('Handle rejected promise ('+reason+') here.');		           
+		        });
+
+function loadingButtons () {	
+		let buttonSpans = document.getElementsByClassName("loadingButton");		
+		
+		for (let i = 0; i < buttonSpans.length; i++) {
+			buttonSpans[i].innerHTML = "Loading" ;
+			}
+		
+function sendData () {
+	
+	
+	
+}
+		
+}
+
+</script>
+

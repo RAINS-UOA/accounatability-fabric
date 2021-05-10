@@ -347,6 +347,15 @@ public class ServiceController {
 	@GetMapping("/getAllowedInformationElelementForInformationRealizationType")
 	@ResponseBody
 	public String getAllowedInformationElelementForInformationRealizationType(@RequestParam String informationRealizationType) throws NoSuchElementException, IllegalStateException, Exception {
+		
+		/*ugly fix 
+		There seems to be be a problem with connection when submitting larger plans after a period of time. The problem goes away is service is restarted. 
+		No time to fix properly so we will just reset teh connection pool before the graph is queried*/
+		System.out.println ("Reseting connection to GraphDB");
+		repository = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager());
+		connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
+		System.out.println ("Reseting connection to GraphDB - done");
+		
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
 		Gson gson = new Gson();
 		//System.out.println(new String(Base64.base64ToByteArray(stepTypeIRI)));

@@ -102,7 +102,7 @@ padding:10px;
 margin-top:15px;
 margin-bottom:15px;
 
-  background: #878f99;
+  background: #6b5b95;
  display:table;
     white-space: pre-wrap; /* css-3 */
     white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
@@ -151,7 +151,7 @@ margin-bottom:15px;
 
 .smallTraceWidgetCommentBox {
 	margin:15px;
-	width:95%;
+	
 	position:absolute;
 	margin-top:-15px;	
 }

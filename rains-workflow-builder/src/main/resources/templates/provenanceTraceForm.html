@@ -6,12 +6,13 @@
    
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
- <!-- Bootstrap CSS CDN -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>	 
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+ 
+  
 <!-- dropzone CSS -->
     <link rel="stylesheet" href="/css/dropzone.css">
 
@@ -34,7 +35,7 @@
 
  <script src="./js/json-ld_context.js"></script>
  <script src="./js/provenanceCollector.js"></script>
-  <script src="./js/index.js"></script>
+ <script src="./js/index.js"></script>
   
 
   
@@ -49,7 +50,7 @@ var  dataPrefix =  "https://rainsproject.org/InstanceData/";
 var bundleID = "";
 var currentInformationElementPaneId = "";
 var graphArray = [];
-var html = "";
+var html = '';
 
 
 function checkIfAccountableAgentExist (agentID) {
@@ -241,7 +242,8 @@ for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
 					}
 				
 				}
-			}	
+			
+				}	
 				
 			}	
 			
@@ -249,14 +251,46 @@ for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
 			
 		} 
 		html = html +"</div>"
+		
+		
+		
+		
+		        
 	}
+		
 	
 }
 
-let formhtml = document.getElementById("form").innerHTML;
+let navHTML =''
+for (let j=0;j<stepIDArray.length; j++) {
+	
+	if (j==0) {
+	navHTML = `${navHTML}  <li class="nav-item">
+	                        <a class="nav-link active" data-toggle="tab" href="#StepTab${j}">Step ${j+1}</a>
+		                   </li>`
+	}
+	else {
+		navHTML = `${navHTML}  <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#StepTab${j}">Step ${j+1}</a>
+           </li>`
+	}
+	
+}
+		
 
-document.getElementById("form").innerHTML = formhtml + html;
+document.getElementById("navigation").innerHTML = navHTML
 
+
+
+
+let formhtml = document.getElementById("tabContentSteps").innerHTML;
+
+document.getElementById("tabContentSteps").innerHTML = `${formhtml}
+	                                                    ${html}`
+	                                                    
+	                                                    
+	                                                              
+	
 }
 
 
@@ -266,21 +300,24 @@ function createStepInputsList (variableInputs){
 	console.log("---------------------------------------->") 
 	console.log(variableInputs.length) 
 	console.log(variableInputs[0][context.label]) 
-	html = html + '<div class="inputsTraceWidget"><h5><i class="fas fa-sign-in-alt"></i> Inputs (<i class="fas fa-info" data-toggle="tooltip" title="Below is the list of entities used by the activity realizing this step. These entities would have been recorded as outputs of previous steps and will be linked automatically"></i>)</h5></div> ';
+	html = html + '<div class="inputsTraceWidget"><h5><i class="fas fa-sign-in-alt"></i> Inputs (<i class="fas fa-info" data-toggle="tooltip" title="Below is the list of entities used by the activity realizing this step. These entities would have been recorded as outputs of previous steps and will be linked automatically"></i>)</h5> </div> ';
     
 	for (let j=0;j<variableInputs.length; j++) {
-		let = randomId = uuidv4();  
+		let randomId = uuidv4();  
 		if (variableInputs[j][context.label][0]['@value']!=null) {
 				let label = variableInputs[j][context.label][0]['@value'];	
 				let types = variableInputs[j]['@type'];
-				html=html+`<div class="instanceWidgetWrapper">
-				             <div data-toggle="collapse" data-target="#${randomId}" class="instanceTraceWidget"> ${label} (<i class="fas fa-info" data-toggle="tooltip" title="${types}"></i>)</div> 
+				html=`${html} 
+				     
+				      <div class="instanceWidgetWrapper" onclick="$('#${randomId}').toggle();" class="instanceTraceWidget">
+				             <div  class="instanceTraceWidget"> ${label} (<i class="fas fa-info" data-toggle="tooltip" title="${types}"></i>)</div> 
 				             <div class="collapse smallTraceWidgetCommentBox" id="${randomId}">
 				               <div class="card card-body">
 		                       <label>Comment</label><p> ${variableInputs[j][context.comment][0]['@value']}</p>
 		                       </div>
 		                     </div>
 		                   </div>`
+		     
 			 } 
 	
 	//	html=html+"<p>"+variableInputs[j]['@id']+"</p>"
@@ -313,10 +350,10 @@ function createOutputInformationRealizationFormInput (id, types, label, comment,
 	let typesString = types.toString().replaceAll(',','\n');
 	html = html + `<div class="instanceWidgetWrapperLarge">
 	               <div class="instanceTraceWidgetLarge">
-	                 <div class="instanceTraceWidgetLargeHeader"  data-toggle="collapse" data-target="#${randomId}">${label} (<i class="fas fa-info" data-toggle="tooltip" title="${typesString}"></i>)</div>
+	                 <div class="instanceTraceWidgetLargeHeader" onclick="$('#${randomId}').toggle();">${label} (<i class="fas fa-info" data-toggle="tooltip" title="${typesString}"></i>)</div>
 	                 <label>Enter description:</label>
-	                 <div class="form-group"><div class="input-group input-group-lg  " id="information-realization-description-group-${index}"><input required type="text" id="information-realization-input-${index}" class="form-control " > <div class="input-group-append" data-target="#information-realization-description-group-${index}" > <div class="input-group-text"><i class="fas fa-align-justify"></i></div></div></div>
-	                 <br> <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-flag="InformationElementPane${index}" data-target="#informationElement"> <span class="fa fa-plus-circle"></span> Add Information Element  </button>
+	                 <div class="form-group"><div class="input-group input-group-lg" id="information-realization-description-group-${index}"><input required type="text" id="information-realization-input-${index}" class="form-control " > <div class="input-group-append" data-target="#information-realization-description-group-${index}" > <div class="input-group-text"><i class="fas fa-align-justify"></i></div></div></div>
+	                 <br> <button type="button" class="btn btn-info btn-sm" onclick="showInfoElementModal('InformationElementPane${index}')" > <span class="fa fa-plus-circle"></span> Add Information Element  </button>
 	                 <div id="InformationElementPane${index}" class = "row" > </div>
 	                 </div>
 	                 <div class="collapse largeTraceWidgetCommentBox" id="${randomId}">
@@ -417,9 +454,14 @@ function getAllowedInformationElelementForInformationRealizationType () {
 function createStepFormInput (id, types, label, comment, constraints) {
 //	let html = "";
 	//use this to keep track of which input belongs to which plan element as we cannot use iri as part of element id - JQUERY complaining
-	stepIDArray.push(id);
+	stepIDArray.push({"id":id,"constraints":constraints});
 	let index = stepIDArray.length - 1;
-	html = html + '<div class="card stepCard" ><div class="card-body">';
+	if (index==0) {
+	html = html + '<div class="card stepCard tab-pane fade in active show" id="StepTab'+index+'" > <div class="card-body ">';
+	}
+	else {
+		html = html + '<div class="card stepCard tab-pane fade" id="StepTab'+index+'"><div class="card-body ">';
+	}
 	html = html + '<div  data-toggle="collapse" data-target="#collapseStepComment'+index+'" class="stepTraceWidget card-header"> <h4><i class="fas fa-cogs"></i>  '+label+' (<i class="fas fa-info" data-toggle="tooltip" title="'+types.toString().replaceAll(',','\n')+'"></i>)</h4></div>';
 	
 	html = html + '<div class="collapse" id="collapseStepComment'+index+'"><div class="card card-body"><label>Comment:</label>';
@@ -432,27 +474,28 @@ function createStepFormInput (id, types, label, comment, constraints) {
 	//html = html + '<label>This step has following types</label>'
 	//html=html+"<p>"+types.toString().replaceAll(',','<br>')+"</p>"
 	html = html + '<div class="dateInputWrapper"><label>Select time when this activity was performed</label>'
-	html = html + '<div class="class="input-group"">'
+	html = html + '<div class="class="input-group">'
 	html = html + '<div class=" input-group date" id="time-start-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-start-input-'+index+'" class=" datetimepicker-input" data-target="#time-start-group-'+index+'"> <div class="input-group-append" data-target="#time-start-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
 	html = html + '<div class="input-group  date" id="time-end-group-'+index+'" data-target-input="nearest"><input placeholder="End" required type="text" id="time-end-input-'+index+'" class=" datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
 	html = html + '</div></div>'
 	
-	html = html + '<div class="constraintTraceWidget"><h5><i class="fas fa-check"></i> Constraints</h5></div><p>Please complete all boxes</p>';
+	html = html + '<div class="constraintTraceWidget"><h5><i class="fas fa-check"></i> Constraints</h5></div>';
 	
 	
 	for (let i =0 ; i < constraints.length;i++) {
 		//TO DO just selecting the first label and comment we find add @lang support later 
 		html = html+ `<div class="instanceWidgetWrapperLarge">
 		              <div class="instanceTraceWidgetLarge" >
-		                <div class="instanceTraceWidgetLargeHeader" data-toggle="collapse" data-target="#collapseConstraintComment${index}${i}" > <h7> ${constraints[i][context.label][0]['@value']} </h7></div><br><select required><option value="">Select Option</option><option>Complied with</option><option>Not complied with</option></select></div>
+		                <div class="instanceTraceWidgetLargeHeader" onclick="$('#collapseConstraintComment${index}${i}').toggle();"  >  ${constraints[i][context.label][0]['@value']} </div><br><select id="step-${index}-constraintSelect-${i}" required><option value="">Select Option</option><option value="satisfied">Complied with</option><option value="violated">Not complied with</option></select></div>
 		                  <div class="collapse smallTraceWidgetCommentBox" id="collapseConstraintComment${index}${i}">
 		                     <div class="card card-body">
-		                      <label>Comment</label><p> ${constraints[i][context.comment][0]['@value']}</p>
+		                      <label>Comment</label> <p> ${constraints[i][context.comment][0]['@value']}</p>
 		                     </div>
 		                  </div>
 		               </div>
 		        `;
 	}
+	
 	
 	
 	//let formhtml = document.getElementById("form").innerHTML;
@@ -475,7 +518,7 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		activity ['@type'].push (context.namedIndividual);
 		//to do load the IRI from component tree properly
 		activity ['isElementOfTrace'] = bundleID; 
-		activity ['correspondsToStep'] = stepIDArray[i];
+		activity ['correspondsToStep'] = stepIDArray[i]["id"];
 		let agentIRI = document.getElementById('agent-input-'+i).value;
 		activity ['wasAssociatedWith'] = agentIRI;
 		if (!checkIfAccountableAgentExist (agentIRI)) {
@@ -484,6 +527,21 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		
 		activity ['startedAtTime'] =  moment(document.getElementById('time-start-input-'+i).value).utc().format('YYYY-MM-DDTHH:mm:ss');
 		activity ['endedAtTime'] =  moment(document.getElementById('time-end-input-'+i).value).utc().format('YYYY-MM-DDTHH:mm:ss');
+		
+		activity ['violated'] = [];
+		activity ['satisfied'] = [];
+		//look up constraints
+		for (let j =0 ; j < stepIDArray[i]["constraints"].length;j++) {
+			let value = $('#step-'+i+'-constraintSelect-'+j+'').val();
+			if (value==='satisfied') {
+				activity ['satisfied'].push (stepIDArray[i]["constraints"][j]['@id'])
+			}
+			if (value==='violated') {
+				activity ['violated'].push (stepIDArray[i]["constraints"][j]['@id'])
+			}
+			
+		}
+		
 		
 		traceElementArray.push(activity);
 	}
@@ -627,141 +685,7 @@ function addUsedRelationships (traceElementArray) {
 	
 }
 
-</script>
-<body>
-
- <!-- The Modal  ADD Variables  -->
-  <div class="modal" id="informationElement">
-    <div class="modal-dialog">
-      <div class="modal-content">
-      
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <h4 class="modal-title"> Information Element</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        
-        <!-- Modal body -->
-        <div class="modal-body" >
-       <div class="card">
-           <div class="input-group mb-3">
-        <div class="input-group-prepend">
-           <label class="input-group-text" for="informationElementType">Information Type</label>
-           
-        </div>
-         <select class="custom-select"  id="informationElementType"></select>
-        </div>
-        
-        
-         <div class="input-group mb-3">
-       <div class="input-group-prepend">
-         <span class="input-group-text" >Label</span>
-         </div>
-       <input type="text" class="form-control" id="newInformationElementLabel" placeholder="Default Label" aria-label="label" aria-describedby="newInformationElementLabel">
-      </div>  
-        <div class="input-group mb-3">
-       <div class="input-group-prepend">
-         <span class="input-group-text">Description</span>
-         </div>
-       <input type="text" class="form-control" id="newInformationElementDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
-      </div>  
-      
-      <p>Only relevant to type of RealizableObject and it's subtypes</p>
-      <div class="input-group mb-3">
-       <div class="input-group-prepend">
-         <span class="input-group-text" for="newInformationElementThirdParty">Is This Third Party Element </span>
-         </div>
-      &nbsp;&nbsp;&nbsp; <input type="checkbox"  dissabled id="newInformationElementThirdParty"  aria-label="is third party" aria-describedby="newVariableDescription">
-      </div>  
-       <p>Only relevant to type of AccountableAgent</p>
-       <div class="input-group mb-3">
-        <div class="input-group-prepend">
-           <label class="input-group-text" for="informationElementAccountableAgentIRI" >Accountable Agent IRI</label>
-           
-        </div>
-         <input class="form-control" type="text" dissabled id="informationElementAccountableAgentIRI">
-        </div>
-  <div class="input-group mb-3">
-        <div class="input-group-prepend">
-           <label class="input-group-text" for="informationElementAccountableAgent">Link Realizable Object (optional)</label>
-           
-        </div>
-         <select class="custom-select" dissabled id="informationElementAccountableAgent"></select>
-        </div>
-        
-          
-            
-        </div>
-        
-         
-        </div>
-        <!-- Modal footer -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-success" data-dismiss="modal" id="addInfoElementBtn">Add Element</button>
-        </div>
-        
-      </div>
-    </div>
-  </div>
-
- <div class="container" id="main">
-<script>getPlanComponets (findGetParameter('token'));
-</script>
-
-<h2>Please complete the requested information below</h2> <br><br>
-<form id="form" action="/uploadHumanTaskProvenanceTrace"  method="post">
-<button class="btn btn-primary" id="submitButton">Submit</button>
-</form>
-
-<script>
-$(document).ready(function (e) {
-	
-	$( "#informationElementType" ).change(function() {
-		enableInfoElements ();
-		});
-	
-	$('#informationElement').on('show.bs.modal', function (event) {
-		console.log("modal showing");
-		 
-		enableInfoElements ();
-		getAllowedInformationElelementForInformationRealizationType ();
-		//document.getElementById ("addInformationElementModal").innerHTML ="";
-	     currentInformationElementPaneId = $(event.relatedTarget).data('flag');
-		
-		 // displayCurrentPlanVariables ('currentPlanExistingVariablesList',variableMode);
-		 // $(this).find('#variablesTitle').html(variableMode);
-		  //hold teh info about temporary 
-		//  temporaryVarArray = [];
-		//  if (variableMode!="Output") {
-		//  document.getElementById ("currentPlanNewVariablesList").innerHTML="";
-		  //}
-		 
-		  
-		});
-	
-	$(function () {
-		  $('[data-toggle="tooltip"]').tooltip()
-		}) 
-	
-	$('#addInfoElementBtn').on("click",function(x) {
-		let entityIndex = currentInformationElementPaneId.replace("InformationElementPane","")
-		document.getElementById (currentInformationElementPaneId).appendChild ( createInformationElementWidget (entityIndex)); 		
-		//TO DO - Handle storing of the object 
-		
-		//document.getElementById('newInformationElementType').value ="";
-		document.getElementById('informationElementType').value="";
-		 document.getElementById('newInformationElementDescription').value ="";
-		 document.getElementById('newInformationElementLabel').value ="";
-		 document.getElementById('newInformationElementThirdParty').checked = false;
-		 document.getElementById('informationElementAccountableAgent').value ="";
-		 document.getElementById('informationElementAccountableAgentIRI').value ="";
-		
-		$('#informationElement').modal('toggle');
-	}
-	)
-	
-	//to do handle deletions
+//to do handle deletions
 function createInformationElementWidget (entityIdIndex) {
     let infoElement = {};
     let infoElementType = document.getElementById('informationElementType').value; 
@@ -846,14 +770,140 @@ function createInformationElementWidget (entityIdIndex) {
 		
 	}
 	
-	
-	 $(document).ready(function(){
-	        $("#tooltipex").tooltip({
-	        	   show:0
-	        });
-	        $('[data-toggle="tooltip"]').tooltip();
-	    });
-	
+	//adding this as bootstrap doesnt work for some reason
+	function showInfoElementModal (id) {
+		console.log("modal showing fro custom JQuery function "+id);
+		$('#informationElement').toggle();
+		enableInfoElements ();
+		getAllowedInformationElelementForInformationRealizationType ();
+	    currentInformationElementPaneId = id;
+	}
+</script>
+</head>
+<body>
+ <div class="container" id="main">
+ <!-- The Modal  ADD Variables  -->
+  <div class="modal" id="informationElement">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title"> Information Element</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body" >
+       <div class="card">
+           <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementType">Information Type</label>
+           
+        </div>
+         <select class="custom-select"  id="informationElementType"></select>
+        </div>
+        
+        
+         <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text" >Label</span>
+         </div>
+       <input type="text" class="form-control" id="newInformationElementLabel" placeholder="Default Label" aria-label="label" aria-describedby="newInformationElementLabel">
+      </div>  
+        <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text">Description</span>
+         </div>
+       <input type="text" class="form-control" id="newInformationElementDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
+      </div>  
+      
+      <p>Only relevant to type of RealizableObject and it's subtypes</p>
+      <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text" for="newInformationElementThirdParty">Is This Third Party Element </span>
+         </div>
+      &nbsp;&nbsp;&nbsp; <input type="checkbox"  dissabled id="newInformationElementThirdParty"  aria-label="is third party" aria-describedby="newVariableDescription">
+      </div>  
+       <p>Only relevant to type of AccountableAgent</p>
+       <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementAccountableAgentIRI" >Accountable Agent IRI</label>
+           
+        </div>
+         <input class="form-control" type="text" dissabled id="informationElementAccountableAgentIRI">
+        </div>
+  <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementAccountableAgent">Link Realizable Object (optional)</label>
+           
+        </div>
+         <select class="custom-select" dissabled id="informationElementAccountableAgent"></select>
+        </div>
+        </div>
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal" id="dismissInfoElementBtn">Cancel</button>
+          <button type="button" class="btn btn-success" data-dismiss="modal" id="addInfoElementBtn">Add Element</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+
+<h2 style="text-align:center;padding-top:70px;">Accountability Trace Form</h2> <br><br>
+
+<form id="form" action="/uploadHumanTaskProvenanceTrace"  method="post">
+<div class="text-right">
+<button class="btn btn-primary  " id="submitButton">Submit</button>
+</div>
+
+<br><br>
+<ul class="nav nav-tabs" id="navigation"></ul>
+
+  <div class="tab-content" id="tabContentSteps"></div>
+</form>
+
+<script>getPlanComponets (findGetParameter('token'));
+</script>
+   
+<script>
+$(document).ready(function (e) {
+		
+		//load the form
+		
+		
+		$('#addInfoElementBtn').on("click",function(x) {
+			 let entityIndex = currentInformationElementPaneId.replace("InformationElementPane","")
+			 document.getElementById (currentInformationElementPaneId).appendChild ( createInformationElementWidget (entityIndex)); 		
+			 document.getElementById('informationElementType').value="";
+			 document.getElementById('newInformationElementDescription').value ="";
+			 document.getElementById('newInformationElementLabel').value ="";
+			 document.getElementById('newInformationElementThirdParty').checked = false;
+			 document.getElementById('informationElementAccountableAgent').value ="";
+			 document.getElementById('informationElementAccountableAgentIRI').value ="";
+			
+			$('#informationElement').modal('toggle'); })
+			
+		$('#dismissInfoElementBtn').on("click",function(x) {
+			$('#informationElement').modal('toggle');
+		});
+		
+	    
+		
+		$( "#informationElementType" ).change(function() {
+			enableInfoElements ();
+			});
+		
+		$('#informationElement').on('show.bs.modal', function (event) {
+			console.log("modal showing");
+			 
+			enableInfoElements ();
+			getAllowedInformationElelementForInformationRealizationType ();
+		    currentInformationElementPaneId = $(event.relatedTarget).data('flag');});
+	     
 	$('#form').on("submit",function(x) {
 	 console.log("trying to submit");
 	 console.log($("#form"));

@@ -10,6 +10,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.4.0/json2html.min.js"></script>
+<!-- Font Awesome JS -->
+<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+<script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+
+
+
 <style>
     .bs-example{
         margin: 20px;
@@ -43,6 +49,8 @@
         });
         
         getAgents (findGetParameter('systemIri'));    
+        getAllActivitiesInExecutionTraces (findGetParameter('systemIri'));
+        getAllEntitiesInExecutionTraces (findGetParameter('systemIri'));
         
         
     });
@@ -88,40 +96,66 @@
 
 -->
 
-</div>
+
+ 
+ <ul class="nav nav-pills" id="navigation">
+ <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#agentView">Agent View</a></li>
+ 
+ <li class="nav-item"><a class="nav-link " data-toggle="tab" href="#processView">Process View</a></li>
   
+  <li class="nav-item"><a class="nav-link " data-toggle="tab" href="#entityView">Entity View</a></li>
+ </ul>
+ 
+ </div>
+ 
 <div class="container-fluid">
 
+
+ <div class="tab-content">
+
+<div class=" tab-pane active show" id="agentView" >
+
+
 <div class="row">
-<div class="col-md-3">
+<div class="col-md-12 "  >
+<div class="card objectDetailsCard">
+<div class="card-body">
+ <h3 class="card-title">Object Details</h3>
+<div class="row"></div> <div class="card-text" id="informationRelaizationDesc" ></div>
+<div class="row"><div class="objectDetails" id="Info" ></div>
+<div class="col-md-12 card-text" id="object-details" ><p>Click on the items in the result table to view details.</p> </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<br>
+<div class="card">
+<div class=" row">
+<div class="col-md-12">
  <h3>Agents</h3>
  <p>Click on the agents to explore their accountabilities</p>
  <div id="agent_pane"></div>
 </div>
 
 
-<div class="col-md-9 "  >
- <h3>Object Details</h3>
-<div class="row"></div> <div  id="informationRelaizationDesc" ></div>
-<div class="row"><div class="objectDetails" id="Info" ></div>
 
- <div class="col-md-12 " id="object-details" ><p>Click on the items in the result table to view details.</p> </div>
+ 
+
 </div>
-</div>
-</div>
-<div class="col-md-12" >
+<div class=" col-md-12" >
 
  <h3>Results</h3>
 
-<table class="table">
+<table class="table table-bordered table-dark table-striped">
 
  <thead>
     <tr>
       <th scope="col">#</th>
       <th scope="col">Accountable Action</th>
       <th scope="col">Accountable Result Produced</th>
-      <th scope="col">Accountable Actions dependent on this Output</th>
-      <th scope="col">Accountable Result relates to Accountable Object </th>
+      <th scope="col">Accountable Actions Directly Influenced By These Results </th>
+      <th scope="col">System Reference </th>
     </tr>
   </thead>
   <tbody id="agent_result_body">
@@ -130,6 +164,7 @@
 
 </table>
 
+</div>
 </div>
 
 <!-- 
@@ -219,8 +254,93 @@
    </div>
  
  -->  
+   </div>
+ 
+ <!-- PROCESS VIEW--> 
+ <div class=" tab-pane" id="processView">
+ 
+ <div class="row">
+<div class="col-md-12 "  >
+<div class="card objectDetailsCard">
+<div class="card-body">
+ <h3 class="card-title">Object Details</h3>
+<div class="row"></div> <div class="card-text" id="informationRelaizationDescProcess" ></div>
+<div class="row"><div class="objectDetails" id="InfoProcess" ></div>
+<div class="col-md-12 card-text" id="object-detailsProcess" ><p>Click on the items in the result table to view details.</p> </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<br>
+
+ <div class="card">
+<table class="table table-bordered table-dark table-striped">
+
+ <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Accountable Action</th>
+      <th scope="col">Inputs (Accountable results produced by other activities)</th>
+      <th scope="col">Accountable Result Produced</th>
+      <th scope="col">Accountable Actions Directly Influenced By These Results </th>
+      <th scope="col">Agent </th>
+      <th scope="col">System Reference </th>
+    </tr>
+  </thead>
+  <tbody id="process_result_body">
+    
+  </tbody>
+
+</table>
+ 
+ </div>
+ 
+ </div>
+ 
+ 
+  <!-- ENTITY VIEW--> 
+ <div class=" tab-pane" id="entityView">
+ 
+ <div class="row">
+<div class="col-md-12 "  >
+<div class="card objectDetailsCard">
+<div class="card-body">
+ <h3 class="card-title">Object Details</h3>
+<div class="row"></div> <div class="card-text" id="informationRelaizationDescEntity" ></div>
+<div class="row"><div class="objectDetails" id="InfoEntity" ></div>
+<div class="col-md-12 card-text" id="object-detailsEntity" ><p>Click on the items in the result table to view details.</p> </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<br>
+
+ <div class="card">
+<table class="table table-bordered table-dark table-striped">
+
+ <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Accountable Result</th>
+      <th scope="col">Produced By Activity</th>
+      <th scope="col">Entities on Influence Path</th>
+      <th scope="col">Entities on Derivation Path</th>
+    </tr>
+  </thead>
+  <tbody id="entity_result_body">
+    
+  </tbody>
+
+</table>
+ 
+ </div>
+ 
+ </div>
+ 
    
-   
+</div>   
 </div>
 
 

@@ -1,3 +1,8 @@
+.clicked {
+	border-color:red;
+	    border-style: solid;
+}
+
 #svgContainer { 
 	z-index: -10;
 	position:absolute;
@@ -128,6 +133,17 @@ margin-bottom:15px;
 	margin-top:20px;
 }
 
+.objectDetailsCard{
+	margin-top:20px;
+	background: #E8E8E8;
+}
+
+.resultCard{
+	margin-top:20px;
+	background: #E8E8E8;
+}
+
+
 .agentInputWrapper {
 	display:inline-block;
 	width:60%;
@@ -213,8 +229,8 @@ margin-bottom:15px;
     padding:15px;
     text-align: center;
     min-height: 50px;
-    border-style: solid;
-    border-color: #8A2BE2;
+
+   
     background:#8A2BE2;
     margin:10px;
     color:white;
@@ -283,6 +299,19 @@ padding:10px;
     white-space: -o-pre-wrap; /* Opera 7 */
     word-wrap: break-word; /* Internet Explorer 5.5+ */
 
+}
+
+
+
+.agentWidgetTable {
+	
+width:95%;
+color:black;
+min-height: 40px;
+border-radius: 25px;
+background: #F7D2B1;
+text-align:center;
+padding:10px;
 }
 
 .planWidget {

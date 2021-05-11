@@ -927,9 +927,116 @@ public ArrayList <HashMap> getAgentsParticipationDetailsInExecutionTraces(String
 }
 
 
+public ArrayList <HashMap> getAllActivitiesInExecutionTraces(String systemIRI) {
+
+	RepositoryResult<Statement> res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasAccountabilityTrace), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			
+	// find named graphs for execution traces 
+	HashSet <String> namedGraphsToQuery = new HashSet <String> ();
+	while (res.hasNext()) {
+		namedGraphsToQuery.add(res.next().getObject().toString());
+	}
+	// find named graphs for plans
+	res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasPlansStoredInGraph), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	namedGraphsToQuery.add(res.next().getObject().toString());
+	
+	String fromPart = "";
+	Iterator <String> it = namedGraphsToQuery.iterator();
+	while (it.hasNext()) {
+		fromPart = fromPart +  "FROM <" +it.next()+"> "; 
+	}
+	
+	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.SYSTEMS_NAMED_GRAPH_IRI+"> "+fromPart+" Where {?infoRealization prov:wasGeneratedBy ?activity; ep-plan:correspondsToVariable ?accountableResult. ?accountableResult a ?accountableResultType; sao:relatesToAccountableObject ?accountableObject; rdfs:label ?accountableResultLabel. ?accountableObject rdfs:label ?accountableObjectLabel. ?activity  prov:wasAssociatedWith ?agent; ep-plan:correspondsToStep ?accountableAction.?accountableAction a ?accountableActionType; ep-plan:hasOutputVariable ?accountableResult; rdfs:label ?accountableActionLabel. OPTIONAL {?dependentAccountableActionActivity ep-plan:correspondsToStep ?dependentAccountableAction. ?dependentAccountableAction ep-plan:hasInputVariable ?accountableResult; a ?dependentAccountableActionType; rdfs:label ?dependentAccountableActionLabel. FILTER (regex(str(?dependentAccountableActionType), \"https://w3id.org/rains#\" ))}FILTER(regex(str(?accountableActionType), \"https://w3id.org/rains#\" ) && regex(str(?accountableResultType), \"https://w3id.org/rains#\" ) )  } ";
+	    System.out.println("Get all activities execution trace query" +queryString);
+	    TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
+		   try (TupleQueryResult result = tupleQuery.evaluate()) {
+			      while (result.hasNext()) {  // iterate over the result
+			    	HashMap <String,String> row = new HashMap <String,String>(); 
+			        
+			    	
+			    	
+			    	BindingSet bindingSet = result.next();	
+			    	
+			    	Set <String> bindings = bindingSet.getBindingNames();  
+			    	
+			    	Iterator it2 = bindings.iterator();
+			    	while (it2.hasNext()) {
+			    		String key = (String) it2.next();
+			    		if (bindingSet.getValue(key)!=null)
+			    		row.put(key, bindingSet.getValue(key).toString()) ;
+			    	}
+			       
+			         resultSet.add(row);
+			      }
+	    	
+	    	
+	    }
+			
+	
+	return resultSet;		
+}
+
+
+public ArrayList <HashMap> getAllEntitiesInExecutionTraces(String systemIRI) {
+
+	RepositoryResult<Statement> res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasAccountabilityTrace), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			
+	// find named graphs for execution traces 
+	HashSet <String> namedGraphsToQuery = new HashSet <String> ();
+	while (res.hasNext()) {
+		namedGraphsToQuery.add(res.next().getObject().toString());
+	}
+	// find named graphs for plans
+	res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasPlansStoredInGraph), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	namedGraphsToQuery.add(res.next().getObject().toString());
+	
+	String fromPart = "";
+	Iterator <String> it = namedGraphsToQuery.iterator();
+	while (it.hasNext()) {
+		fromPart = fromPart +  "FROM <" +it.next()+"> "; 
+	}
+	
+	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.SYSTEMS_NAMED_GRAPH_IRI+"> "+fromPart+" Where {?infoRealization prov:wasGeneratedBy ?activity; ep-plan:correspondsToVariable ?accountableResult. ?accountableResult a ?accountableResultType; sao:relatesToAccountableObject ?accountableObject; rdfs:label ?accountableResultLabel. ?accountableObject rdfs:label ?accountableObjectLabel. ?activity  prov:wasAssociatedWith ?agent; ep-plan:correspondsToStep ?accountableAction.?accountableAction a ?accountableActionType; ep-plan:hasOutputVariable ?accountableResult; rdfs:label ?accountableActionLabel. FILTER(regex(str(?accountableActionType), \"https://w3id.org/rains#\" ) && regex(str(?accountableResultType), \"https://w3id.org/rains#\" ) )  } ";
+	    System.out.println("Get all activities execution trace query" +queryString);
+	    TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
+		   try (TupleQueryResult result = tupleQuery.evaluate()) {
+			      while (result.hasNext()) {  // iterate over the result
+			    	HashMap <String,String> row = new HashMap <String,String>(); 
+			        
+			    	
+			    	
+			    	BindingSet bindingSet = result.next();	
+			    	
+			    	Set <String> bindings = bindingSet.getBindingNames();  
+			    	
+			    	Iterator it2 = bindings.iterator();
+			    	while (it2.hasNext()) {
+			    		String key = (String) it2.next();
+			    		if (bindingSet.getValue(key)!=null)
+			    		row.put(key, bindingSet.getValue(key).toString()) ;
+			    	}
+			       
+			         resultSet.add(row);
+			      }
+	    	
+	    	
+	    }
+			
+	
+	return resultSet;		
+}
+
+
+
+
 public ArrayList <HashMap> getActivityDetailsInExecutionTraces(String systemIRI, String activityIRI) {
 	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
-	String queryString = Constants.PREFIXES + "Select Distinct *  Where {  ?activity prov:endedAtTime ?end. ?activity prov:startedAtTime ?start; ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType.OPTIONAL {?step rdfs:comment ?stepComment.}FILTER(?planType = rains:DesignStageAccountabilityPlan)}Values (?activity) {(<"+activityIRI+">)}";
+	//String queryString = Constants.PREFIXES + "Select Distinct *  Where {  ?activity prov:endedAtTime ?end. ?activity prov:startedAtTime ?start; ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType.OPTIONAL {?step rdfs:comment ?stepComment.}FILTER(?planType = rains:DesignStageAccountabilityPlan)}Values (?activity) {(<"+activityIRI+">)}";
+	String queryString = Constants.PREFIXES + "Select Distinct *  Where {  ?activity prov:endedAtTime ?end. ?activity prov:startedAtTime ?start; ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType.OPTIONAL {?step rdfs:comment ?stepComment.} FILTER(?planType = rains:DesignStageAccountabilityPlan || ?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:OperationStageAccountabilityPlan || ?planType = rains:DeploymentStageAccountabilityPlan ) }Values (?activity) {(<"+activityIRI+">)}";
+	
+	
 	System.out.println("Get activity details execution trace query" +queryString);
     TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
 	   try (TupleQueryResult result = tupleQuery.evaluate()) {

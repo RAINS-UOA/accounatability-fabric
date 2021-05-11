@@ -441,6 +441,26 @@ public class ServiceController {
 		return gson.toJson(list);
 	}
 	
+	@GetMapping("/getAllActivitiesInExecutionTraces")
+	@ResponseBody
+	public String getAllActivitiesInExecutionTraces (@RequestParam String systemIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap> list = manager.getAllActivitiesInExecutionTraces (systemIRI);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(list);
+	}
+	
+	@GetMapping("/getAllEntitiesInExecutionTraces")
+	@ResponseBody
+	public String getAllEntitiesInExecutionTraces (@RequestParam String systemIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap> list = manager.getAllEntitiesInExecutionTraces (systemIRI);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(list);
+	}
+	
 	@GetMapping("/getActivityDetailsInExecutionTraces")
 	@ResponseBody
 	public String getActivityDetailsInExecutionTraces (@RequestParam String systemIRI,@RequestParam String activityIRI ) throws NoSuchElementException, IllegalStateException, Exception  {

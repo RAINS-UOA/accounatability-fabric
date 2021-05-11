@@ -479,6 +479,8 @@ function createStepFormInput (id, types, label, comment, constraints) {
 	html = html + '<div class="input-group  date" id="time-end-group-'+index+'" data-target-input="nearest"><input placeholder="End" required type="text" id="time-end-input-'+index+'" class=" datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
 	html = html + '</div></div>'
 	
+	
+	if (constraints!=null) {
 	html = html + '<div class="constraintTraceWidget"><h5><i class="fas fa-check"></i> Constraints</h5></div>';
 	
 	
@@ -496,7 +498,7 @@ function createStepFormInput (id, types, label, comment, constraints) {
 		        `;
 	}
 	
-	
+	}
 	
 	//let formhtml = document.getElementById("form").innerHTML;
 	
@@ -530,6 +532,7 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		
 		activity ['violated'] = [];
 		activity ['satisfied'] = [];
+		if (stepIDArray[i]["constraints"]!=null) {
 		//look up constraints
 		for (let j =0 ; j < stepIDArray[i]["constraints"].length;j++) {
 			let value = $('#step-'+i+'-constraintSelect-'+j+'').val();
@@ -541,7 +544,7 @@ function prepareHumanTaskProvenanceTraceGraph () {
 			}
 			
 		}
-		
+		}
 		
 		traceElementArray.push(activity);
 	}

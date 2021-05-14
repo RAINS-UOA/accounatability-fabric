@@ -461,6 +461,26 @@ public class ServiceController {
 		return gson.toJson(list);
 	}
 	
+	@GetMapping("/getEntitiesOnDerivationPath")
+	@ResponseBody
+	public String getEntitiesOnDerivationPath (@RequestParam String systemIRI,@RequestParam String entityIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap> list = manager.getEntitiesOnDerivationPath (systemIRI,entityIRI);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(list);
+	}
+	
+	@GetMapping("/getEntitiesOnInfluencePath")
+	@ResponseBody
+	public String getEntitiesOnInfluencePath (@RequestParam String systemIRI,@RequestParam String entityIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap> list = manager.getEntitiesOnInfluencePath (systemIRI,entityIRI);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(list);
+	}
+	
 	@GetMapping("/getActivityDetailsInExecutionTraces")
 	@ResponseBody
 	public String getActivityDetailsInExecutionTraces (@RequestParam String systemIRI,@RequestParam String activityIRI ) throws NoSuchElementException, IllegalStateException, Exception  {

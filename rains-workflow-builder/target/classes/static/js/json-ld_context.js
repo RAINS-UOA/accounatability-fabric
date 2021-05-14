@@ -13,6 +13,7 @@ context.startedAtTime = {"@id":"http://www.w3.org/ns/prov#startedAtTime","@type"
 context.wasAssociatedWith = {"@id":"http://www.w3.org/ns/prov#wasAssociatedWith","@type": "@id"};
 context.wasMemberOf = {"@id":"http://www.w3.org/ns/prov#wasMemberOf","@type": "@id"}
 context.wasGeneratedBy = {"@id":"http://www.w3.org/ns/prov#wasGeneratedBy","@type": "@id"}
+context.wasDerivedFrom = {"@id":"http://www.w3.org/ns/prov#wasDerivedFrom","@type": "@id"}
 context.used = {"@id":"http://www.w3.org/ns/prov#used","@type": "@id"}
 
 ///SAO context

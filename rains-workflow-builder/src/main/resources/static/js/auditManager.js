@@ -198,6 +198,69 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 
 //----------> Entity view Pane Start
 
+function selectEntity (entityID) {
+	$('#queryResultModal').toggle();
+	
+	$('#'+entityID).click();
+	
+}
+
+function getEntityInfluencePath (systemIRI, entityIRI) {
+	let details = fetch("getEntitiesOnInfluencePath?systemIRI="+ systemIRI+"&entityIRI="+entityIRI);
+	details.then(
+			(data) => {
+				
+				return data.json();
+			}).then(details => {
+				console.log(details);
+				let html = '<ul class="list-group">';
+				for (let i=0; i <details.length;i++) {
+				html = `${html} <li onclick="selectEntity('${details[i].entity.split("/")[4]}')" class="list-group-item"><a href="#">${details[i].label.replaceAll("\"","")}</a></li>`
+					
+				}
+				html = `${html} </ul>`
+				if (details.length ==0) {
+					html = `<p>No results</p>`
+				}
+				$('#queryResultModalBody').html (html);
+				
+				
+			}).catch(
+    		        // Log the rejection reason
+ 			       (reason) => {   			    	 
+ 			            console.log('Handle rejected promise getEntityDerivationPath  ('+reason+') here.');
+ 			           
+ 			        });
+}
+
+function getEntityDerivationPath (systemIRI, entityIRI) {
+	let details = fetch("getEntitiesOnDerivationPath?systemIRI="+ systemIRI+"&entityIRI="+entityIRI);
+	details.then(
+			(data) => {
+				
+				return data.json();
+			}).then(details => {
+				console.log(details);
+				let html = '<ul class="list-group">';
+				for (let i=0; i <details.length;i++) {
+				html = `${html} <li onclick="selectEntity('${details[i].influenceEntity.split("/")[4]}')" class="list-group-item"><a href="#">${details[i].influenceVariableLabel.replaceAll("\"","")}</a></li>`
+					
+				}
+				html = `${html} </ul>`
+				if (details.length ==0) {
+					html = `<p>No results</p>`
+				}
+				$('#queryResultModalBody').html (html);
+				
+				
+			}).catch(
+    		        // Log the rejection reason
+ 			       (reason) => {   			    	 
+ 			            console.log('Handle rejected promise getEntityDerivationPath  ('+reason+') here.');
+ 			           
+ 			        });
+}
+
 
 function getAllEntitiesInExecutionTraces (systemIRI) {
 
@@ -211,60 +274,68 @@ function getAllEntitiesInExecutionTraces (systemIRI) {
 				console.log("RESULT getAllEntitiesInExecutionTraces ");
 				console.log(details);
 				
-				let resultObjectDependentActionsMerged = {};
+				let resultObject = {};
 				
 				for (let i=0;i<details.length;i++ ) {
 					
-					if (resultObjectDependentActionsMerged[details[i].accountableAction]==null ) {
-					resultObjectDependentActionsMerged[details[i].accountableAction] = {};
-					resultObjectDependentActionsMerged[details[i].accountableAction]['accountableAction'] = details[i].accountableAction;
-					resultObjectDependentActionsMerged[details[i].accountableAction]['accountableActionLabel'] = details[i].accountableActionLabel;
-					resultObjectDependentActionsMerged[details[i].accountableAction]['accountableActionType'] = details[i].accountableActionType;
-					resultObjectDependentActionsMerged[details[i].accountableAction]['wasassociatedWith'] = details[i].agent;
-					resultObjectDependentActionsMerged[details[i].accountableAction]['accountableObject'] = details[i].accountableObject;
-					resultObjectDependentActionsMerged[details[i].accountableAction]['accountableObjectLabel'] = details[i].accountableObjectLabel;
-					resultObjectDependentActionsMerged[details[i].accountableAction]['accountableResult'] = details[i].accountableResult;
-					resultObjectDependentActionsMerged[details[i].accountableAction]['activity'] = details[i].activity;
-					resultObjectDependentActionsMerged[details[i].accountableAction]['infoRealization'] = details[i].infoRealization;
-					resultObjectDependentActionsMerged[details[i].accountableAction]['accountableResultType'] = details[i].accountableResultType;
-					resultObjectDependentActionsMerged[details[i].accountableAction]['accountableResultLabel'] = details[i].accountableResultLabel;
-					resultObjectDependentActionsMerged[details[i].accountableAction]['dependentAccountableActions'] = [];
-					resultObjectDependentActionsMerged[details[i].accountableAction]['reused'] = details[i].reused;
 					
-					
-					
-					}
-					
+						resultObject[details[i].infoRealization] = {};
+						resultObject[details[i].infoRealization]['accountableAction'] = details[i].accountableAction;
+						resultObject[details[i].infoRealization]['accountableActionLabel'] = details[i].accountableActionLabel;
+						resultObject[details[i].infoRealization]['accountableActionType'] = details[i].accountableActionType;
+						resultObject[details[i].infoRealization]['wasassociatedWith'] = details[i].agent;
+						resultObject[details[i].infoRealization]['accountableObject'] = details[i].accountableObject;
+						resultObject[details[i].infoRealization]['accountableObjectLabel'] = details[i].accountableObjectLabel;
+						resultObject[details[i].infoRealization]['accountableResult'] = details[i].accountableResult;
+						resultObject[details[i].infoRealization]['activity'] = details[i].activity;
+						resultObject[details[i].infoRealization]['infoRealization'] = details[i].infoRealization;
+						resultObject[details[i].infoRealization]['accountableResultType'] = details[i].accountableResultType;
+						resultObject[details[i].infoRealization]['accountableResultLabel'] = details[i].accountableResultLabel;
+						resultObject[details[i].infoRealization]['dependentAccountableActions'] = [];
+						resultObject[details[i].infoRealization]['reused'] = details[i].reused;
 					
 				}
 				
 				console.log("ALL Entities");
-				console.log(resultObjectDependentActionsMerged);
+				console.log(resultObject);
 				
 				let tableBody = document.getElementById ('entity_result_body');
 				tableBody.innerHTML="";
 				let counter = 1; 
-				for (const [key, value] of Object.entries(resultObjectDependentActionsMerged)) {
+				for (const [key, value] of Object.entries(resultObject)) {
 					
 					let rowNumb = document.createElement('th');
 					rowNumb.innerHTML=counter;
 				
+					let entityType = document.createElement('td');
+					entityType.innerHTML = replaceRainsPrefix(value.accountableResultType).split(":")[1].replace(/([a-z](?=[A-Z]))/g, '$1 ');
 					
-					let th = document.createElement('td');
+					
+					let parentActivity = document.createElement('td');
 					//th.innerHTML="<div class=\"planWidget\"><strong>Action Name:</strong> "+value.accountableActionLabel + "</div><div class=\"planWidget\" ><strong>Action type:</strong> "+ replaceRainsPrefix(value.accountableActionType)+"</div><div class=\"executionTraceWidget\" ><strong> Corresponding Activity IRI: </strong> "+ replaceDataInstancePrefix(value.activity) +"</div> ";
-					th.innerHTML = `<div  class="instanceTraceWidget"> ${value.accountableActionLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableActionType)}"></i>)</div> ` 
-					th.addEventListener("click", function(event){ 					
+					parentActivity.innerHTML = `<div  class="instanceTraceWidget"> ${value.accountableActionLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableActionType)}"></i>)</div> ` 
+						parentActivity.addEventListener("click", function(event){ 					
 						resultClickHighlighterEntityPane(event);	
 						getActivityDetailsInExecutionTraces (systemIRI,value.activity, "EntityView") 
 					
 					});
 					
-					let inputs = document.createElement('td');
-					inputs.innerHTML = "To be implemented";
+					let influencePath = document.createElement('td');
+					influencePath.innerHTML = "<a href='#'>Click to view</a>";
+					influencePath.addEventListener("click", function(){
+						getEntityInfluencePath( systemIRI,value.infoRealization );
+						$('#queryResultModal').toggle();});
+					
+					let derivationPath = document.createElement('td');
+					derivationPath.innerHTML = "<a href='#'>Click to view</a>";
+					derivationPath.addEventListener("click", function(){
+						getEntityDerivationPath( systemIRI,value.infoRealization );
+						$('#queryResultModal').toggle();});
 					
 					let allEntities = document.createElement('td');
 				//	th2.innerHTML="<div class=\"planWidget\"> <h5>"+value.accountableResultLabel.replaceAll("\"","") + "<br> <span style=\"background:black;color:white; \">[" + replaceRainsPrefix(value.accountableResultType) +"]</span></h5></div><div class=\"executionTraceWidget\" ><strong> Corresponding Entity IRI: </strong>"+ replaceDataInstancePrefix(value.infoRealization)+"</div> ");
-					allEntities.innerHTML = ` <div  class="instanceTraceWidget"> ${value.accountableResultLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableResultType)}"></i>)</div> `
+					let id = value.infoRealization.split("/")[4];
+					allEntities.innerHTML = ` <div id=${id} class="instanceTraceWidget"> ${value.accountableResultLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableResultType)}"></i>)</div> `
 					allEntities.addEventListener("click", function(){ 
 						resultClickHighlighterEntityPane(event);	
 						getOutputDetailsInExecutionTraces (systemIRI,value.infoRealization, "EntityView") });
@@ -300,10 +371,11 @@ function getAllEntitiesInExecutionTraces (systemIRI) {
 					let tr = document.createElement('tr'); 
 					
 					tr.append(rowNumb);
+					tr.append(entityType);
 					tr.append(allEntities);
-					//tr.append(inputs);
-					//tr.append(th2);
-					//tr.append(th3);
+					tr.append(parentActivity);
+					tr.append(influencePath);
+					tr.append(derivationPath);
 					//tr.append(th4);
 					//tr.append(th5);
 					tableBody.append(tr);

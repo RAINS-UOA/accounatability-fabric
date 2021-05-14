@@ -1031,6 +1031,109 @@ public ArrayList <HashMap> getAllEntitiesInExecutionTraces(String systemIRI) {
 
 
 
+public ArrayList <HashMap> getEntitiesOnDerivationPath(String systemIRI, String entityIRI) {
+
+	RepositoryResult<Statement> res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasAccountabilityTrace), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			
+	// find named graphs for execution traces 
+	HashSet <String> namedGraphsToQuery = new HashSet <String> ();
+	while (res.hasNext()) {
+		namedGraphsToQuery.add(res.next().getObject().toString());
+	}
+	// find named graphs for plans
+	res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasPlansStoredInGraph), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	namedGraphsToQuery.add(res.next().getObject().toString());
+	
+	String fromPart = "";
+	Iterator <String> it = namedGraphsToQuery.iterator();
+	while (it.hasNext()) {
+		fromPart = fromPart +  "FROM <" +it.next()+"> "; 
+	}
+	
+	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.SYSTEMS_NAMED_GRAPH_IRI+"> "+fromPart+"Where {?variable a ep-plan:Variable. ?variable rdfs:label ?label; rdfs:comment ?comment. ?entity ep-plan:correspondsToVariable ?variable. ?entity prov:wasDerivedFrom+ ?influenceEntity. ?influenceEntity ep-plan:correspondsToVariable ?influenceVariable. ?influenceVariable rdfs:label ?influenceVariableLabel; rdfs:comment ?influenceVariableComment.} values (?entity) {(<"+entityIRI+">)}";
+	    System.out.println("Get all activities execution trace query" +queryString);
+	    TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
+		   try (TupleQueryResult result = tupleQuery.evaluate()) {
+			      while (result.hasNext()) {  // iterate over the result
+			    	HashMap <String,String> row = new HashMap <String,String>(); 
+			        
+			    	
+			    	
+			    	BindingSet bindingSet = result.next();	
+			    	
+			    	Set <String> bindings = bindingSet.getBindingNames();  
+			    	
+			    	Iterator it2 = bindings.iterator();
+			    	while (it2.hasNext()) {
+			    		String key = (String) it2.next();
+			    		if (bindingSet.getValue(key)!=null)
+			    		row.put(key, bindingSet.getValue(key).toString()) ;
+			    	}
+			       
+			         resultSet.add(row);
+			      }
+	    	
+	    	
+	    }
+			
+	
+	return resultSet;		
+}
+
+public ArrayList <HashMap> getEntitiesOnInfluencePath(String systemIRI, String entityIRI) {
+
+	RepositoryResult<Statement> res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasAccountabilityTrace), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+			
+	// find named graphs for execution traces 
+	HashSet <String> namedGraphsToQuery = new HashSet <String> ();
+	while (res.hasNext()) {
+		namedGraphsToQuery.add(res.next().getObject().toString());
+	}
+	// find named graphs for plans
+	res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasPlansStoredInGraph), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	namedGraphsToQuery.add(res.next().getObject().toString());
+	
+	String fromPart = "";
+	Iterator <String> it = namedGraphsToQuery.iterator();
+	while (it.hasNext()) {
+		fromPart = fromPart +  "FROM <" +it.next()+"> "; 
+	}
+	
+	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.SYSTEMS_NAMED_GRAPH_IRI+"> "+fromPart+"Where {?variable a ep-plan:Variable. ?variable rdfs:label ?label; rdfs:comment ?comment. ?entity ep-plan:correspondsToVariable ?variable. ?entity prov:wasDerivedFrom+ ?influenceEntity. ?influenceEntity ep-plan:correspondsToVariable ?influenceVariable. ?influenceVariable rdfs:label ?influenceVariableLabel; rdfs:comment ?influenceVariableComment.} values (?influenceEntity) {(<"+entityIRI+">)}";
+	    System.out.println("Get all activities execution trace query" +queryString);
+	    TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
+		   try (TupleQueryResult result = tupleQuery.evaluate()) {
+			      while (result.hasNext()) {  // iterate over the result
+			    	HashMap <String,String> row = new HashMap <String,String>(); 
+			        
+			    	
+			    	
+			    	BindingSet bindingSet = result.next();	
+			    	
+			    	Set <String> bindings = bindingSet.getBindingNames();  
+			    	
+			    	Iterator it2 = bindings.iterator();
+			    	while (it2.hasNext()) {
+			    		String key = (String) it2.next();
+			    		if (bindingSet.getValue(key)!=null)
+			    		row.put(key, bindingSet.getValue(key).toString()) ;
+			    	}
+			       
+			         resultSet.add(row);
+			      }
+	    	
+	    	
+	    }
+			
+	
+	return resultSet;		
+}
+
+
+
+
 public ArrayList <HashMap> getActivityDetailsInExecutionTraces(String systemIRI, String activityIRI) {
 	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
 	//String queryString = Constants.PREFIXES + "Select Distinct *  Where {  ?activity prov:endedAtTime ?end. ?activity prov:startedAtTime ?start; ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType.OPTIONAL {?step rdfs:comment ?stepComment.}FILTER(?planType = rains:DesignStageAccountabilityPlan)}Values (?activity) {(<"+activityIRI+">)}";

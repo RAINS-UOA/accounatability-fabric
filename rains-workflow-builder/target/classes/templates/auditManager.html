@@ -323,6 +323,7 @@
  <thead>
     <tr>
       <th scope="col">#</th>
+       <th scope="col">Result Type</th>
       <th scope="col">Accountable Result</th>
       <th scope="col">Produced By Activity</th>
       <th scope="col">Entities on Influence Path</th>
@@ -342,6 +343,32 @@
    
 </div>   
 </div>
+
+
+<!-- The Modal  ADD Variables  -->
+  <div class="modal" id="queryResultModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title"> Query Result</h4>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body" >
+       <div class="card">
+      <div id="queryResultModalBody"></div>
+        </div>
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" onclick="$('#queryResultModal').toggle()">Close</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
 
 
 

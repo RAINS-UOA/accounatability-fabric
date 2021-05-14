@@ -549,6 +549,8 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		traceElementArray.push(activity);
 	}
 	
+	let stepOutputsArray = [];
+		
 	//generating entities
 	for (let i=0;i<variableIDArray.length;i++) {
 		let entityCollection = {};
@@ -569,6 +571,7 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		//console.log(findActivityGeneratingThisEntity(variableIDArray[i], traceElementArray));
 		let originActivityIRI = findActivityGeneratingThisEntity(variableIDArray[i], traceElementArray);
 		entityCollection ['wasGeneratedBy'] = originActivityIRI;
+		entityCollection ['wasDerivedFrom'] = [];
 		
 		//not best way of doing this - as it relies on activities being in the array already and assumes only one agent per activity - to do fix later
 		linkAccountableAgentFromActivityID (originActivityIRI,entityIDArray[i],traceElementArray );
@@ -577,11 +580,11 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		//console.log(entityCollection);
 		
 		traceElementArray.push(entityCollection);
-		
+		stepOutputsArray.push({activity:originActivityIRI, output:entityCollection});
 	}
 	
 	//horrible code but putting it here separatelly because we need to wait until entities are created
-	addUsedRelationships (traceElementArray); 
+	addUsedRelationships (traceElementArray, stepOutputsArray); 
 	console.log("GRAPH PAYLOAD ------>>>");
 	
 	
@@ -641,7 +644,7 @@ for (let i=0;i<traceElementArray.length; i++) {
 return activityID;
 }
 
-function addUsedRelationships (traceElementArray) {
+function addUsedRelationships (traceElementArray, stepOutputsArray) {
 	for (let i=0;i<graphArray.length; i++) {
 		let element = graphArray[i];
 		if (element[context.hasInputVariable['@id']]!=null) {
@@ -674,8 +677,25 @@ function addUsedRelationships (traceElementArray) {
 		    	let element2 = traceElementArray[y];
 		    	if (element2['correspondsToVariable']!=null) {
 		    		if (element2['correspondsToVariable'] ==variableID) {
-		    			console.log("found correpsonding entity - linking");
+		    			console.log("found correpsonding entity - linking used relationship");
 		    			traceElementArray[activityIndex]['used'] = 	element2['@id'];
+		    			
+		    			//add prov:derivedFromRelationships
+		    			for (let z=0;z<stepOutputsArray.length;z++) {
+		    				//find  the output in trace element array
+		    				for (let a=0;a<traceElementArray.length; a++ ) {
+		    					console.log(stepOutputsArray)
+		    					console.log(traceElementArray)
+		    					console.log(traceElementArray[a])
+		    					console.log(stepOutputsArray[z])
+		    					
+		    					if ((traceElementArray[a]['@id'] == stepOutputsArray[z]['output']['@id'])&&(traceElementArray[activityIndex]['@id']==stepOutputsArray[z]['activity'])) {
+		    						console.log('linking derived from relationship');
+		    						traceElementArray[a]['wasDerivedFrom'].push(element2['@id']);
+		    					}
+		    				}
+		    			}
+		    			
 		    			
 		    		}
 		    	

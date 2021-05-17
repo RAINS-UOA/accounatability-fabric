@@ -64,8 +64,13 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 				let resultObjectDependentActionsMerged = [];
 				
 				let dependentAccountableActions = {};
+				let dependentAccountableActionsIDs = {};
 				
 				let activityOutputsCounter = {};
+				
+				
+				let inputs = {};
+				let inputsIDs = {};
 				
 				for (let i=0;i<details.length;i++ ) {
 					
@@ -85,23 +90,64 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 					resultObjectDependentActionsMerged[i]['dependentAccountableActions'] = [];
 					resultObjectDependentActionsMerged[i]['reused'] = details[i].reused;
 					
+					
+					//Handle dependent inputs
+					if (details[i].input!=null) {
+					
+					 let inputDetails = {};
+					 
+					
+					 if (inputsIDs[details[i].accountableAction]==null) {
+						 inputsIDs[details[i].accountableAction] = [];
+					  }
+					 
+					 if (!inputsIDs[details[i].accountableAction].includes(details[i].input)) {
+						 inputDetails['input'] = details[i].input;
+						 inputDetails['accountableResultInputLabel'] = details[i].accountableResultInputLabel;
+						 inputDetails['accountableResultInputComment'] = details[i].accountableResultInputComment;
+						 inputDetails['accountableResultInputType'] = details[i].accountableResultInputType;
+						 inputDetails['inputInfoRealization'] = details[i].inputInfoRealization;
+						 
+						
+					 
+					  if (inputs[details[i].accountableAction]==null) {
+						 inputs[details[i].accountableAction] = [];
+					  }
+					  inputs[details[i].accountableAction].push(inputDetails);	
+					  inputsIDs[details[i].accountableAction].push (details[i].input);
+					
+					 }
+				   }
+					 
+					//count outputs so we know how to merge cells
 					if (activityOutputsCounter[details[i].accountableAction]==null) {
 						activityOutputsCounter[details[i].accountableAction] = new Set ();
 					}
 					activityOutputsCounter[details[i].accountableAction].add(details[i].accountableResult);
 					
+					
+					//Handle dependent activities
 					if (details[i].dependentAccountableActionActivity!=null) {
 						
 						let dependentActionDetails = {};
+						
+						 if (dependentAccountableActionsIDs[details[i].accountableAction]==null) {
+							 dependentAccountableActionsIDs[details[i].accountableAction] = [];
+						  }
+						
+						 if (!dependentAccountableActionsIDs[details[i].accountableAction].includes(details[i].dependentAccountableActionActivity)) {
 						dependentActionDetails.dependentAccountableActionActivity =  details[i].dependentAccountableActionActivity; 
 						dependentActionDetails.dependentAccountableActionLabel =  details[i].dependentAccountableActionLabel; 
 						dependentActionDetails.dependentAccountableActionType =  details[i].dependentAccountableActionType; 
 						
-					if (dependentAccountableActions[details[i].accountableAction]==null) {
-						dependentAccountableActions[details[i].accountableAction] = [];
-					}
-					dependentAccountableActions[details[i].accountableAction].push(dependentActionDetails);	
-					
+					   
+						 if (dependentAccountableActions[details[i].accountableAction]==null) {
+						    dependentAccountableActions[details[i].accountableAction] = [];
+					        }
+					     dependentAccountableActions[details[i].accountableAction].push(dependentActionDetails);
+					     dependentAccountableActionsIDs[details[i].accountableAction].push (details[i].dependentAccountableActionActivity);
+						
+						 }
 					}
 					
 				}
@@ -134,23 +180,48 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 					
 					
 					
-					let inputs = document.createElement('td');
+					let inputsCell = document.createElement('td');
 					//th.innerHTML="<div class=\"planWidget\"><strong>Action Name:</strong> "+value.accountableActionLabel + "</div><div class=\"planWidget\" ><strong>Action type:</strong> "+ replaceRainsPrefix(value.accountableActionType)+"</div><div class=\"executionTraceWidget\" ><strong> Corresponding Activity IRI: </strong> "+ replaceDataInstancePrefix(value.activity) +"</div> ";
 					let addcolumns=false;
+					
 					if (!activitiesSeen.includes(value.activity)) {
 					
-					th.rowSpan =activityOutputsCounter[value.accountableAction].size;
-					th.innerHTML = `<div  class="instanceTraceWidget"> ${value.accountableActionLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableActionType)}"></i>)</div> ` 
-					th.addEventListener("click", function(event){ 					
+					 th.rowSpan =activityOutputsCounter[value.accountableAction].size;
+					 th.innerHTML = `<div  class="instanceTraceWidget"> ${value.accountableActionLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableActionType)}"></i>)</div> ` 
+					 th.addEventListener("click", function(event){ 					
 						resultClickHighlighterRocessPane(event);	
 						getActivityDetailsInExecutionTraces (systemIRI,value.activity, "ProcessView") 
 					
-					});
-					activitiesSeen.push(value.activity);
+					 });
+					
+					 activitiesSeen.push(value.activity);
 					
 					
-					inputs.rowSpan =activityOutputsCounter[value.accountableAction].size;
-					inputs.innerHTML = "To be implemented";
+					inputsCell.rowSpan =activityOutputsCounter[value.accountableAction].size;
+					
+					
+					 
+					 
+	                if (inputs[value.accountableAction]!=null) { 
+						
+						for (let j=0;j< inputs[value.accountableAction].length; j++ ) {
+							console.log(inputs[value.accountableAction])
+							let spanOutputs = document.createElement('span');
+							
+							spanOutputs.innerHTML = ` <div  class="instanceTraceWidget"> ${inputs[value.accountableAction][j].accountableResultInputLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(inputs[value.accountableAction][j].accountableResultInputType)}"></i>)</div> `
+							spanOutputs.addEventListener("click", function(){ 
+							resultClickHighlighterRocessPane(event);	
+							getOutputDetailsInExecutionTraces (systemIRI,inputs[value.accountableAction][j].inputInfoRealization,"ProcessView") });
+							
+							inputsCell.append(spanOutputs);
+						}
+					 } else {
+						 let spanOutputs = document.createElement('span');
+							
+							spanOutputs.innerHTML = `no inputs recorded`;
+							inputsCell.append(spanOutputs);
+						 
+					 }
 					
 					
 					th4.rowSpan =activityOutputsCounter[value.accountableAction].size;
@@ -180,24 +251,27 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 					let th3 = document.createElement('td');
 					console.log(value.dependentAccountableActions)
 					
-					let span = document.createElement('span');
-					th3.append(span);
-					console.log("creating span")
-					console.log(dependentAccountableActions)
-					console.log(value.accountableAction)
+					
+					
 					if (dependentAccountableActions[value.accountableAction]!=null) { 
 						
 						for (let j=0;j< dependentAccountableActions[value.accountableAction].length; j++ ) {
-							console.log("creating span - loop")
+							
 						 
-												
-							span.innerHTML = `${span.innerHTML} <div  class="instanceTraceWidget"> ${dependentAccountableActions[value.accountableAction][j].dependentAccountableActionLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(dependentAccountableActions[value.accountableAction][j].dependentAccountableActionType)}"></i>)</div> `
+							let span = document.createElement('span');					
+							span.innerHTML = ` <div  class="instanceTraceWidget"> ${dependentAccountableActions[value.accountableAction][j].dependentAccountableActionLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(dependentAccountableActions[value.accountableAction][j].dependentAccountableActionType)}"></i>)</div> `
 						    span.addEventListener("click", function(){ 
 							resultClickHighlighterRocessPane(event);	
-							getActivityDetailsInExecutionTraces (systemIRI,value.dependentAccountableActions[j].dependentAccountableActionActivity,"ProcessView") });
+							getActivityDetailsInExecutionTraces (systemIRI,dependentAccountableActions[value.accountableAction][j].dependentAccountableActionActivity,"ProcessView") });
 							th3.append(span);
 						}
 					 }
+					
+					else {
+						let span = document.createElement('span');					
+						span.innerHTML = `no dependable actions recorded`;
+						th3.append(span);
+					}
 					 
 					
 					
@@ -209,7 +283,7 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 					tr.append(rowNumb);
 					if (addcolumns) {
 					tr.append(th);
-					tr.append(inputs);
+					tr.append(inputsCell);
 					}
 					
 					tr.append(th2);
@@ -625,7 +699,7 @@ let activityOutputsCounter = {};
 					
 					let th = document.createElement('td');
 					
-					let th4 = document.createElement('td');
+					
 					
 					let th5 = document.createElement('td');
 					
@@ -648,8 +722,7 @@ let activityOutputsCounter = {};
 					
 					
 					
-					th4.rowSpan =activityOutputsCounter[value.accountableAction].size;
-					th4.innerHTML=` <div><div  class="agentWidgetTable"> ${value.wasassociatedWith} </div> </div>`
+					
 				
 
 				    th5.rowSpan =activityOutputsCounter[value.accountableAction].size;
@@ -706,7 +779,7 @@ let activityOutputsCounter = {};
 						tr.append(th2);
 						tr.append(th3);
 						if (addcolumns) {
-						tr.append(th4);
+						
 						tr.append(th5);
 						}
 					tableBody.append(tr);

@@ -807,9 +807,13 @@ function  createInfoElementDetails (index, stage) {
 	console.log(stage);
 	
 	for (let i=0;i<detailsInfoElementElementArray.length;i++) {
+		if (document.getElementById (stage+'link'+i)!=null) {
 		document.getElementById (stage+'link'+i).style = "background:black; color:white;  width:100%;padding-left:15px;"; 
+		}
 	}
-	document.getElementById (stage+'link'+index).style = "background:#6600cc;  color:white; width:100%;padding-left:15px;"; 
+	if (document.getElementById (stage+'link'+index)!=null) {
+	  document.getElementById (stage+'link'+index).style = "background:#6600cc;  color:white; width:100%;padding-left:15px;"; 
+	}
 	
 	let infoElement = detailsInfoElementElementArray[index];
 	
@@ -829,24 +833,82 @@ function  createInfoElementDetails (index, stage) {
 	}
 	*/
 	
-	
 	let reusedHead = "";
 	let reusedTd = ""; 
+	
+	let sliceHead = ""; 
+	let sliceTd = ""; 
+	
+	let resultUpperBoundHead = ""; 
+	let resultUpperBounTd = ""; 
+	
+	let resultLowerBoundHead = ""; 
+	let resultLowerBounTd = ""; 
+	
+	let decisionThresholdHead = "";
+	let  decisionThresholdTd = ""; 
+	
+	let resultValueHead = "";
+	let  resultValueTd = ""; 
 	
 	let accountableForHead = "";
 	let accountableForTd = ""; 
 	
+	
+	
 	if (infoElement.reused!=null) {
 		reusedHead= `<th  scope="col">Reused</th>`;
-		reusedTd =`<td>${infoElement.reused.replace ('"','').replace('"^^','')}</td>`;
+		reusedTd =`<td>${infoElement.reused.replaceAll ('"','')}</td>`;
 	}
+	
+	if (infoElement.slice!=null) {
+		sliceHead= `<th  scope="col">Computed on Slice</th>`;
+		sliceTd =`<td>${infoElement.slice.replaceAll ('"','')}</td>`;
+	}
+	
+	if (infoElement.decisionThreshold!=null) {
+		decisionThresholdHead= `<th  scope="col">Decision Threshold</th>`;
+		decisionThresholdTd =`<td>${infoElement.decisionThreshold.replaceAll ('"','')}</td>`;
+	}
+	
+	if (infoElement.resultUpperBound!=null) {
+		resultUpperBoundHead= `<th  scope="col">Result Upper Bound</th>`;
+		resultUpperBounTd =`<td>${infoElement.resultUpperBound.replaceAll ('"','')}</td>`;
+	}
+	
+	if (infoElement.resultLowerBound!=null) {
+		resultLowerBoundHead= `<th  scope="col">Result Lower Bound</th>`;
+		resultLowerBounTd =`<td>${infoElement.resultLowerBound.replaceAll ('"','')}</td>`;
+	}
+	
+	if (infoElement.resultValue!=null) {
+		resultValueHead= `<th  scope="col">Result Value</th>`;
+		resultValueTd =`<td>${infoElement.resultValue.replaceAll ('"','')}</td>`;
+	}
+	
 	
 	if (infoElement.isAccountableFor!=null) {
 		accountableForHead = `<th  scope="col">Accountable For</th>`;
 		accountableForTd = `<td>${replaceDataInstancePrefix(infoElement.isAccountableFor)}</td>`;
 	}
 	
+	if (infoElement.infoElementLabel==null) {
+		infoElement.infoElementLabel ='<i class="fa fa-question-circle"></i>'
+	}
+	else {
+		infoElement.infoElementLabel = infoElement.infoElementLabel.replaceAll("\"","")
+	}
+	if (infoElement.infoElementComment==null) {
+		infoElement.infoElementComment ='<i class="fa fa-question-circle"></i>'
+	}
+	else{
+		infoElement.infoElementComment =infoElement.infoElementComment.replaceAll("\"","")
+	}
 	
+	let img = "";
+	if (infoElement.image!=null) {
+		img = '<img src="data:image/png;base64,'+infoElement.image.replaceAll("\"","")+'" alt="Result image" ><br>'
+	}
 	
 	let html = `	
 	<table class="table table-dark table-bordered">
@@ -856,15 +918,26 @@ function  createInfoElementDetails (index, stage) {
       <th scope="col">Comment</th>
       ${reusedHead}
       ${accountableForHead}
+      ${sliceHead}
+      ${decisionThresholdHead}
+      ${resultUpperBoundHead}
+      ${resultLowerBoundHead}
+      ${resultValueHead}
       </tr>
       </thead>
      <tbody>
-     <td>${infoElement.infoElementLabel.replaceAll("\"","")}</td>
-     <td >${infoElement.infoElementComment.replaceAll("\"","")}</td>
+     <td>${infoElement.infoElementLabel}</td>
+     <td >${infoElement.infoElementComment}</td>
      ${reusedTd}
       ${accountableForTd}
+      ${sliceTd}
+      ${decisionThresholdTd}
+      ${resultUpperBounTd}
+      ${resultLowerBounTd}
+      ${resultValueTd}
      </tbody>
      </table>	
+      ${img}
 	`;
 	
 	
@@ -917,11 +990,42 @@ function getOutputDetailsInExecutionTraces (systemIRI,entityIRI, stage) {
 				detailsInfoElementElementArray =[];
 				
 				let listHTML ="<strong>Information Elements:</strong><br><ul>";
+				
+				let elementTypes = {}
+				if (data[0].infoElement!=null) {
+					console.log("hellloooo")
+					console.log(data)
+					for (let i=0; i<data.length;i++) {
+						
+						if (elementTypes[data[i].infoElement] ==null) {
+							elementTypes[data[i].infoElement] =[];
+						}
+						elementTypes[data[i].infoElement].push(replaceRainsPrefix(data[i].infoElementType).split(":")[1])
+					}
+				}
+				
+				console.log(elementTypes)
+				
+				let seenElements = [];
+				
 				if (data[0].infoElement!=null) {
 				for (let i=0; i<data.length;i++) {
-					listHTML +='<li id ="'+stage+'link'+i+'"><a  href="#" style="color:white;" onclick="createInfoElementDetails ('+i+',\''+stage+'\')">'+replaceRainsPrefix(data[i].infoElementType)+'</a></li>';
+					let label = data[i].infoElementLabel;
+					if (label==null) {
+						label = '<i class="fa fa-question-circle"></i>';
+					}
+					else {
+						label = data[i].infoElementLabel.replaceAll("\"","");
+					}
+					if (!seenElements.includes(data[i].infoElement)) {
+					listHTML +='<li id ="'+stage+'link'+i+'" style="color:white; background:black;width:100%;padding-left:15px;"><a  href="#" style="color:white; " onclick="createInfoElementDetails ('+i+',\''+stage+'\')">'+label+' - ('+elementTypes[data[i].infoElement]+')</a> </li>';
 					
-					detailsInfoElementElementArray.push (data[i]); 
+					seenElements.push(data[i].infoElement)
+					
+					}
+					detailsInfoElementElementArray.push (data[i]);
+					
+					 
 				}
 				listHTML +="</ul>";
 				
@@ -1058,10 +1162,23 @@ function getActivityDetailsInExecutionTraces (systemIRI,activityIRI, stage) {
 				
 				infoRealization.innerHTML = '<div class="row"><div class="col-md-12 list-group"><div class= "list-group-item list-group-item-secondary"> <h4 class="list-group-item-heading">Action Description</h4><p class="list-group-item-text ">'+details[0].stepComment+' </p></div></div></div>';
 				
+				let startParts = [];
+				if (details[0].start!=null) {
+				   startParts = details[0].start.replace ('"','').replace('"^^','').split("T");
+				}
+				else {
+				   startParts[0]= 'no record found';
+				   startParts[1]= 'no record found';
+				}
 				
-				
-				let startParts = details[0].start.replace ('"','').replace('"^^','').split("T");
-				let endParts = details[0].end.replace ('"','').replace('"^^','').split("T");
+				let endParts = [];
+				if (details[0].end!=null) {	
+					endParts= details[0].end.replace ('"','').replace('"^^','').split("T");
+				}
+				else {
+					endParts[0]= 'no record found';
+					endParts[1]= 'no record found';
+					}
 				
 				let lifeCycleStage = "";
 				

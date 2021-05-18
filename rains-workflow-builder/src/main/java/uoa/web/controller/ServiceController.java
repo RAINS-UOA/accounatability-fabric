@@ -205,6 +205,17 @@ public class ServiceController {
 		return gson.toJson(list);
 	}
 	
+	@GetMapping("/getPlanElementsForImplementationStage")
+	@ResponseBody
+	public String getPlanElementsForImplementationStage (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap > list = manager.getPlanElementsForImplementationStage(systemIri);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		System.out.println(gson.toJson(list));
+		return gson.toJson(list);
+	}
+	
 	@GetMapping("/getTemplate")
 	@ResponseBody
 	public String getTemplate (@RequestParam String planIri) throws NoSuchElementException, IllegalStateException, Exception  {

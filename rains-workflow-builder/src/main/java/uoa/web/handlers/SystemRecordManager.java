@@ -468,6 +468,38 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 		return list;
 	}
 	
+	public ArrayList <HashMap>  getPlanElementsForImplementationStage(String systemIri) {
+		  ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+		       
+		  ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+		  String queryString = Constants.PREFIXES + "Select Distinct ?element ?elementType ?input ?inputType ?output ?outputType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan a ?planType; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  ?element a ?elementType. OPTIONAL {?element ep-plan:hasInputVariable ?input. ?input a ?inputType. FILTER (regex(str(?inputType), \"https://w3id.org/rains#\" ))} OPTIONAL {?element ep-plan:hasOutputVariable ?output. ?output a ?outputType. FILTER (regex(str(?outputType), \"https://w3id.org/rains#\" ))} FILTER (regex(str(?elementType), \"https://w3id.org/rains#\" ))}";
+		       System.out.println(queryString);
+				TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+					   try (TupleQueryResult result = tupleQuery.evaluate()) {
+						   while (result.hasNext()) {  // iterate over the result
+						    	HashMap <String,String> row = new HashMap <String,String>(); 
+						        
+						    	
+						    	
+						    	BindingSet bindingSet = result.next();	
+						    	
+						    	Set <String> bindings = bindingSet.getBindingNames();  
+						    	
+						    	Iterator it2 = bindings.iterator();
+						    	while (it2.hasNext()) {
+						    		String key = (String) it2.next();
+						    		if (bindingSet.getValue(key)!=null)
+						    		row.put(key, bindingSet.getValue(key).toString()) ;
+						    	}
+						       
+						         resultSet.add(row);
+						      }	   
+					   }
+				return resultSet;
+			}
+	
 // to do : this currently retrieves the whole plan but in the future we may want to divide it into chunks depending on the agents associated with the task
 public String getSavedPlanPartsForHumanTaskForm (String planIri, String systemIri, String executiontraceBundleIRI)  {
 	
@@ -1137,7 +1169,7 @@ public ArrayList <HashMap> getEntitiesOnInfluencePath(String systemIRI, String e
 public ArrayList <HashMap> getActivityDetailsInExecutionTraces(String systemIRI, String activityIRI) {
 	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
 	//String queryString = Constants.PREFIXES + "Select Distinct *  Where {  ?activity prov:endedAtTime ?end. ?activity prov:startedAtTime ?start; ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType.OPTIONAL {?step rdfs:comment ?stepComment.}FILTER(?planType = rains:DesignStageAccountabilityPlan)}Values (?activity) {(<"+activityIRI+">)}";
-	String queryString = Constants.PREFIXES + "Select Distinct *  Where {  ?activity prov:endedAtTime ?end. ?activity prov:startedAtTime ?start; ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType. ?step rdfs:comment ?stepComment.OPTIONAL {?activity ?constraintresult ?constraint. ?constraint a ep-plan:Constraint; a ?constraintType. ?constraint rdfs:label ?constraintLabel; rdfs:comment ?constraintComment. Filter (?constraintType = rains:HumanConstraint || ?constraintType = rains:AutoConstraint)} FILTER(?planType = rains:DesignStageAccountabilityPlan || ?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:OperationStageAccountabilityPlan || ?planType = rains:DeploymentStageAccountabilityPlan ) }Values (?activity) {(<"+activityIRI+">)}";
+	String queryString = Constants.PREFIXES + "Select Distinct *  Where {   ?activity  ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType. ?step rdfs:comment ?stepComment. OPTIONAL {?activity prov:startedAtTime ?start; prov:endedAtTime ?end. } OPTIONAL {?activity ?constraintresult ?constraint. ?constraint a ep-plan:Constraint; a ?constraintType. ?constraint rdfs:label ?constraintLabel; rdfs:comment ?constraintComment. Filter (?constraintType = rains:HumanConstraint || ?constraintType = rains:AutoConstraint)} FILTER(?planType = rains:DesignStageAccountabilityPlan || ?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:OperationStageAccountabilityPlan || ?planType = rains:DeploymentStageAccountabilityPlan ) }Values (?activity) {(<"+activityIRI+">)}";
 	
 	
 	System.out.println("Get activity details execution trace query" +queryString);
@@ -1183,7 +1215,7 @@ public ArrayList <HashMap> getActivityDetailsInExecutionTraces(String systemIRI,
 
 public ArrayList <HashMap> getOutputDetailsInExecutionTraces(String systemIRI, String infoRealizationIRI) {
 	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
-	String queryString = Constants.PREFIXES + "Select *  Where {  ?infoRealization a sao:InformationRealization.?infoRealization rdfs:comment ?infoRealizationComment. Optional{ ?infoElement prov:wasMemberOf ?infoRealization.  ?infoElement a ?infoElementType. ?infoElement rdfs:label ?infoElementLabel. ?infoElement rdfs:comment ?infoElementComment. Optional {?infoElement rains:isReusedObject ?reused} Optional{?infoElement sao:isAccountableFor ?isAccountableFor} FILTER(regex(str(?infoElementType), \"https://w3id.org/rains#\" )||regex(str(?infoElementType), \"https://w3id.org/sao#\" )||regex(str(?infoElementType), \"http://www.w3.org/ns/mls#\" ))} } Values (?infoRealization) {(<"+infoRealizationIRI+">)}";
+	String queryString = Constants.PREFIXES + "Select *  Where {  ?infoRealization a sao:InformationRealization.?infoRealization rdfs:comment ?infoRealizationComment. Optional{ ?infoElement prov:wasMemberOf ?infoRealization.  ?infoElement a ?infoElementType. Optional {?infoElement rdfs:label ?infoElementLabel.} Optional {?infoElement rains:computedOnSlice ?slice.} Optional {?infoElement rains:computedOnDecisionThreshold ?decisionThreshold.} Optional{?infoElement  rains:hasResultValue ?resultValue.  } Optional {?infoElement rains:hasResultLowerBound ?resultLowerBound.} Optional {?infoElement rains:hasResultUpperBound ?resultUpperBound} Optional {?infoElement rains:hasBase64Image ?image} OPTIONAL {?infoElement rdfs:comment ?infoElementComment.} Optional {?infoElement rains:isReusedObject ?reused} Optional{?infoElement sao:isAccountableFor ?isAccountableFor} FILTER(regex(str(?infoElementType), \"https://w3id.org/rains#\" )||regex(str(?infoElementType), \"https://w3id.org/sao#\" )||regex(str(?infoElementType), \"http://www.w3.org/ns/mls#\" ))} } Values (?infoRealization) {(<"+infoRealizationIRI+">)}";
 	System.out.println("Get info realization  details execution trace query" +queryString);
     TupleQuery   tupleQuery = conn.prepareTupleQuery(queryString);
 	   try (TupleQueryResult result = tupleQuery.evaluate()) {

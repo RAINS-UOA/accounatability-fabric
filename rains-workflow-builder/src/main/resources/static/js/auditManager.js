@@ -208,7 +208,7 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 							console.log(inputs[value.accountableAction])
 							let spanOutputs = document.createElement('span');
 							
-							spanOutputs.innerHTML = ` <div  class="instanceTraceWidget"> ${inputs[value.accountableAction][j].accountableResultInputLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(inputs[value.accountableAction][j].accountableResultInputType)}"></i>)</div> `
+							spanOutputs.innerHTML = ` <div  class="resultsEntityTraceWidget"> ${inputs[value.accountableAction][j].accountableResultInputLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(inputs[value.accountableAction][j].accountableResultInputType)}"></i>)</div> `
 							spanOutputs.addEventListener("click", function(){ 
 							resultClickHighlighterRocessPane(event);	
 							getOutputDetailsInExecutionTraces (systemIRI,inputs[value.accountableAction][j].inputInfoRealization,"ProcessView") });
@@ -241,7 +241,7 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 					
 					let th2 = document.createElement('td');
 				//	th2.innerHTML="<div class=\"planWidget\"> <h5>"+value.accountableResultLabel.replaceAll("\"","") + "<br> <span style=\"background:black;color:white; \">[" + replaceRainsPrefix(value.accountableResultType) +"]</span></h5></div><div class=\"executionTraceWidget\" ><strong> Corresponding Entity IRI: </strong>"+ replaceDataInstancePrefix(value.infoRealization)+"</div> ");
-					th2.innerHTML = ` <div  class="instanceTraceWidget"> ${value.accountableResultLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableResultType)}"></i>)</div> `
+					th2.innerHTML = ` <div  class="resultsEntityTraceWidget"> ${value.accountableResultLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableResultType)}"></i>)</div> `
 					th2.addEventListener("click", function(){ 
 						resultClickHighlighterRocessPane(event);	
 						getOutputDetailsInExecutionTraces (systemIRI,value.infoRealization, "ProcessView") });
@@ -450,7 +450,7 @@ function getAllEntitiesInExecutionTraces (systemIRI) {
 					let allEntities = document.createElement('td');
 				//	th2.innerHTML="<div class=\"planWidget\"> <h5>"+value.accountableResultLabel.replaceAll("\"","") + "<br> <span style=\"background:black;color:white; \">[" + replaceRainsPrefix(value.accountableResultType) +"]</span></h5></div><div class=\"executionTraceWidget\" ><strong> Corresponding Entity IRI: </strong>"+ replaceDataInstancePrefix(value.infoRealization)+"</div> ");
 					let id = value.infoRealization.split("/")[4];
-					allEntities.innerHTML = ` <div id=${id} class="instanceTraceWidget"> ${value.accountableResultLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableResultType)}"></i>)</div> `
+					allEntities.innerHTML = ` <div id=${id} class="resultsEntityTraceWidget"> ${value.accountableResultLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableResultType)}"></i>)</div> `
 					allEntities.addEventListener("click", function(){ 
 						resultClickHighlighterEntityPane(event);	
 						getOutputDetailsInExecutionTraces (systemIRI,value.infoRealization, "EntityView") });
@@ -735,7 +735,7 @@ let activityOutputsCounter = {};
 					
 					let th2 = document.createElement('td');
 					//	th2.innerHTML="<div class=\"planWidget\"> <h5>"+value.accountableResultLabel.replaceAll("\"","") + "<br> <span style=\"background:black;color:white; \">[" + replaceRainsPrefix(value.accountableResultType) +"]</span></h5></div><div class=\"executionTraceWidget\" ><strong> Corresponding Entity IRI: </strong>"+ replaceDataInstancePrefix(value.infoRealization)+"</div> ");
-						th2.innerHTML = ` <div  class="instanceTraceWidget"> ${value.accountableResultLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableResultType)}"></i>)</div> `
+						th2.innerHTML = ` <div  class="resultsEntityTraceWidget"> ${value.accountableResultLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableResultType)}"></i>)</div> `
 						th2.addEventListener("click", function(){ 
 							resultClickHighlighterRocessPane(event);	
 							getOutputDetailsInExecutionTraces (systemIRI,value.infoRealization, "AgentView") });
@@ -801,7 +801,7 @@ function replaceDataInstancePrefix (string) {
   return 	string.replace("https://rainsproject.org/InstanceData/","rains-data:")
 }
 
-function  createInfoElementDetails (index, stage) {
+function  createInfoElementDetails (index, stage, detailsInfoElementElementArray) {
 	console.log("clicked");
 	console.log(index);
 	console.log(stage);
@@ -910,6 +910,11 @@ function  createInfoElementDetails (index, stage) {
 		img = '<img src="data:image/png;base64,'+infoElement.image.replaceAll("\"","")+'" alt="Result image" ><br>'
 	}
 	
+	let evalMeasure = "";
+	if (infoElement.evaluationMeasure!=null) {
+		evalMeasure = `<a href=# >${infoElement.evaluationMeasure}</a>`
+	}
+	
 	let html = `	
 	<table class="table table-dark table-bordered">
      <thead>
@@ -938,6 +943,7 @@ function  createInfoElementDetails (index, stage) {
      </tbody>
      </table>	
       ${img}
+        ${evalMeasure}
 	`;
 	
 	
@@ -987,20 +993,24 @@ function getOutputDetailsInExecutionTraces (systemIRI,entityIRI, stage) {
 				
 				objectDetailsPane.innerHTML = '<div class="row"> <div class="col-md-5" id="elementsList'+stage+'"></div><div class="col-md-7" id="elementsDetail'+stage+'" ></div></div>';
 				
-				detailsInfoElementElementArray =[];
+				let detailsInfoElementElementArray =[];
 				
-				let listHTML ="<strong>Information Elements:</strong><br><ul>";
+				//let listHTML ="<strong>Information Elements:</strong><br><ul>";
 				
+				let heading = document.createElement('strong');
+				heading.innerHTML = 'Information Elements:<br>'
+			    
+				let elementList = document.createElement('ul');
+					
 				let elementTypes = {}
 				if (data[0].infoElement!=null) {
-					console.log("hellloooo")
-					console.log(data)
 					for (let i=0; i<data.length;i++) {
 						
 						if (elementTypes[data[i].infoElement] ==null) {
 							elementTypes[data[i].infoElement] =[];
 						}
 						elementTypes[data[i].infoElement].push(replaceRainsPrefix(data[i].infoElementType).split(":")[1])
+						
 					}
 				}
 				
@@ -1018,7 +1028,14 @@ function getOutputDetailsInExecutionTraces (systemIRI,entityIRI, stage) {
 						label = data[i].infoElementLabel.replaceAll("\"","");
 					}
 					if (!seenElements.includes(data[i].infoElement)) {
-					listHTML +='<li id ="'+stage+'link'+i+'" style="color:white; background:black;width:100%;padding-left:15px;"><a  href="#" style="color:white; " onclick="createInfoElementDetails ('+i+',\''+stage+'\')">'+label+' - ('+elementTypes[data[i].infoElement]+')</a> </li>';
+						let element = document.createElement('li');
+						element.id = stage+'link'+i;
+						element.innerHTML = '<a  href="#" style="color:white; " >'+label+' - ('+elementTypes[data[i].infoElement]+')</a>';
+						element.addEventListener("click", function() {
+							createInfoElementDetails (i, stage, detailsInfoElementElementArray);
+						});
+						//listHTML +='<li id ="'+stage+'link'+i+'" style="color:white; background:black;width:100%;padding-left:15px;"><a  href="#" style="color:white; " >'+label+' - ('+elementTypes[data[i].infoElement]+')</a> </li>';
+						elementList.append(element);
 					
 					seenElements.push(data[i].infoElement)
 					
@@ -1027,12 +1044,13 @@ function getOutputDetailsInExecutionTraces (systemIRI,entityIRI, stage) {
 					
 					 
 				}
-				listHTML +="</ul>";
+				//listHTML +="</ul>";
 				
-				document.getElementById ('elementsList'+stage).innerHTML =  listHTML;
+				document.getElementById ('elementsList'+stage).innerHTML =  "";
+				document.getElementById ('elementsList'+stage).append(elementList);
 				
 				
-				createInfoElementDetails (0, stage);
+				createInfoElementDetails (0, stage,detailsInfoElementElementArray);
 				}
 				else {
 					document.getElementById ('elementsDetail'+stage).innerHTML =  "No information elements found";

@@ -784,6 +784,7 @@ let activityOutputsCounter = {};
 						}
 					tableBody.append(tr);
 					
+					
 					counter++;
 				}
 				
@@ -811,6 +812,7 @@ function  createInfoElementDetails (index, stage, detailsInfoElementElementArray
 		document.getElementById (stage+'link'+i).style = "background:black; color:white;  width:100%;padding-left:15px;"; 
 		}
 	}
+	
 	if (document.getElementById (stage+'link'+index)!=null) {
 	  document.getElementById (stage+'link'+index).style = "background:#6600cc;  color:white; width:100%;padding-left:15px;"; 
 	}
@@ -854,7 +856,40 @@ function  createInfoElementDetails (index, stage, detailsInfoElementElementArray
 	let accountableForHead = "";
 	let accountableForTd = ""; 
 	
+	let evalMeasureHead = "";
+	let evalMeasureTd = "";
 	
+	let versionHead = "";
+	let versionTd = "";
+	
+	let versionDateHead = "";
+	let versionDateTd = "";
+	
+	let versionNoteHead = "";
+	let versionNoteTd = "";
+	
+	let seeAlsoHead = "";
+	let seeAlsoTd = "";
+	
+	if (infoElement.seeAlso!=null) {
+		seeAlsoHead= `<th  scope="col">See Also</th>`;
+		seeAlsoTd =`<td>${infoElement.seeAlso.replaceAll ('"','')}</td>`;
+	}
+	
+	if (infoElement.versionNote!=null) {
+		versionNoteHead= `<th  scope="col">Version Note</th>`;
+		versionNoteTd =`<td>${infoElement.versionNote.replaceAll ('"','')}</td>`;
+	}
+	
+	if (infoElement.versionDate!=null) {
+		versionDateHead= `<th  scope="col">Version Date</th>`;
+		versionDateTd =`<td>${infoElement.versionDate.replaceAll ('"','')}</td>`;
+	}
+	
+	if (infoElement.version!=null) {
+		versionHead= `<th  scope="col">Version</th>`;
+		versionTd =`<td>${infoElement.version.replaceAll ('"','')}</td>`;
+	}
 	
 	if (infoElement.reused!=null) {
 		reusedHead= `<th  scope="col">Reused</th>`;
@@ -911,8 +946,46 @@ function  createInfoElementDetails (index, stage, detailsInfoElementElementArray
 	}
 	
 	let evalMeasure = "";
+	evalMeasureIndex = '';
+	
 	if (infoElement.evaluationMeasure!=null) {
-		evalMeasure = `<a href=# >${infoElement.evaluationMeasure}</a>`
+		
+		evalMeasureIndex = '';
+		for (let j=0;j<detailsInfoElementElementArray.length;j++) {
+			if ( detailsInfoElementElementArray[j].infoElement == infoElement.evaluationMeasure) {
+				evalMeasureIndex = j;
+				break;
+			}
+		}	
+		/*let element = document.createElement('li');
+		let span = document.createElement('span');
+		element.href='#';
+		element.innerHTML ="click here"
+		element.addEventListener("click", function() {
+			createInfoElementDetails (index, stage, detailsInfoElementElementArray);
+		});
+		span.append(element)
+		evalMeasure = element.outerHTML*/
+		//createInfoElementDetails (i, stage, detailsInfoElementElementArray);
+		evalMeasureHead= `<th  scope="col">Evaluation Measure</th>`;
+		evalMeasureTd = `<td><a href='#' id="evalMeasure${index}"> click here</a></td>`
+	}
+	
+	let mapEvalMeasureToResults = '';
+	if (infoElement.infoElementType.includes('EvaluationMeasure')) {
+	    elementIRI = infoElement.infoElement; 
+	    let seenResults = [];
+	    let results = [];
+	    for (let j=0;j<detailsInfoElementElementArray.length;j++) {
+	    	if (detailsInfoElementElementArray[j].evaluationMeasure!=null&&!seenResults.includes(detailsInfoElementElementArray[j].infoElement)) {
+	    		if (detailsInfoElementElementArray[j].evaluationMeasure==elementIRI) {
+	    			results.push(j);
+	    			seenResults.push(detailsInfoElementElementArray[j].infoElement);
+	    		}
+	    		
+	    	}
+	    }
+	    mapEvalMeasureToResults = results;
 	}
 	
 	let html = `	
@@ -928,9 +1001,15 @@ function  createInfoElementDetails (index, stage, detailsInfoElementElementArray
       ${resultUpperBoundHead}
       ${resultLowerBoundHead}
       ${resultValueHead}
+      ${evalMeasureHead}
+      ${versionHead}
+      ${versionDateHead}
+      ${versionNoteHead}
+      ${seeAlsoHead}
       </tr>
       </thead>
      <tbody>
+     <tr>
      <td>${infoElement.infoElementLabel}</td>
      <td >${infoElement.infoElementComment}</td>
      ${reusedTd}
@@ -940,17 +1019,68 @@ function  createInfoElementDetails (index, stage, detailsInfoElementElementArray
       ${resultUpperBounTd}
       ${resultLowerBounTd}
       ${resultValueTd}
+      ${evalMeasureTd}
+      ${versionTd}
+      ${versionDateTd}
+      ${versionNoteTd}
+      ${seeAlsoTd}
      </tbody>
      </table>	
       ${img}
-        ${evalMeasure}
+         
+      </tr>
 	`;
 	
+	if (mapEvalMeasureToResults!='') {
+		
+		let resultsLinks = '';
+		
+		for (let x=0;x<mapEvalMeasureToResults.length;x++) {
+			resultsLinks = `${resultsLinks} <tr><td><a href='#' id="evalMeasureResult${x}"> click here</a></td></tr>`
+		}
+		
+		if (resultsLinks=='') {
+			resultsLinks ='no linked results recorded';
+		}
+		
+		
+		html = `${html} 
+		<div class="card overflow-auto" style="max-height:300px;">
+		<table class="table table-dark table-bordered">
+     <thead>
+      <tr>
+      <th scope="col">Related Evaluation Results</th>
+      </tr>
+      </thead>
+     <tbody>
+     ${resultsLinks}
+     </tbody>
+     </table>	 
+     </div> 
+		`
+	}
 	
+	document.getElementById ('elementsDetail'+stage).innerHTML = html;
 	
+	if (infoElement.evaluationMeasure!=null) {
+		
+	 $('#evalMeasure'+index).click(function() {
+		createInfoElementDetails (evalMeasureIndex, stage, detailsInfoElementElementArray);
+	 });
+	}
 	
+	if (mapEvalMeasureToResults!='') {		
+		for (let x=0;x<mapEvalMeasureToResults.length;x++) {
+			console.log('mapping event')
+			$('#evalMeasureResult'+x).click(function() {
+				createInfoElementDetails (mapEvalMeasureToResults[x], stage, detailsInfoElementElementArray);
+			 });
+		}
+	}
+	 
+	 
+	 
 	
-	document.getElementById ('elementsDetail'+stage).innerHTML = html; 
 }
 
 function getOutputDetailsInExecutionTraces (systemIRI,entityIRI, stage) {

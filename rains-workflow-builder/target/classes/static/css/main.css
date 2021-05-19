@@ -3,6 +3,16 @@
 	    border-style: solid;
 }
 
+.scrollBody {
+	
+  overflow-y: scroll;
+  height: 40vh;
+ margin-right:15px;
+  position: absolute;
+}
+	
+}
+
 #svgContainer { 
 	z-index: -10;
 	position:absolute;

@@ -26,6 +26,8 @@ import org.eclipse.rdf4j.model.vocabulary.PROV;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.GraphQuery;
+import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -467,6 +469,55 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 			   }
 		return list;
 	}
+    
+	public String  getPlanElementsAsGraph(String systemIri, String stage) {
+		  ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+		  
+		  String planType = "";
+		  System.out.println(stage);
+		  if (stage.toLowerCase().equals("design")) {
+			  planType = RainsOntologyComponents.DesignStageAccountabilityPlan;
+		  }
+		  
+		  if (stage.toLowerCase().equals("implementation")) {
+			  planType = RainsOntologyComponents.ImplementationStageAccountabilityPlan;
+		  }
+		  
+		  if (stage.toLowerCase().equals("deployment")) {
+			  planType = RainsOntologyComponents.DeploymentStageAccountabilityPlan;
+		  }
+		  
+		  if (stage.toLowerCase().equals("operation")) {
+			  planType = RainsOntologyComponents.OperationStageAccountabilityPlan;
+		  }
+		  	  
+		  String queryString = Constants.PREFIXES + "Construct {?s ?p ?o} FROM <"+getPlansNamedGraph(systemIri)+">  Where {?s ?p ?o. ?s ep-plan:isElementOfPlan ?plan. ?plan rains:specifiedForSystem <"+systemIri+">; a <"+planType+">}"; 
+				System.out.println(queryString);
+				GraphQuery query  = conn.prepareGraphQuery(queryString);
+				
+			
+				
+				String result = "no data";
+					  try (GraphQueryResult resultQuery = query.evaluate()) {
+						  StringBuilder str = new StringBuilder ();
+						   for (Statement st: resultQuery) {
+						      if(st.getObject().toString().contains("http")) {
+							   str.append("<"+st.getSubject()+">"+"<"+st.getPredicate()+">"+"<"+st.getObject()+">.\n");
+						      }
+						      else {
+						    	  str.append("<"+st.getSubject()+">"+"<"+st.getPredicate()+">"+""+st.getObject()+".\n");
+						      }
+						      
+						   }
+						   
+						   result = str.toString();
+					  }
+					 
+				return result;
+			}
+	
 	
 	public ArrayList <HashMap>  getPlanElementsForImplementationStage(String systemIri) {
 		  ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();

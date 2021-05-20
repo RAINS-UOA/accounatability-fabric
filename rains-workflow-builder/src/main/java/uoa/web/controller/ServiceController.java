@@ -1,5 +1,7 @@
 package uoa.web.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -8,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
@@ -20,6 +23,8 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +35,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -409,6 +416,48 @@ public class ServiceController {
 		return "provenanceTraceForm";
 	}
 	
+	//@GetMapping("/createSHACLconstraint")
+	@RequestMapping(value="/createSHACLconstraint", method=RequestMethod.GET, produces={"text/turtle"})
+	@ResponseBody
+	public String createSHACLconstraint (@RequestParam String constraintName, @RequestParam String target, @RequestParam String elementType,@RequestParam String variableType ) throws NoSuchElementException, IllegalStateException, Exception  {
+		//TO- DO check the token and see if the form has already been completed 
+		String response = "no constraint found";
+		try {  
+		StringBuilder str = new StringBuilder ();	 
+		File myObj = new File("./src/main/resources/static/SHACL_constraints/"+constraintName+".ttl");
+	      Scanner myReader = new Scanner(myObj);
+	      while (myReader.hasNextLine()) {
+	        String data = myReader.nextLine();
+	        str.append(data);
+	        
+	        response = str.toString();
+	        
+	        response = response.replaceAll("<TARGET NODE>", target) ;
+	        response = response.replaceAll("<<ELEMENT TYPE>>", elementType) ;
+	        response = response.replaceAll("<<VARIABLE TYPE>>", variableType) ;
+	      }
+	      myReader.close();
+	    } catch (FileNotFoundException e) {
+	      System.out.println("An error occurred.");
+	      e.printStackTrace();
+	    }
+		
+		HttpHeaders responseHeaders = new HttpHeaders();
+	    
+		 responseHeaders.setContentType(MediaType.TEXT_PLAIN);
+		return response;
+	}
+	
+	
+	@RequestMapping(value="/getPlanElementsAsGraph", method=RequestMethod.GET, produces={"text/n3"})
+	@ResponseBody
+	public String getPlanElementsAsGraph (@RequestParam String systemIri, @RequestParam String stage ) throws NoSuchElementException, IllegalStateException, Exception  {
+		//TO- DO check the token and see if the form has already been completed 
+		//to do need to check token again
+	    SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		String response = manager.getPlanElementsAsGraph(systemIri,stage);
+		return response;
+	}
 	
 	
 	@PostMapping("/uploadHumanTaskProvenanceTrace")

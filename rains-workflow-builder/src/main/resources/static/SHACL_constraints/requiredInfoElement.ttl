@@ -1,0 +1,35 @@
+@prefix dash: <http://datashapes.org/dash#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix address: <http://www.w3.org/2001/address#> .
+@prefix ex: <http://example.com/ns#> .
+@prefix rains: <https://w3id.org/rains#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+ex:RequiredElementShape
+	a sh:NodeShape ;
+	sh:targetNode <<TARGET NODE>> ;
+	sh:sparql [
+		sh:message "The <<ELEMENT TYPE>> element is missing" ;
+		sh:prefixes ex:, rains: , prov:  ;
+		sh:select """
+		    Prefix ep-plan: <https://w3id.org/ep-plan#>
+			Prefix rains: <https://w3id.org/rains#>
+			Prefix prov: <http://www.w3.org/ns/prov#>
+			SELECT $this 
+			WHERE {
+				FILTER NOT EXISTS {			    
+					$this ep-plan:hasOutputVariable ?var.
+					?var a <<VARIABLE TYPE>>.
+					?activity ep-plan:correspondsToStep $this.
+					?coll ep-plan:correspondsToVariable ?var;
+					      prov:wasGeneratedBy ?activity; 
+					      prov:hadMember ?element.
+					?element a <<ELEMENT TYPE>>.  
+				}
+			}
+			""" ;
+	] .

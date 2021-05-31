@@ -122,17 +122,25 @@ public class SystemRecordManager {
 		
 	}
 	
-	public void savePlanFromJSONLD (String systemIri, String jsonPayload) throws IOException {
-		
+	public void savePlanFromJSONLD (String systemIri, String jsonPayload, String shaclImpl) throws IOException {
+		Model shaclImplModel = null;
 		Model results = null;
 		try {
 			  // rdfParser.parse(inputStream	, null);
-			   
-			    RDFParser parser = Rio.createParser(RDFFormat.JSONLD);
-			    parser.set(JSONSettings.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,true);
+			   System.out.println(shaclImpl);
+			    //RDFParser parser = Rio.createParser(RDFFormat.JSONLD);
+			    //parser.set(JSONSettings.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,true);
 			    //parser.parse(new StringReader(jsonld_dummy), null);
 			   
 			    results = Rio.parse(new StringReader(jsonPayload), null, RDFFormat.JSONLD);
+			    
+			    
+			    //parser.parse(new StringReader(jsonld_dummy), null);
+			   
+			    shaclImplModel = Rio.parse(new StringReader(shaclImpl), "http://shaclImpl.rains/", RDFFormat.TURTLE);
+			    
+			    results.addAll(shaclImplModel);
+			    
 			}
 			catch (IOException e) {
 			  // handle IO problems (e.g. the file could not be read)
@@ -493,13 +501,20 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 			  planType = RainsOntologyComponents.OperationStageAccountabilityPlan;
 		  }
 		  	  
-		  String queryString = Constants.PREFIXES + "Construct {?s ?p ?o} FROM <"+getPlansNamedGraph(systemIri)+">  Where {?s ?p ?o. ?s ep-plan:isElementOfPlan ?plan. ?plan rains:specifiedForSystem <"+systemIri+">; a <"+planType+">}"; 
+		  String queryString = Constants.PREFIXES + "Construct {?s ?p ?o} FROM <"+getPlansNamedGraph(systemIri)+">  Where {{?s ?p ?o. ?s ep-plan:isElementOfPlan ?plan. ?plan rains:specifiedForSystem <"+systemIri+">; a <"+planType+">} UNION{?s ?p ?o. ?constraint ep-plan:isElementOfPlan ?plan. ?plan rains:specifiedForSystem  <"+systemIri+">; a <"+planType+">.?constraint ep-plan:hasConstraintImplementation ?s.} UNION{?impl  <http://www.w3.org/ns/shacl#sparql> ?s. ?s ?p ?o .?constraint ep-plan:isElementOfPlan ?plan. ?plan rains:specifiedForSystem  <"+systemIri+">; a <"+planType+">.?constraint ep-plan:hasConstraintImplementation ?impl.}}";
 				System.out.println(queryString);
 				GraphQuery query  = conn.prepareGraphQuery(queryString);
 				
-			
+			    
 				
 				String result = "no data";
+				
+				ByteArrayOutputStream stream = new ByteArrayOutputStream();
+				RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, stream);
+				   query.evaluate(writer);
+				   result = new String(stream.toByteArray());
+				
+				/*
 					  try (GraphQueryResult resultQuery = query.evaluate()) {
 						  StringBuilder str = new StringBuilder ();
 						   for (Statement st: resultQuery) {
@@ -514,7 +529,7 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 						   
 						   result = str.toString();
 					  }
-					 
+				*/
 				return result;
 			}
 	

@@ -48,6 +48,8 @@ let parsed =  this.csvToMatrix(text,',');
 
 var stepRowCounter = 0; 
 
+//we have to record the SHACL implementation separately as TTL because I didn't figure out how to do SHACL with SPARQL rules in JSON-LD. The query needs to be wrapped in "" and parsers are escaping it in \"\" which is then causing problems for rdflib validator (used by the model card toolkit mapping tool that cannot read json-ld and when it is parsed into TTL then "" dissapear
+var shacklTTL ="@prefix : <http://nothing.com/> .";
 
 var selectedStep;
 // convenience reference to plan, steps, constraints, and variables as we will
@@ -676,7 +678,36 @@ function createNewVariable (label, description, type, rowId, mode, accountableOb
 	
 }
 
-function createNewConstraint (label, description, type ) {
+
+function createNewAutoValidatedConstraint (label, description, type, implURI, shaclImpl ) {
+	
+	console.log('CREATING CONSTRAINT PLAN ID IS ')
+	console.log(plan['@id'])
+	
+	let constraint = {} ;
+	constraint ['@id'] = dataPrefix+ uuidv4();
+	constraint ['@type'] = [];
+	constraint ['@type'].push (context.Constraint);
+	constraint ['@type'].push (context.namedIndividual);
+	constraint ['@type'].push (type);
+	constraint ['label'] = label; 
+	constraint ['comment'] = description; 
+	constraint ['isElementOfPlan'] = plan['@id'];
+	constraint ['constrains']=[];
+	constraint ['constrains'].push(selectedStep["@id"]);
+	constraint ['hasConstraintImplementation']= [];
+	constraint ['hasConstraintImplementation'].push(implURI);
+	
+	
+	
+	// to do add additional links if SHACL rule also provided ep-plan:hasConstraintImplementation
+	
+	shacklTTL = shacklTTL + shaclImpl;
+	
+	constraintsArray.push(constraint);
+}
+
+function createNewHumanValidatedConstraint (label, description, type ) {
 	
 	console.log('CREATING CONSTRAINT PLAN ID IS ')
 	console.log(plan['@id'])
@@ -695,7 +726,6 @@ function createNewConstraint (label, description, type ) {
 	
 	
 	
-	// to do add additional links if SHACL rule also provided ep-plan:hasConstraintImplementation
 	
 	constraintsArray.push(constraint);
 }
@@ -1084,13 +1114,14 @@ function savePlan () {
 	
 	console.log("saving" + findGetParameter('systemIri'));
 	
+	console.log(shacklTTL);
 	
 	fetch('/savePlan', {
 	    method: 'post',
 	    headers: {
 	      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
 	    },
-	    body: 'systemIri='+findGetParameter('systemIri')+'&payload='+generateJsonLDpayload (context,prepareGraph())
+	    body: 'systemIri='+findGetParameter('systemIri')+'&shaclImpl='+shacklTTL+'&payload='+generateJsonLDpayload (context,prepareGraph())
 	  })
 	  .then((data) => {
 			return data.json();

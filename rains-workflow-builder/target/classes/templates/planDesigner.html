@@ -209,7 +209,7 @@ div.scroll {
   
 <div class="container-fluid">
   <div class="row">
-    <div class="col-sm-3 " id="contentSteps">
+    <div class="col-sm-2 " id="contentSteps">
       <h3>Steps Library</h3>
         <div class="loader" id="loaderSteps" ></div>
       <div class="panel panel-default">
@@ -259,7 +259,7 @@ div.scroll {
        
       </div>
         </div>
-    <div class="col-sm-6">
+    <div class="col-sm-7">
     <h3>Workflow Steps</h3>
     <div id="svgContainer"></div>
     
@@ -312,7 +312,7 @@ div.scroll {
      
       </div>
       <div class="modal-footer">
-       <button type="button" class="btn btn-success" disabled data-dismiss="modal" id="addConstraintBtn">Save</button>
+       <button type="button" class="btn btn-success" disabled  id="addConstraintBtn">Save</button>
         <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
 
       </div>
@@ -571,40 +571,91 @@ $('#linkVariables').on('show.bs.modal', function (event) {
 
 //reset the modal content every time add constriants is clicked (+) in the element inspector
 $('#addConstraints').on('show.bs.modal', function (event) {
-let html = `Constraint Type: 
+ let html = `Constraint Type: 
 	        <select class="custom-select" id='constraintTypeSelect' > 
-            <option selected disabled="disabled" >Select Constraint Type</option><option value="https://w3id.org/rains#HumanConstraint">Human-Validated Constraint (i.e., checkbox)</option>
-            <option value="https://w3id.org/rains#AutoConstraint">Auto-Validated Constraint (i.e., SHACL rule)</option>
+            <option selected disabled="disabled" >Select Constraint Type</option><option value=${context.HumanConstraint}>Human-Validated Constraint (i.e., checkbox)</option>
+            <option value=${context.AutoConstraint}>Auto-Validated Constraint (i.e., SHACL rule)</option>
             </select>
 	        <div id="constraintCreatorPane"></div>
            `;
 
-$('#constraintList').html(html);
+ $('#constraintList').html(html);
+           
+           
 
-$('#constraintTypeSelect').change( function (event) {
-	$('#addConstraintBtn').prop('disabled', false)
-	console.log("Selection")
+
+ $('#constraintTypeSelect').change( function (event) {
+	let html ;
 	
-	let html =`<label for="constraintLabel" class="col-form-label">Name the constraint</label>
-		 <div class="input-group mb-3">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Label</span>
-          </div>
-        <input type="text" class="form-control" id="constraintLabel" placeholder="Add some label" aria-label="label" aria-describedby="constraintLabel">
-       </div>
-        <div class="input-group mb-3">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Description</span>
-          </div>
-        <input type="text" class="form-control" id="constraintDescription" placeholder="Add some description" aria-label="description" aria-describedby="constraintDescription">
-       </div>
-		
-		`; 
-		
-		$('#constraintCreatorPane').html (html); 
-	
-	if ($(this).val() == "human") {	
+	if ($(this).val() == context.HumanConstraint) {	
+		html =`<label for="constraintLabel" class="col-form-label">Name the constraint</label>
+			 <div class="input-group mb-3">
+	        <div class="input-group-prepend">
+	          <span class="input-group-text">Label</span>
+	          </div>
+	        <input type="text" class="form-control" id="constraintLabel" placeholder="Add some label" aria-label="label" aria-describedby="constraintLabel">
+	       </div>
+	        <div class="input-group mb-3">
+	        <div class="input-group-prepend">
+	          <span class="input-group-text">Description</span>
+	          </div>
+	        <input type="text" class="form-control" id="constraintDescription" placeholder="Add some description" aria-label="description" aria-describedby="constraintDescription">
+	       </div>`;
+	       $('#addConstraintBtn').prop('disabled', false)
 	}
+	
+	if ($(this).val() == context.AutoConstraint) {	
+		 
+		html = `Constraint Type:
+	        <select class="custom-select" id='autoConstraintTypeSelect' > 
+	        <option selected disabled="disabled" >Select Constraint </option><option value="requiredInfoElement">Required Info Element</option>
+	        </select>
+	        <div id="autoConstraintCreatorPane"></div>
+	       `;
+	}
+	
+	
+	
+	$('#constraintCreatorPane').html (html); 
+	
+ 
+	
+
+    $('#autoConstraintTypeSelect').change( function (event) {
+	  $('#addConstraintBtn').prop('disabled', false)
+	  console.log("Selection auto constraint")
+	
+	  let html =`<label for="constraintLabel" class="col-form-label">Name the constraint</label>
+		 <div class="input-group mb-3">
+         <div class="input-group-prepend">
+         <span class="input-group-text">Label</span>
+         </div>
+         <input type="text" class="form-control" id="constraintLabel" placeholder="Add some label" aria-label="label" aria-describedby="constraintLabel">
+         </div>
+         <div class="input-group mb-3">
+         <div class="input-group-prepend">
+         <span class="input-group-text">Description</span>
+         </div>
+         <input type="text" class="form-control" id="constraintDescription" placeholder="Add some description" aria-label="description" aria-describedby="constraintDescription">
+         </div>
+         Select output that should contain the info element:
+         <select class="custom-select" id='autoConstraintVariableSelect' > 
+	       
+	     </select>
+	     Select info element type:
+         <select class="custom-select" id='autoConstraintInfoElementTypeSelect' required> 
+	       
+	     </select>
+         `; 
+		
+		$('#autoConstraintCreatorPane').html (html); 
+		
+		
+		populateSelectWithListOfOutputVarsOfSelectedStep (document.getElementById('autoConstraintVariableSelect'));
+		
+		populateSelectWithListOfInfoElements(document.getElementById('autoConstraintInfoElementTypeSelect'));
+     });
+ 
  });
 
 
@@ -613,10 +664,125 @@ $('#constraintTypeSelect').change( function (event) {
 $('#addConstraintBtn').click(  
 
 		function () {
-			createNewConstraint ($('#constraintLabel').val(), $('#constraintDescription').val(), $('#constraintTypeSelect').val() );
+			if ($('#constraintTypeSelect').val()==context.HumanConstraint && $('#constraintLabel').val()!='' && $('#constraintDescription').val() !='') {
+			createNewHumanValidatedConstraint ($('#constraintLabel').val(), $('#constraintDescription').val(), $('#constraintTypeSelect').val() );
 			populateInspectPane (selectedStep );
+			$('#addConstraints').modal('toggle');
+			}
+			
+			
+			else if ($('#constraintTypeSelect').val()==context.AutoConstraint && $('#constraintLabel').val()!='' && $('#constraintDescription').val() !='') {
+				
+				//fetch the SHACL implementation
+				let constraintURI = dataPrefix+ uuidv4();
+				let fetchURL = "/createSHACLconstraint?constraintName="+$('#autoConstraintTypeSelect').val()+"&variable="+encodeURIComponent(btoa($('#autoConstraintVariableSelect').val()))+"&elementType="+encodeURIComponent(btoa($('#autoConstraintInfoElementTypeSelect').val()))+"&target="+encodeURIComponent(btoa(selectedStep['@id']))+"&constraintURI="+encodeURIComponent(btoa(constraintURI));  
+	            console.log(fetchURL)
+				fetch(fetchURL)  
+	             .then((data) => {
+	            	 data.text().then(function (text) { 
+	            	 console.log("constraintImplementation")
+	            	 console.log(text)
+	            	 
+	            	 
+	            	 createNewAutoValidatedConstraint ($('#constraintLabel').val(), $('#constraintDescription').val(), $('#constraintTypeSelect').val(), constraintURI,  text );
+	            	 $('#addConstraints').modal('toggle');
+	            	 populateInspectPane (selectedStep );
+	            	 });
+	             });
+			}
+			else {
+
+				alert ("Please complete label and description of the constraint."); 
+			}
+			
 		}
 );
+
+
+function populateSelectWithListOfOutputVarsOfSelectedStep (selectOption) {
+	let outputVariables = [];
+	for (let i=0;i<variablesArray.length;i++) {
+
+      if (variablesArray[i]['isOutputVariableOf'].includes(selectedStep['@id'])) {
+
+    	  outputVariables.push( variablesArray[i]);
+      }
+	}
+	
+	selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
+	
+	for (let i=0;i<outputVariables.length;i++) {
+		  selectOption.innerHTML += ' <option value="'+outputVariables[i]['@id']+'" title="'+outputVariables[i]['comment']+'">'+outputVariables[i]['label']+'</option>' ;
+	    	
+	}
+	
+	
+}
+
+function populateSelectWithListOfInfoElements (selectOption) { 
+	let property ;
+	
+	//!!!! TO DO - Need to call to query OWL constraints to see whihc type corresponds to variable
+    informationRealizationType = "https://w3id.org/sao#ModelSpecification";
+	
+	fetch("/getAllowedInformationElelementForInformationRealizationType?informationRealizationType="+encodeURIComponent(btoa(informationRealizationType))+"&restrictionPropertyIRI="+encodeURIComponent(btoa(property)) ) 
+	.then((data) => {
+		
+		return data.json();
+	})
+  .then(function (data) {
+	
+    selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
+    
+    //need to remove iris and rename the labels that are same in MLS and RAINS - e.g. Evaluation procedure
+    let sortedAndProcessedArray = [];
+    
+    for (let i=0;i<data.length;i++) {
+    	
+    	let dataObj =  JSON.parse(data[i]);
+    	
+    	if (dataObj['iri'].includes(rainsPlanPrefix)||dataObj['iri'].includes(saoPrefix)||dataObj['iri'].includes(mlsPrefix)||dataObj['iri'].includes(dcPrefix)) {
+    		
+    		
+    		
+    		let parts = dataObj['iri'].split('/');
+    		parts = parts[parts.length - 1];
+    		parts = parts.split('#');
+    		
+    		let label = parts[parts.length - 1];
+    		console.log(label)
+    		
+    		if (dataObj['iri'].includes(rainsPlanPrefix)&&label =='EvaluationProcedure') {
+    			label = label +' (Generic system component)'
+    		}
+    		
+    		if (dataObj['iri'].includes(rainsPlanPrefix)&&label =='InformationElement') {
+    			label = label +' (Generic)'
+    		}
+    		if (dataObj['iri'].includes(mlsPrefix)&&label =='EvaluationProcedure') {
+    			label = label +' (Model component)'
+    		}
+    		
+    		sortedAndProcessedArray.push({'label':label,'iri':dataObj['iri'], 'comment':dataObj['comment']})
+     	}
+    }
+    
+    sortedAndProcessedArray.sort((a, b) => (a.label > b.label) ? 1 : -1)
+    
+    console.log(sortedAndProcessedArray)
+    
+    for (let i=0;i<sortedAndProcessedArray.length;i++) {
+    	
+    	   selectOption.innerHTML += ' <option value="'+sortedAndProcessedArray[i]['iri']+'" title="'+sortedAndProcessedArray[i]['comment']+'">'+sortedAndProcessedArray[i]['label']+'</option>' ;
+    	
+	}
+    
+    
+  })
+  .catch(function (error) {
+    console.log('Request failed', error);
+  });
+}
 
 
 

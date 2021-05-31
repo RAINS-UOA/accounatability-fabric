@@ -375,7 +375,7 @@ function getAllowedInformationElelementForInformationRealizationType () {
     
 	
 	
-	//!!!! TO DO - Need to call to query constraints to see whihc type corresponds to variable
+	//!!!! TO DO - Need to call to query OWL constraints to see whihc type corresponds to variable
     informationRealizationType = "https://w3id.org/sao#ModelSpecification";
 	
 	fetch("/getAllowedInformationElelementForInformationRealizationType?informationRealizationType="+encodeURIComponent(btoa(informationRealizationType))+"&restrictionPropertyIRI="+encodeURIComponent(btoa(property)) ) 

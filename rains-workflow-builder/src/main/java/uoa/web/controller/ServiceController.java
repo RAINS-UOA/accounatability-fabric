@@ -1,8 +1,10 @@
 package uoa.web.controller;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -18,8 +20,16 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.solr.common.util.Base64;
+import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.JSONSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -187,7 +197,7 @@ public class ServiceController {
 		
 		System.out.println(paramMap);
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
-		manager.savePlanFromJSONLD(paramMap.getFirst("systemIri"),paramMap.getFirst("payload"));
+		manager.savePlanFromJSONLD(paramMap.getFirst("systemIri"),paramMap.getFirst("payload"), paramMap.getFirst("shaclImpl"));
 		manager.shutdown();
 		return "{\"result\":\"Received\"}";
 	}
@@ -419,7 +429,7 @@ public class ServiceController {
 	//@GetMapping("/createSHACLconstraint")
 	@RequestMapping(value="/createSHACLconstraint", method=RequestMethod.GET, produces={"text/turtle"})
 	@ResponseBody
-	public String createSHACLconstraint (@RequestParam String constraintName, @RequestParam String target, @RequestParam String elementType,@RequestParam String variableType ) throws NoSuchElementException, IllegalStateException, Exception  {
+	public String createSHACLconstraint (@RequestParam String constraintName, @RequestParam String target, @RequestParam String elementType,@RequestParam String variable, @RequestParam String constraintURI ) throws NoSuchElementException, IllegalStateException, Exception  {
 		//TO- DO check the token and see if the form has already been completed 
 		String response = "no constraint found";
 		try {  
@@ -431,10 +441,10 @@ public class ServiceController {
 	        str.append(data);
 	        
 	        response = str.toString();
-	        
-	        response = response.replaceAll("<TARGET NODE>", target) ;
-	        response = response.replaceAll("<<ELEMENT TYPE>>", elementType) ;
-	        response = response.replaceAll("<<VARIABLE TYPE>>", variableType) ;
+	        response = response.replaceAll("<TARGET NODE>", new String(Base64.base64ToByteArray(target))) ;
+	        response = response.replaceAll("<ELEMENT TYPE>", new String(Base64.base64ToByteArray(elementType))) ;
+	        response = response.replaceAll("<VARIABLE>", new String(Base64.base64ToByteArray(variable))) ;
+	        response = response.replaceAll("<Constraint ID>", new String(Base64.base64ToByteArray(constraintURI)));
 	      }
 	      myReader.close();
 	    } catch (FileNotFoundException e) {
@@ -442,9 +452,38 @@ public class ServiceController {
 	      e.printStackTrace();
 	    }
 		
-		HttpHeaders responseHeaders = new HttpHeaders();
-	    
-		 responseHeaders.setContentType(MediaType.TEXT_PLAIN);
+		
+
+		/*
+		org.eclipse.rdf4j.model.Model results = null;
+		try {
+			  // rdfParser.parse(inputStream	, null);
+			   
+			    RDFParser parser = Rio.createParser(RDFFormat.JSONLD);
+			    //parser.set(JSONSettings.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,true);
+			    //parser.parse(new StringReader(jsonld_dummy), null);
+			   
+			    results = Rio.parse(new StringReader(response), null, RDFFormat.JSONLD);
+			}
+			catch (IOException e) {
+			  // handle IO problems (e.g. the file could not be read)
+				System.out.println(e.getLocalizedMessage());
+			}
+			catch (RDFParseException e) {
+			  // handle unrecoverable parse error
+				System.out.println(e.getLocalizedMessage());
+			}
+			catch (RDFHandlerException e) {
+			  // handle a problem encountered by the RDFHandler
+				System.out.println(e.getLocalizedMessage());
+			}
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		//RDFWriter writer = Rio.createWriter(RDFFormat.JSONLD, stream);
+		Rio.write(results,stream, RDFFormat.TURTLE);
+		String ldjson = new String(stream.toByteArray());
+		
+		return ldjson;
+		*/
 		return response;
 	}
 	

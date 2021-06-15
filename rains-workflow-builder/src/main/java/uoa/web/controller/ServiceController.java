@@ -212,6 +212,9 @@ public class ServiceController {
 		return jsonResult;
 	}
 	
+	
+	
+	
 	@GetMapping("/getSavedPlanForEachStage")
 	@ResponseBody
 	public String getSavedPlanForEachStage (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
@@ -225,6 +228,7 @@ public class ServiceController {
 	@GetMapping("/getPlanElementsForImplementationStage")
 	@ResponseBody
 	public String getPlanElementsForImplementationStage (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+		ugglyConnectionFix ();
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
 		ArrayList <HashMap > list = manager.getPlanElementsForImplementationStage(systemIri);
 		manager.shutdown();
@@ -232,6 +236,19 @@ public class ServiceController {
 		System.out.println(gson.toJson(list));
 		return gson.toJson(list);
 	}
+	
+	@GetMapping("/getAfModelCard")
+	@ResponseBody
+	public String getAfModelCard (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+		ugglyConnectionFix ();
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		HashMap <String,ArrayList> list = manager.getAfModelCard(systemIri);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		System.out.println(gson.toJson(list));
+		return gson.toJson(list);
+	}
+	
 	
 	@GetMapping("/getTemplate")
 	@ResponseBody
@@ -493,16 +510,13 @@ public class ServiceController {
 	public String getPlanElementsAsGraph (@RequestParam String systemIri, @RequestParam String stage ) throws NoSuchElementException, IllegalStateException, Exception  {
 		//TO- DO check the token and see if the form has already been completed 
 		//to do need to check token again
+		ugglyConnectionFix ();
 	    SystemRecordManager manager = new SystemRecordManager(connectionPool);
 		String response = manager.getPlanElementsAsGraph(systemIri,stage);
 		return response;
 	}
 	
-	
-	@PostMapping("/uploadHumanTaskProvenanceTrace")
-	@ResponseBody
-	public String uploadHumanTaskProvenanceTrace (@RequestParam String payload, @RequestParam String token) throws NoSuchElementException, IllegalStateException, Exception  {
-		
+	private void ugglyConnectionFix () {
 		/*ugly fix 
 		There seems to be be a problem with connection when submitting larger plans after a period of time. The problem goes away is service is restarted. 
 		No time to fix properly so we will just reset teh connection pool before the plan gets saved*/
@@ -510,6 +524,15 @@ public class ServiceController {
 		repository = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager());
 		connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
 		System.out.println ("Reseting connection to GraphDB - done");
+		
+	}
+	
+	@PostMapping("/uploadHumanTaskProvenanceTrace")
+	@ResponseBody
+	public String uploadHumanTaskProvenanceTrace (@RequestParam String payload, @RequestParam String token) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		
+		ugglyConnectionFix ();
 		
 		//to do need to check token again
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);

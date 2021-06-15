@@ -1422,6 +1422,144 @@ public void saveAccountableObject(String jsonPayload) {
 	
 }
 
+public HashMap <String,ArrayList > getAfModelCard(String systemIRI) {
+	  
+	RepositoryResult<Statement> res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasAccountabilityTrace), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	
+	// find named graphs for execution traces 
+	HashSet <String> namedGraphsToQuery = new HashSet <String> ();
+	while (res.hasNext()) {
+		namedGraphsToQuery.add(res.next().getObject().toString());
+	}
+	// find named graphs for plans
+	res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasPlansStoredInGraph), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	namedGraphsToQuery.add(res.next().getObject().toString());
+	
+	String fromPart = "";
+	Iterator <String> it = namedGraphsToQuery.iterator();
+	while (it.hasNext()) {
+		fromPart = fromPart +  "FROM <" +it.next()+"> "; 
+	}
+	
+HashMap <String,ArrayList > list = new HashMap <String,ArrayList >  ();	  
+
+//GET RESULTS FOR THE MODEL OVERVIEW SECTION
+ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+String queryString = Constants.PREFIXES + "Select Distinct ?version ?versionDate ?versionNote ?ownerComment ?ownerLabel ?overview ?name ?input ?output ?references ?algorithmComment ?licenseComment "+fromPart+" WHERE {?infoRealisation  ep-plan:correspondsToVariable ?var. ?var a rains:ModelComponent. ?model prov:wasMemberOf ?infoRealisation; a mls:Model. OPTIONAL{ ?model rdfs:comment ?overview.} OPTIONAL {?model rdfs:label ?name.} OPTIONAL { ?model rains:modelInputFormat ?input} OPTIONAL {?model rains:modelOutputFormat ?output} OPTIONAL {?model rdfs:seeAlso ?references} OPTIONAL {?algorithm prov:wasMemberOf ?infoRealisation; a mls:Algorithm. ?algorithm rdfs:comment ?algorithmComment. }  OPTIONAL {?license prov:wasMemberOf ?infoRealisation; a dcterms:LicenseDocument. ?license rdfs:comment ?licenseComment. }OPTIONAL {?owner prov:wasMemberOf ?infoRealisation; a sao:AccountableAgent; sao:isAccountableFor ?model. ?owner rdfs:comment ?ownerComment; rdfs:label ?ownerLabel.} OPTIONAL {?model rains:version ?version}OPTIONAL {?model rains:versionNote ?versionNote} OPTIONAL {?model rains:versionDate ?versionDate} }";
+     System.out.println(queryString);
+		TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+				   while (result.hasNext()) {  // iterate over the result
+				    	HashMap <String,String> row = new HashMap <String,String>(); 
+				        
+				    	
+				    	
+				    	BindingSet bindingSet = result.next();	
+				    	
+				    	Set <String> bindings = bindingSet.getBindingNames();  
+				    	
+				    	Iterator it2 = bindings.iterator();
+				    	while (it2.hasNext()) {
+				    		String key = (String) it2.next();
+				    		if (bindingSet.getValue(key)!=null)
+				    		row.put(key, bindingSet.getValue(key).toString()) ;
+				    	}
+				       
+				         resultSet.add(row);
+				      }	   
+			   }
+	    
+	    list.put("model details", resultSet);
+			   
+	//GET RESULTS FOR THE CONSIDERATIONS SECTION
+	    resultSet = new ArrayList <HashMap> ();
+	    queryString = Constants.PREFIXES + "Select Distinct ?biasComment ?biasMitigation ?riskComment ?riskMitigation ?tradeoffComment ?limitationComment ?intendedUserGroupComment ?intendedUseCaseComment ?incorrectUseCaseComment "+fromPart+" WHERE {?infoRealisation  ep-plan:correspondsToVariable ?var. ?var a rains:ModelComponent. ?model prov:wasMemberOf ?infoRealisation; a mls:Model. OPTIONAL{?userGroup prov:wasMemberOf ?infoRealisation; a rains:IntendedUserGroup; rdfs:comment  ?intendedUserGroupComment }OPTIONAL{?intendedUseCase prov:wasMemberOf ?infoRealisation; a rains:IntendedUseCase; rdfs:comment  ?intendedUseCaseComment }OPTIONAL{?incorrectUseCase prov:wasMemberOf ?infoRealisation; a rains:IncorrectUseCase; rdfs:comment  ?incorrectUseCaseComment }OPTIONAL{?limitation prov:wasMemberOf ?infoRealisation; a rains:Limitation; rdfs:comment  ?limitationComment }OPTIONAL{?tradeoff prov:wasMemberOf ?infoRealisation; a rains:Tradeoff; rdfs:comment  ?tradeoffComment }OPTIONAL{?risk prov:wasMemberOf ?infoRealisation; a rains:Risk; rdfs:comment  ?riskComment. OPTIONAL {?risk rains:hasMitigationStrategy ?riskMitigation.  }} OPTIONAL{?bias prov:wasMemberOf ?infoRealisation; a rains:Bias; rdfs:comment  ?biasComment. OPTIONAL {?bias rains:hasMitigationStrategy ?biasMitigation.  }}}";
+	         System.out.println(queryString);
+	    		 tupleQuery = conn.prepareTupleQuery(queryString);
+	    			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+	    				   while (result.hasNext()) {  // iterate over the result
+	    				    	HashMap <String,String> row = new HashMap <String,String>(); 
+	    				        
+	    				    	
+	    				    	
+	    				    	BindingSet bindingSet = result.next();	
+	    				    	
+	    				    	Set <String> bindings = bindingSet.getBindingNames();  
+	    				    	
+	    				    	Iterator it2 = bindings.iterator();
+	    				    	while (it2.hasNext()) {
+	    				    		String key = (String) it2.next();
+	    				    		if (bindingSet.getValue(key)!=null)
+	    				    		row.put(key, bindingSet.getValue(key).toString()) ;
+	    				    	}
+	    				       
+	    				         resultSet.add(row);
+	    				      }	   
+	    			   }
+	    	    
+	    	    list.put("considerations", resultSet);
+	   
+	    	  //GET RESULTS FOR THE TRAINING DATASET
+	    	    resultSet = new ArrayList <HashMap> ();
+	    	    queryString = Constants.PREFIXES + "Select Distinct ?dataset ?characteristic ?characteristicsLabel ?characteristicsComment ?characteristicsImage ?datasetLabel ?datasetComment "+fromPart+" WHERE {?trainingDatasetInfoRealization ep-plan:correspondsToVariable ?trainingVar.?trainingVar a rains:TrainingDataset. ?dataset prov:wasMemberOf ?trainingDatasetInfoRealization; a mls:Dataset; rains:hasRealizableObjectCharacteristic ?characteristic. ?characteristic rdfs:label ?characteristicsLabel. OPTIONAL {?characteristic rdfs:comment ?characteristicsComment.} OPTIONAL {?characteristic rains:hasBase64Image ?characteristicsImage.} OPTIONAL {?dataset rdfs:label ?datasetLabel.} OPTIONAL {?dataset rdfs:comment ?datasetComment.} }";
+	    	         System.out.println(queryString);
+	    	    		 tupleQuery = conn.prepareTupleQuery(queryString);
+	    	    			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+	    	    				   while (result.hasNext()) {  // iterate over the result
+	    	    				    	HashMap <String,String> row = new HashMap <String,String>(); 
+	    	    				        
+	    	    				    	
+	    	    				    	
+	    	    				    	BindingSet bindingSet = result.next();	
+	    	    				    	
+	    	    				    	Set <String> bindings = bindingSet.getBindingNames();  
+	    	    				    	
+	    	    				    	Iterator it2 = bindings.iterator();
+	    	    				    	while (it2.hasNext()) {
+	    	    				    		String key = (String) it2.next();
+	    	    				    		if (bindingSet.getValue(key)!=null)
+	    	    				    		row.put(key, bindingSet.getValue(key).toString()) ;
+	    	    				    	}
+	    	    				       
+	    	    				         resultSet.add(row);
+	    	    				      }	   
+	    	    			   }
+	    	    	    
+	    	    	    list.put("training dataset", resultSet);
+	    	  
+	    	    	  //GET RESULTS FOR THE Evaluation DATASET
+	    	    	    resultSet = new ArrayList <HashMap> ();
+	    	    	    queryString = Constants.PREFIXES + "Select Distinct ?dataset ?characteristic ?characteristicsLabel ?characteristicsComment ?characteristicsImage ?datasetLabel ?datasetComment "+fromPart+" WHERE {?trainingDatasetInfoRealization ep-plan:correspondsToVariable ?trainingVar.?trainingVar a rains:EvaluationDataset. ?dataset prov:wasMemberOf ?trainingDatasetInfoRealization; a mls:Dataset; rains:hasRealizableObjectCharacteristic ?characteristic. ?characteristic rdfs:label ?characteristicsLabel. OPTIONAL {?characteristic rdfs:comment ?characteristicsComment.} OPTIONAL {?characteristic rains:hasBase64Image ?characteristicsImage.} OPTIONAL {?dataset rdfs:label ?datasetLabel.} OPTIONAL {?dataset rdfs:comment ?datasetComment.} }";
+	    	    	         System.out.println(queryString);
+	    	    	    		 tupleQuery = conn.prepareTupleQuery(queryString);
+	    	    	    			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+	    	    	    				   while (result.hasNext()) {  // iterate over the result
+	    	    	    				    	HashMap <String,String> row = new HashMap <String,String>(); 
+	    	    	    				        
+	    	    	    				    	
+	    	    	    				    	
+	    	    	    				    	BindingSet bindingSet = result.next();	
+	    	    	    				    	
+	    	    	    				    	Set <String> bindings = bindingSet.getBindingNames();  
+	    	    	    				    	
+	    	    	    				    	Iterator it2 = bindings.iterator();
+	    	    	    				    	while (it2.hasNext()) {
+	    	    	    				    		String key = (String) it2.next();
+	    	    	    				    		if (bindingSet.getValue(key)!=null)
+	    	    	    				    		row.put(key, bindingSet.getValue(key).toString()) ;
+	    	    	    				    	}
+	    	    	    				       
+	    	    	    				         resultSet.add(row);
+	    	    	    				      }	   
+	    	    	    			   }
+	    	    	    	    
+	    	    	    	    list.put("evaluation dataset", resultSet);
+	    
+	    
+	    return list;
+	
+}
+
 
 
 }

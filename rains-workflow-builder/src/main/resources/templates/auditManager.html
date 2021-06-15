@@ -51,6 +51,7 @@
         getAgents (findGetParameter('systemIri'));    
         getAllActivitiesInExecutionTraces (findGetParameter('systemIri'));
         getAllEntitiesInExecutionTraces (findGetParameter('systemIri'));
+        getModelCard(findGetParameter('systemIri'));
         
         
     });
@@ -266,9 +267,16 @@
 <div class="col-md-12 "  >
 <div class="card objectDetailsCard">
 <div class="card-body">
- <h3 class="card-title">Model Card</h3>
+ <h3 class="card-title" id="modelCardTitle">Model Card</h3>
+ <div class="row">
+<div  style="background:white;border: solid 1px;margin:20px; width:48%;padding:15px;" id="modelOverview"> </div>
+<div  style="background:white;border: solid 1px;margin:20px;width:48%;padding:15px;" id="modelConsiderations"> </div>
+</div>
 
-Model card will be here ...
+<div class="row">
+<div class="col-md-11" id="modelTraining" style="background:white;border: solid 1px;margin:20px;padding:15px;" ></div>
+<div class="col-md-11" id="modelEvaluation" style="background:white;border: solid 1px;margin:20px;padding:15px;" ></div>
+</div>
 
 </div>
 </div>
@@ -290,7 +298,13 @@ Model card will be here ...
 <div class="card-body">
  <h3 class="card-title">Data Sheet</h3>
 
-Data Sheet dwill be here ...
+ <h4>Motivation</h4>
+ <h4>Composition</h4>
+ <h4>Collection Process</h4>
+ <h4>Preprocessing/cleaning/labeling</h4>
+ <h4>Uses</h4>
+ <h4>Distribution</h4>
+ <h4>Maintenance</h4>
 
 </div>
 </div>

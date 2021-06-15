@@ -1400,4 +1400,307 @@ function getActivityDetailsInExecutionTraces (systemIRI,activityIRI, stage) {
 }
 
 
+function getModelCard (systemIRI) { 
+	
+	let details = fetch("getAfModelCard?systemIri="+ systemIRI);
+	details.then(
+			(data) => {
+				
+				return data.json();
+			}).then(details => {
+				
+				console.log(details);
+				
+				let overview = "no data"
+			    let name = "no data"
+			    let input = "no data"
+			    let output = "no data"
+			    let license = "no data"
+			
+			    let version = "no data"
+			    let versionDate = "no data"
+			    let versionNote = "no data"
+			    let references = []
+				let owners = []
+				let citation = "WE DO NOT MAP THIS ATM!!!!!"
+				let algorithm = "no data"
+				
+				for (let i=0; i<details['model details'].length;i++) {
+					overview = details['model details'][i]['overview'];
+					name = details['model details'][i]['name'];
+					license = details['model details'][i]['licenseComment'];
+					algorithm = details['model details'][i]['algorithmComment'];
+					input = details['model details'][i]['input'];
+					output = details['model details'][i]['output'];
+					
+					if (!references.includes(details['model details'][i]['references'])){
+						references.push(details['model details'][i]['references'])
+					}
+					
+					if (!owners.includes(details['model details'][i]['ownerLabel']+","+ details['model details'][i]['ownerComment'])){
+						owners.push(details['model details'][i]['ownerLabel']+","+ details['model details'][i]['ownerComment'])
+					}
+					
+					version = details['model details'][i]['version'];
+					versionNote = details['model details'][i]['versionNote'];
+					versionDate = details['model details'][i]['versionDate'];
+					
+				}
+				
+				let referencesList = "<ul>";
+				for (let i=0; i<references.length;i++) {
+					referencesList += "<li>"+references[i]+"</li>"
+				}
+				referencesList += "</ul>"
+					
+				let ownersList = "<ul>";
+				for (let i=0; i<owners.length;i++) {
+					ownersList += "<li>"+owners[i]+"</li>"
+				}
+				ownersList += "</ul>"
+				
+				document.getElementById ('modelCardTitle').innerHTML = "Model Card for "+name;
+				document.getElementById ('modelOverview').innerHTML = `
+				<h3>Model Details</h3> 
+				<strong>Overview</strong><br>
+				<p>${overview}</p>
+				
+				<strong>Version</strong><br>
+				<p>name:${version}<br>
+				date:${versionDate}<br>
+				diff:${versionNote} </p>
+				
+				<strong>Owners</strong><br>
+				<p>${ownersList}</p>
+				
+			    <strong>License</strong><br>
+				<p>${license}</p>
+				
+				 <strong>References</strong><br>
+				${referencesList}
+				
+				 <strong>Citation</strong><br>
+				<p>${citation}</p>
+				
+				 <strong>Model Architecture</strong><br>
+				<p>${algorithm}</p>
+				
+				 <strong>Input Format</strong><br>
+				<p>${input}</p>
+				
+				 <strong>Output Format</strong><br>
+				<p>${output}</p>
+				`
+			
+			// CREATE COSIDERATIONS VIEW
+			
+			    let limitations = []
+				let intendedUsers = []	
+				let intendedUSeCases = []	
+				let incorrectUSeCases = []
+				let tradeoffs = []
+				let risks = []
+				let biases = []
+				
+				for (let i=0; i<details['considerations'].length;i++) {
+					
+					if (!limitations.includes(details['considerations'][i]['limitationComment'])){
+						limitations.push(details['considerations'][i]['limitationComment'])
+					}
+					
+					if (!tradeoffs.includes(details['considerations'][i]['tradeoffComment'])){
+						tradeoffs.push(details['considerations'][i]['tradeoffComment'])
+					}
+					
+					if (!intendedUsers.includes(details['considerations'][i]['intendedUserGroupComment'])){
+						intendedUsers.push(details['considerations'][i]['intendedUserGroupComment'])
+					}
+					
+					if (!intendedUSeCases.includes(details['considerations'][i]['intendedUseCaseComment'])){
+						intendedUSeCases.push(details['considerations'][i]['intendedUseCaseComment'])
+					}
+					
+					if (!incorrectUSeCases.includes(details['considerations'][i]['incorrectUseCaseComment'])){
+						incorrectUSeCases.push(details['considerations'][i]['incorrectUseCaseComment'])
+					}
+					
+					if (details['considerations'][i]['riskComment']!=null) {
+						let risk = "RISK: "+details['considerations'][i]['riskComment']
+						if (details['considerations'][i]['riskMitigation']!=null) {
+							risk +="<br> MITIGATION STRATEGY: "+ details['considerations'][i]['riskMitigation']
+						}
+						if (!risks.includes(risk)){
+							risks.push(risk)
+						}
+					}
+					
+					if (details['considerations'][i]['biasComment']!=null) {
+						let bias = "BIAS: "+details['considerations'][i]['biasComment']
+						if (details['considerations'][i]['riskMitigation']!=null) {
+							bias +="<br> MITIGATION STRATEGY: "+ details['considerations'][i]['biasMitigation']
+						}
+						if (!risks.includes(bias)){
+							biases.push(risk)
+						}
+					}
+					
+				}
+				
+				let limitationsList = createModelCardList (limitations)
+				let intendedUsersList = createModelCardList (intendedUsers)
+				let intendedUSeCasesList = createModelCardList (intendedUSeCases)
+				let incorrectUSeCasesList = createModelCardList (incorrectUSeCases)
+				let tradeoffsList = createModelCardList (tradeoffs)
+				let risksList = createModelCardList (risks)
+				let biasesList = createModelCardList (biases)
+					
+					
+					document.getElementById ('modelConsiderations').innerHTML = `
+						<h3>CONSIDERATIONS</h3> 
+						<strong>Intended Users</strong><br>
+						${intendedUsersList}
+						
+						<strong>Use Cases</strong><br>
+						<p>${intendedUSeCasesList}</p>
+						
+						<strong>Limitations</strong><br>
+						<p>${limitationsList}</p>
+						
+					    <strong>Tradeoffs</strong><br>
+						<p>${tradeoffsList}</p>
+						
+						 <strong>EthicalConsiderations</strong><br>
+						${risksList}
+						${biasesList}
+						`
+
+						
+			//CREATE TRAINING DATASET VIEW
+						
+						
+				    let datasetLabel = "no data"
+				    let datasetComment = "no data"
+				    let characteristics = []
+					
+					
+					for (let i=0; i<details['training dataset'].length;i++) {
+						
+						datasetLabel = details['training dataset'][i]['datasetLabel']
+						datasetComment = details['training dataset'][i]['datasetComment']
+						
+						let characteristic = {}
+						characteristic['label'] = details['training dataset'][i]['characteristicsLabel']
+						console.log(characteristic['label'])
+						characteristic['comment'] = details['training dataset'][i]['characteristicsComment']
+						characteristic['image'] = details['training dataset'][i]['characteristicsImage']
+						characteristics.push(characteristic)
+						
+						/*
+						if (characteristics.includes(characteristic.toJSON())) {
+							characteristics.push(characteristic)
+						}*/
+					}
+				    
+				    let characteristicsHTML = ""
+				    	
+				    for (let i=0; i<characteristics.length;i++) {
+				    	characteristicsHTML += "<p>"
+				    	if (characteristics[i]['label']!=null) {
+				    		characteristicsHTML += "label: "+characteristics[i]['label']
+				    	}
+				    	
+				    	if (characteristics[i]['comment']!=null) {
+				    		characteristicsHTML += "comment: "+characteristics[i]['comment']
+				    	}
+				    	
+				    	if (characteristics[i]['image']!=null) {
+				    		characteristicsHTML += "<img src=\"data:image/png;base64, "+characteristics[i]['image'].replaceAll("\"","")+"\">"
+				    	}
+				    	
+				    	characteristicsHTML += "</p>"
+				    	}
+				
+						document.getElementById ('modelTraining').innerHTML = `
+							<h3>Training Dataset</h3> 
+							<strong>Dataset Name: </strong>${datasetLabel}<br>
+							<strong>Dataset Comment: </strong>${datasetComment}<br>
+							${characteristicsHTML}
+							`
+			
+			
+					//CREATE Eval DATASET VIEW
+							
+							
+						    let evalDatasetLabel = "no data"
+						    let evalDatasetComment = "no data"
+						    characteristics = []
+							
+							
+							for (let i=0; i<details['evaluation dataset'].length;i++) {
+								
+								evalDatasetLabel = details['evaluation dataset'][i]['datasetLabel']
+								evalDatasetComment = details['evaluation dataset'][i]['datasetComment']
+								
+								let characteristic = {}
+								characteristic['label'] = details['evaluation dataset'][i]['characteristicsLabel']
+								console.log(characteristic['label'])
+								characteristic['comment'] = details['evaluation dataset'][i]['characteristicsComment']
+								characteristic['image'] = details['evaluation dataset'][i]['characteristicsImage']
+								characteristics.push(characteristic)
+								
+								/*
+								if (characteristics.includes(characteristic.toJSON())) {
+									characteristics.push(characteristic)
+								}*/
+							}
+						    
+						    characteristicsHTML = ""
+						    	
+						    for (let i=0; i<characteristics.length;i++) {
+						    	characteristicsHTML += "<p>"
+						    	if (characteristics[i]['label']!=null) {
+						    		characteristicsHTML += "label: "+characteristics[i]['label']
+						    	}
+						    	
+						    	if (characteristics[i]['comment']!=null) {
+						    		characteristicsHTML += "comment: "+characteristics[i]['comment']
+						    	}
+						    	
+						    	if (characteristics[i]['image']!=null) {
+						    		characteristicsHTML += "<img src=\"data:image/png;base64, "+characteristics[i]['image'].replaceAll("\"","")+"\">"
+						    	}
+						    	
+						    	characteristicsHTML += "</p>"
+						    	}
+						
+								document.getElementById ('modelEvaluation').innerHTML = `
+									<h3>Evaluation Dataset</h3> 
+									<strong>Dataset Name: </strong>${evalDatasetLabel}<br>
+									<strong>Dataset Comment: </strong>${evalDatasetComment}<br>
+									${characteristicsHTML}
+									`
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			});
+	
+	function createModelCardList (inputarray) {
+		let result = "<ul>";
+		for (let i=0; i<inputarray.length;i++) {
+			result += "<li>"+inputarray[i]+"</li>"
+		}
+		result += "</ul>";
+		return result;
+	}
+}
+
+
+
 //getAgentsParticipationDetailsInExecutionTraces?systemIRI='+ systemIRI&agentIRI='+agentsIRI[i]+

@@ -544,7 +544,7 @@ agents.then(
 
 function replaceRainsPrefix (string) {
 	
-	return (string.replace(rainsPlanPrefix, "rains:").replace(mlsPrefix, "mls:").replace(saoPrefix, "sao:").replace("http://example.com", "ex:").replace("https://en.wikipedia.org/wiki/", "wiki:"))
+	return (string.replace(rainsPlanPrefix, "rains:").replace(mlsPrefix, "mls:").replace(saoPrefix, "sao:").replace("http://example.com", "ex:").replace("https://en.wikipedia.org/wiki/", "wiki:").replace("http://purl.org/dc/terms/", "purl:"))
 }
 /*
 function getAgentsParticipationDetailsInExecutionTraces (systemIRI,agentIRI) {
@@ -1479,8 +1479,7 @@ function getModelCard (systemIRI) {
 				 <strong>References</strong><br>
 				${referencesList}
 				
-				 <strong>Citation</strong><br>
-				<p>${citation}</p>
+				
 				
 				 <strong>Model Architecture</strong><br>
 				<p>${algorithm}</p>

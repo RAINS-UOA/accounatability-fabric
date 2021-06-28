@@ -177,7 +177,7 @@ margin-bottom:15px;
 
 .smallTraceWidgetCommentBox {
 	margin:15px;
-	
+	z-index:1000;
 	position:absolute;
 	margin-top:-15px;	
 }
@@ -291,7 +291,7 @@ border-radius: 25px;
   background: #93e9be;
 margin:5px;
 display: inline-block;
-
+margin-top:15px;
 vertical-align: middle;
 padding:10px;
 

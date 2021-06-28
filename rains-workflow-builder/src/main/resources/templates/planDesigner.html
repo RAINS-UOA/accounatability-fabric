@@ -178,7 +178,7 @@ div.scroll {
             </nav>
 
     
-<div class="jumbotron">
+ <div hidden class="jumbotron">
 <div th:if="${#httpServletRequest.getParameter('systemIri')}">
 <h3>Designing workflow plan for system <span  th:text="${#httpServletRequest.getParameter('systemIri')}"></span></h3>
 </div>
@@ -209,7 +209,7 @@ div.scroll {
   
 <div class="container-fluid">
   <div class="row">
-    <div class="col-sm-2 " id="contentSteps">
+    <div class="col-sm-3 " id="contentSteps">
       <h3>Steps Library</h3>
         <div class="loader" id="loaderSteps" ></div>
       <div class="panel panel-default">
@@ -230,7 +230,7 @@ div.scroll {
          <div th:if="${#httpServletRequest.getParameter('stage') == 'implementation'}">
        
        
-      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Implementation </button>
+    <!--   <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Implementation </button>-->
       <script>
       getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
       </script>
@@ -259,7 +259,7 @@ div.scroll {
        
       </div>
         </div>
-    <div class="col-sm-7">
+    <div class="col-sm-6">
     <h3>Workflow Steps</h3>
     <div id="svgContainer"></div>
     
@@ -430,7 +430,7 @@ function getAllowedVariablesForSelectedStep (mode) {
     selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
     for (let i=0;i<data.length;i++) {
     	if (data[i].includes(rainsPlanPrefix)) {
-    	selectOption.innerHTML += ' <option value="'+data[i]+'">'+data[i]+'</option>' ;
+    	selectOption.innerHTML += ' <option value="'+data[i]+'">'+removeRainsURIPart(fromCamelCase(data[i]," "))+'</option>' ;
     	}
 	}
     
@@ -439,6 +439,8 @@ function getAllowedVariablesForSelectedStep (mode) {
   .catch(function (error) {
     console.log('Request failed', error);
   });
+	
+	
 	
  //getAccountable objects using accountableObjects.js
  
@@ -455,6 +457,19 @@ function getAllowedVariablesForSelectedStep (mode) {
 			}
 			);
 }
+
+//temporary 
+function removeRainsURIPart (inputString) {
+	
+	inputString = inputString.replaceAll(rainsPlanPrefix,"")
+	
+	return inputString
+}
+
+const fromCamelCase = (str, separator = ' ') =>
+  str
+    .replace(/([a-z\d])([A-Z])/g, '$1' + separator + '$2')
+    .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1' + separator + '$2')
 
 function createOptionsAccountableObjects (accountableObjects, parentkey ) {
 	html = "";
@@ -506,14 +521,22 @@ function displayCurrentPlanVariables (elementId,variableMode) {
 		for (let i=0;i<availableVariables.length;i++) {
 			document.getElementById (elementId).innerHTML += `<div class="form-check" >
                 <input type="checkbox" class="form-check-input" id="${availableVariables[i]['@id']}">
-                <label class="form-check-label" for="random" data-toggle="tooltip" data-placement="top" title="${availableVariables[i]['comment']}"> ${availableVariables[i]['label']} (${availableVariables[i]['@type']}) </label>
+                <label class="form-check-label" for="random" data-toggle="tooltip" data-placement="top" title="${availableVariables[i]['comment']}"> ${availableVariables[i]['label']} (${findRainsVariable(availableVariables[i]['@type'])}) </label>
            </div>`;
 		}
-		
-		//document.getElementById(elementId).innerHTML = "list teh variables to do ";
-		
+		//document.getElementById(elementId).innerHTML = "list teh variables to do ";		
 	}
 }
+
+ const findRainsVariable = (types) => {
+	 let variableType = ''
+	 for (let i =0;i<types.length;i++ ) {
+		 if (types[i].includes(rainsPlanPrefix)) {
+			 variableType = types[i];
+		 }
+	 }
+	 return removeRainsURIPart(fromCamelCase(variableType," "))
+ }
 
 function listVaribalesAvailableToStep (stepId,variableMode) {
 // to do

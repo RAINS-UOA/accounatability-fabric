@@ -73,8 +73,8 @@ var dcPrefix = "http://purl.org/dc/terms/";
 var inspectorTemplate =`
 <div class="container-fluid">
   <div class="form-group">
-    <label for="StepID">ID</label>
-    <input type="text" readonly class="form-control" id="StepID" >
+    <label hidden for="StepID">ID</label>
+    <input hidden type="text" readonly class="form-control" id="StepID" > 
   </div>
     <div class="form-group">
     <label for="StepLabel">Step Label</label>
@@ -82,6 +82,7 @@ var inspectorTemplate =`
   </div>
     <div class="row">
     <label for="StepTypes">Types</label>
+    
     <div id="StepTypes" class = "row"> </div>
    </div>
      <hr>
@@ -165,7 +166,9 @@ let stepTypes = document.getElementById ("StepTypes");
 stepTypes.innerHTML =  "";
 
 for (let i=0;i<element['@type'].length;i++) {
+	if ( replaceForNameSpace (element['@type'][i]).includes("rains")) {
 stepTypes.appendChild (createStepTypeWidget ( replaceForNameSpace (element['@type'][i]) , false));
+	}
 }
 
 let inputs = document.getElementById ("StepInputs");

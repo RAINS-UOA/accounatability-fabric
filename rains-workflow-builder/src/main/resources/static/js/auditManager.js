@@ -1679,8 +1679,94 @@ function getModelCard (systemIRI) {
 									${characteristicsHTML}
 									`
 			
-			
-			
+			//create model EVAL results view
+									
+									
+								    let evalResultsCollLabel = "no data"
+								    let evalResultsCollComment = "no data"
+								    let results = []
+									
+									
+									for (let i=0; i<details['evaluation results'].length;i++) {
+										
+										evalResultsCollLabel = details['evaluation results'][i]['resultsLabel']
+										evalResultsCollComment = details['evaluation results'][i]['resultsComment']
+										
+										let result = {}
+										result['label'] = details['evaluation results'][i]['evalResultLabel']
+										result['comment'] = details['evaluation results'][i]['evalResultComment']
+										result['image'] = details['evaluation results'][i]['evalResultImage']
+										result['evalMeasureLabel'] = details['evaluation results'][i]['evalMeasureLabel']
+										result['evalMeasureComment'] = details['evaluation results'][i]['evalMeasureComment']
+										result['evalResultValue'] = details['evaluation results'][i]['evalResultValue']
+										result['evalResultSlice'] = details['evaluation results'][i]['evalResultSlice']
+										result['evalResultDecisionThreshold'] = details['evaluation results'][i]['evalResultDecisionThreshold']
+										result['evalResultUpperBound'] = details['evaluation results'][i]['evalResultUpperBound']
+										result['evalResultLowerBound'] = details['evaluation results'][i]['evalResultLowerBound']
+										
+										
+										results.push(result)
+										
+										/*
+										if (characteristics.includes(characteristic.toJSON())) {
+											characteristics.push(characteristic)
+										}*/
+									}
+								    
+								    let resultsHTML = ""
+								    	
+								    for (let i=0; i<results.length;i++) {
+								    	resultsHTML += "<p>"
+								    	if (results[i]['label']!=null) {
+								    		resultsHTML += "label: "+results[i]['label']
+								    	}
+								    	
+								    	if (results[i]['comment']!=null) {
+								    		resultsHTML += "comment: "+results[i]['comment']
+								    	}
+								    	
+								    	if (results[i]['evalMeasureLabel']!=null) {
+								    		resultsHTML += "<strong>Evaluation Measure</strong>: "+results[i]['evalMeasureLabel'] +"<br>"
+								    	}
+								    	
+								    	if (results[i]['evalMeasureComment']!=null) {
+								    		resultsHTML += "<strong>Evaluation Measure Comment:</strong> "+results[i]['evalMeasureComment']
+								    	}
+								    	
+								    	
+								    	if (results[i]['evalResultSlice']!=null) {
+								    		resultsHTML += "<strong>Computed On Slice:</strong> "+results[i]['evalResultSlice']+"<br>"
+								    	}
+								    	
+								    	if (results[i]['evalResultDecisionThreshold']!=null) {
+								    		resultsHTML += "<strong>Computed With Decision Threshold:</strong> "+results[i]['evalResultDecisionThreshold']+"<br>"
+								    	}
+								    	
+								    	if (results[i]['evalResultUpperBound']!=null) {
+								    		resultsHTML += "<strong>Has Upper Bound:</strong> "+results[i]['evalResultUpperBound']+"<br>"
+								    	}
+								    	
+								    	if (results[i]['evalResultLowerBound']!=null) {
+								    		resultsHTML += "<strong>Has Lower Bound:</strong> "+results[i]['evalResultLowerBound']+"<br>"
+								    	}
+								    	
+								    	if (results[i]['image']!=null) {
+								    		resultsHTML += "<img src=\"data:image/png;base64, "+results[i]['image'].replaceAll("\"","")+"\">"
+								    	}
+								    	
+								    	if (results[i]['evalResultValue']!=null) {
+								    		resultsHTML += "<strong>Result Value:</strong> "+results[i]['evalResultValue']+"<br>"
+								    	}
+								    	
+								    	resultsHTML += "</p>"
+								    	}
+								
+										document.getElementById ('modelEvalResults').innerHTML = `
+											<h3>Evaluation Results</h3> 
+											<strong>Results Collection Name: </strong>${evalResultsCollLabel}<br>
+											<strong>Results Collection Comment: </strong>${evalResultsCollComment}<br>
+											${resultsHTML}
+											`
 			
 			
 			

@@ -1554,6 +1554,34 @@ String queryString = Constants.PREFIXES + "Select Distinct ?version ?versionDate
 	    	    	    			   }
 	    	    	    	    
 	    	    	    	    list.put("evaluation dataset", resultSet);
+	    	    	    	    
+	    	    	    	  //GET RESULTS FOR THE Evaluation Results
+	    	    	    	    resultSet = new ArrayList <HashMap> ();
+	    	    	    	    queryString = Constants.PREFIXES + "Select Distinct ?evalCollection ?evalResultLabel ?evalResultComment ?evalResultValue ?evalResultImage ?evalResultSlice ?evalResultDecisionThreshold ?evalResultUpperBound ?evalResultLowerBound ?evalMeasureLabel ?evalMeasureComment "+fromPart+" WHERE {?evalCollection ep-plan:correspondsToVariable ?evalVar.?evalVar a rains:Evaluation. ?evalResult prov:wasMemberOf ?evalCollection; a mls:ModelEvaluation. OPTIONAL {?evalResult rdfs:label ?evalResultLabel} OPTIONAL {?evalResult rdfs:comment ?evalResultComment} OPTIONAL {?evalResult rains:hasResultValue ?evalResultValue} OPTIONAL {?evalResult rains:hasResultLowerBound ?evalResultLowerBound} OPTIONAL {?evalResult rains:hasResultUpperBound ?evalResultUpperBound} OPTIONAL {?evalResult rains:hasBase64Image ?evalResultImage} OPTIONAL {?evalResult rains:computedOnSlice ?evalResultSlice} OPTIONAL {?evalResult rains:computedOnDecisionThreshold ?evalResultDecisionThreshold} OPTIONAL {?evalResult rains:isEvaluationResultOf ?evalMeasure OPTIONAL {?evalMeasure rdfs:label ?evalMeasureLabel} OPTIONAL {?evalMeasure rdfs:comment ?evalMeasureComment} } }";
+	    	    	    	    System.out.println(queryString);
+	    	    	    	    		 tupleQuery = conn.prepareTupleQuery(queryString);
+	    	    	    	    			   try (TupleQueryResult result = tupleQuery.evaluate()) {
+	    	    	    	    				   while (result.hasNext()) {  // iterate over the result
+	    	    	    	    				    	HashMap <String,String> row = new HashMap <String,String>(); 
+	    	    	    	    				        
+	    	    	    	    				    	
+	    	    	    	    				    	
+	    	    	    	    				    	BindingSet bindingSet = result.next();	
+	    	    	    	    				    	
+	    	    	    	    				    	Set <String> bindings = bindingSet.getBindingNames();  
+	    	    	    	    				    	
+	    	    	    	    				    	Iterator it2 = bindings.iterator();
+	    	    	    	    				    	while (it2.hasNext()) {
+	    	    	    	    				    		String key = (String) it2.next();
+	    	    	    	    				    		if (bindingSet.getValue(key)!=null)
+	    	    	    	    				    		row.put(key, bindingSet.getValue(key).toString()) ;
+	    	    	    	    				    	}
+	    	    	    	    				       
+	    	    	    	    				         resultSet.add(row);
+	    	    	    	    				      }	   
+	    	    	    	    			   }
+	    	    	    	    	    
+	    	    	    	    	    list.put("evaluation results", resultSet);
 	    
 	    
 	    return list;

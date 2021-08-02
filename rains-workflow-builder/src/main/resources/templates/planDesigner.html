@@ -350,34 +350,34 @@ div.scroll {
          <div class="card">
           <div id="newVariableForm" class="collapse collapsed" aria-labelledby="headingOne" data-parent="#currentPlanNewVariablesList">
       <div class="card-body">
-       
+       <div class="alert alert-danger" id="createVariableAddButtonCheck" style="display:none;"> Please complete all the required fields </div>
        <div class="input-group mb-3">
        <div class="input-group-prepend">
-         <span class="input-group-text" >Label</span>
+         <span class="input-group-text"  >Label *</span>
          </div>
-       <input type="text" class="form-control" id="newVariableLabel" placeholder="Default Label" aria-label="label" aria-describedby="newVariableLabel">
+       <input  type="text" class="form-control" id="newVariableLabel" placeholder="Default Label" aria-label="label" aria-describedby="newVariableLabel">
       </div>
       <div class="input-group mb-3">
        <div class="input-group-prepend">
-         <span class="input-group-text">Description</span>
+         <span class="input-group-text" >Description *</span>
          </div>
-       <input type="text" class="form-control" id="newVariableDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
+       <input  type="text" class="form-control" id="newVariableDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
       </div>
        <div class="input-group mb-3">
   <div class="input-group-prepend">
-    <label class="input-group-text" for="newVariableType">Variable Type</label>
+    <label class="input-group-text" for="newVariableType" >Variable Type *</label>
   </div>
-  <select class="custom-select" id="newVariableType"></select>
+  <select  class="custom-select" id="newVariableType"></select>
    
 </div>
        <div class="input-group mb-3">
        <div class="input-group-prepend">
-    <label class="input-group-text" for="accountableObjectRel">Relates To Accountable Object</label>
+    <label class="input-group-text" for="accountableObjectRel">Relates To Accountable Object *</label>
   </div>
-  <select class="custom-select" id="accountableObjectRel"></select>
+  <select required class="custom-select" id="accountableObjectRel"></select>
        </div>
- <button type="button" class="close" style="margin-left:10px" data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariableDismissButton">Dismiss</button>
-       <button type="button" class="close"  data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariableAddButton">Add</button>
+ <button type="button" class="close" style="margin-left:10px"  aria-expanded="true" aria-controls="newVariableForm" id="createVariableDismissButton">Dismiss</button>
+       <button type="button" class="close"   aria-expanded="true" aria-controls="newVariableForm" id="createVariableAddButton">Add</button>
       </div>
     </div>
          <div class="form-check">
@@ -821,34 +821,48 @@ $('#createVariable').hide();
 
 $('#createVariableDismissButton').click(
 function () {
+$('#newVariableForm').collapse('hide')	
+$('#createVariableAddButtonCheck').hide()
 $('#createVariable').show();
 }
 );
 
+
+
 $('#createVariableAddButton').click(
-function () {
-$('#createVariable').show();
-let type = $('#newVariableType').val();
-let label = $('#newVariableLabel').val();
-let description = $('#newVariableDescription').val();
-let accountableObjectRel = $('#accountableObjectRel').val();
-$('#accountableObjectRel').val("");
-$('#newVariableType').val("");
-$('#newVariableLabel').val("");
-$('#newVariableDescription').val("");
-let id = temporaryVarArray.length;
-console.log("Selected Step");
-console.log(selectedStep['@type']);
-document.getElementById ("currentPlanNewVariablesList").innerHTML += `<div class="form-check" >
+function (event) {
+	
+	if (($('#accountableObjectRel').val() == null)||($('#newVariableType').val() == null) ||($('#newVariableDescription').val() == "")||($('#newVariableLabel').val() == ""))      {
+		 $('#createVariableAddButtonCheck').show()
+		 console.log("validation check failed")
+	}
+	else {
+		$('#createVariableAddButtonCheck').hide()
+		$('#newVariableForm').collapse('hide')
+		$('#createVariable').show();
+		let type = $('#newVariableType').val();
+		let label = $('#newVariableLabel').val();
+		let description = $('#newVariableDescription').val();
+		let accountableObjectRel = $('#accountableObjectRel').val();
+		$('#accountableObjectRel').val("");
+		$('#newVariableType').val("");
+		$('#newVariableLabel').val("");
+		$('#newVariableDescription').val("");
+		let id = temporaryVarArray.length;
+		console.log("Selected Step");
+		console.log(selectedStep['@type']);
+		document.getElementById ("currentPlanNewVariablesList").innerHTML += `<div class="form-check" >
                  <input checked type="checkbox" class="form-check-input" id="${id}">
                  <label class="form-check-label" for="random" data-toggle="tooltip" data-placement="top" title="${description}"> ${label} (${type}) </label>
             </div>`;
+            
             temporaryVarArray.push({id:id, label:label, type:type, description:description, accountableObjectRel:accountableObjectRel});
-$('body').tooltip({
-	 selector: '[data-toggle="tooltip"]'
-});
-}
-);
+			
+            $('body').tooltip({
+	 			selector: '[data-toggle="tooltip"]'
+			});
+	}
+	});
 
 $('#addSelectedVarsBtn').click(
 		function () {

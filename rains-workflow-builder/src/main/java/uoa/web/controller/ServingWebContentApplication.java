@@ -1,5 +1,8 @@
 package uoa.web.controller;
 
+import java.io.IOException;
+
+import org.apache.http.client.ClientProtocolException;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,7 +17,7 @@ import uoa.web.storage.FileUploadStorageService;
 @EnableConfigurationProperties(FileUploadStorageProperties.class)
 public class ServingWebContentApplication {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClientProtocolException, IOException {
         SpringApplication.run(ServingWebContentApplication.class, args);
         CheckAndSetUpGraphDB.checkRepositorySetUp();
     }

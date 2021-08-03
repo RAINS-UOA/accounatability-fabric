@@ -366,6 +366,10 @@ ep-plan:Agent rdf:type owl:Class ;
         rdfs:subClassOf sao:AccountableAction ,
                         [ rdf:type owl:Restriction ;
                           owl:onProperty ep-plan:hasOutputVariable ;
+                          owl:allValuesFrom :HumanDecision
+                        ] ,
+                        [ rdf:type owl:Restriction ;
+                          owl:onProperty ep-plan:hasOutputVariable ;
                           owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                           owl:onClass :HumanDecision
                         ] ;

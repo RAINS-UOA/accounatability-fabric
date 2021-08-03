@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
@@ -41,7 +42,10 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.gson.Gson;
+
+import uoa.init.graphdb.ConnectionFactory;
 import uoa.init.graphdb.Constants;
+import uoa.init.graphdb.GraphDBUtils;
 import uoa.model.components.NewSystemForm;
 import uoa.model.components.SystemDetails;
 import uoa.semantic.system.EpPlanOntologyComponents;
@@ -69,6 +73,8 @@ public class SystemRecordManager {
 	
 	public SystemRecordManager (ObjectPool <RepositoryConnection> connectionPool) throws NoSuchElementException, IllegalStateException, Exception {
 	
+		ugglyConnectionFix ();
+		
 	this.conn = connectionPool.borrowObject();
 	this.repository = conn.getRepository();
 	this.f = repository.getValueFactory();
@@ -98,7 +104,16 @@ public class SystemRecordManager {
 		return map;
 	}
 	
-	
+	private void ugglyConnectionFix () {
+		/*ugly fix 
+		There seems to be be a problem with connection when submitting larger plans after a period of time. The problem goes away is service is restarted. 
+		No time to fix properly so we will just reset teh connection pool before the plan gets saved*/
+		System.out.println ("Reseting connection to GraphDB");
+		repository = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager());
+		connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
+		System.out.println ("Reseting connection to GraphDB - done");
+		
+	}
 	
 	public void shutdown () throws Exception  {	
 		connectionPool.returnObject(conn);
@@ -774,8 +789,8 @@ public ArrayList <String> getAllowedVariableTypesForStepType(String stepTypeIRI,
 	// TODO Auto-generated method stub
 	ArrayList <String> allowedTypes = new ArrayList <String> ();
 	
-String queryString = Constants.PREFIXES + "SELECT ?allowedPropertyRange From <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> WHERE { ?subject rdfs:subClassOf ?restriction. ?restriction owl:onProperty ?property. { ?restriction owl:allValuesFrom ?allowedPropertyRange ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first ?allowedPropertyRange.} FILTER (!isBlank(?allowedPropertyRange)) }order  by asc(?allowedPropertyRange) Values (?subject ?property ) {(<"+stepTypeIRI+"> <"+restrictionPropertyIRI+">) } ";
-	
+String queryString = Constants.PREFIXES + "SELECT Distinct ?allowedPropertyRange From <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> WHERE { ?subject rdfs:subClassOf ?restriction. ?restriction owl:onProperty ?property. { ?restriction owl:allValuesFrom ?allowedPropertyRange ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first ?allowedPropertyRange.} FILTER (!isBlank(?allowedPropertyRange)) }order  by asc(?allowedPropertyRange) Values (?subject ?property ) {(<"+stepTypeIRI+"> <"+restrictionPropertyIRI+">) } ";
+	System.out.println ("Allowed types query" + queryString);
 	TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 		   try (TupleQueryResult result = tupleQuery.evaluate()) {
 			      while (result.hasNext()) {  // iterate over the result

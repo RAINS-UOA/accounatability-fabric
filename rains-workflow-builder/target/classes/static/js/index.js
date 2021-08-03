@@ -321,7 +321,8 @@ function createInputVariableWidget ( input , canDelete) {
 	let widget = document.createElement('div');
 	widget.className = 'inputVariableWidget';
 	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${input['@type']} <br> <strong>Description</strong>: ${input['comment']}"> ${input['label']} </label>`;
-
+	//add the remove button
+	variableCloseButtonElement (widget, input);
 	return widget;
 
 	}
@@ -333,7 +334,7 @@ function createOutputVariableWidget ( output , canDelete) {
 	widget.className = 'outputVariableWidget';
 	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${output['@type']} <br> <strong>Description</strong>:${output['comment']}"> ${output['label']} </label>`;
 
-
+	variableCloseButtonElement (widget, output);
 	return widget;
 
 	}
@@ -354,7 +355,8 @@ function createConstraintWidget ( constraint , canDelete) {
 	
 	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${constraint['@type']} <br> <strong>Description</strong>:${constraint['comment']}"> ${constraint['label']} </label>`;
 
-
+	constraintCloseButtonElement(widget, constraint);
+	
 	return widget;
 
 	}
@@ -675,6 +677,9 @@ function createNewVariable (label, description, type, rowId, mode, accountableOb
 	}
 	
 	
+	
+	
+	
 	variablesArray.push(variable);
 
 	
@@ -819,6 +824,63 @@ function addLabel (element, className, data, target) {
 	
 }
 
+
+function constraintCloseButtonElement (widget,constraint) {
+	
+	let more = document.createElement("button");
+
+	more.className= "more close";
+	more.innerHTML = '<span aria-hidden="true">&times;</span>';
+	// let more_text = document.createTextNode("X");
+
+
+	more.addEventListener("click", function(event) {
+	event.stopPropagation();
+	
+	widget.remove();
+//remove also from cached steps array
+	
+	constraintsArray = constraintsArray.filter(function(el) { return el['@id'] != constraint ['@id']; });
+	
+
+	});	
+	widget.appendChild(more);	
+}
+
+
+function variableCloseButtonElement (widget,variable) {
+	
+	let more = document.createElement("button");
+
+	more.className= "more close";
+	more.innerHTML = '<span aria-hidden="true">&times;</span>';
+	// let more_text = document.createTextNode("X");
+
+
+	more.addEventListener("click", function(event) {
+	event.stopPropagation();
+	
+	widget.remove();
+//remove also from cached steps array
+
+	variablesArray = variablesArray.filter(function(el) { return el['@id'] != variable ['@id']; });
+	
+	for (let i = 0; i< stepsArray.length; i++ ) {
+		stepsArray[i]['hasInputVariable'] = stepsArray[i]['hasInputVariable'].filter(function(el) { return el != variable ['@id']; });
+		stepsArray[i]['hasOutputVariable'] = stepsArray[i]['hasOutputVariable'].filter(function(el) { return el != variable ['@id']; })
+	}
+	console.log("Variable Array After")
+	console.log(variablesArray)
+	console.log("Step Array After")
+	console.log(stepsArray)
+	//stepsArray = stepsArray.filter(function(el) { return el['@id'] != step ['@id']; });
+
+	// $('#stepModal').modal('toggle');
+	});	
+	widget.appendChild(more);	
+}
+
+
 function stepCloseButtonElement (step) {
 	
 	let more = document.createElement("button");
@@ -835,11 +897,8 @@ function stepCloseButtonElement (step) {
 	stepsArray = stepsArray.filter(function(el) { return el['@id'] != step ['@id']; });
 	resetInspector ();
 	// $('#stepModal').modal('toggle');
-	});
-
-	
-	step.appendChild(more);
-	
+	});	
+	step.appendChild(more);	
 }
 
 /**

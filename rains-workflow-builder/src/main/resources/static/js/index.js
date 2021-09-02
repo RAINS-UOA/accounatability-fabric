@@ -908,14 +908,17 @@ function stepCloseButtonElement (step) {
  */
 
 function createStepRow (element) {
-
+    let wrapperRow = document.createElement("div");
+    wrapperRow.className= "row";
+	
 	let r = document.createElement("div");
 	r.id = "step_row_"+stepRowCounter;
-	r.className= "row steprow";
+	r.className= "col-sm-10 steprow";
+	
 	let h = document.createElement("div");
 	let text = document.createTextNode("drop here to create new step for this row");
 	h.appendChild (text);
-	h.className= "steps dz-message d-flex flex-column dropzone";
+	h.className= "col-sm-2 steps dz-message d-flex flex-column dropzone";
 	h.addEventListener("dragover", function(event) {
 										event.preventDefault();
 									});
@@ -936,9 +939,11 @@ function createStepRow (element) {
 		r.style.backgroundColor = "#f5f5f5";
 	}
 
-	r.appendChild (h);
+	wrapperRow.appendChild (h);
+	wrapperRow.appendChild (r);
+	
 	stepRowCounter++;
-	element.appendChild (r);
+	element.appendChild (wrapperRow);
 }
 
 

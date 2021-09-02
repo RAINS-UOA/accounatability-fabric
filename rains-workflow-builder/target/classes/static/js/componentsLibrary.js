@@ -43,8 +43,6 @@ function getVariableComponents (targetElementId, emptystepLibraryMessage) {
 	    				
 	    				return data.json();
 	    			}).then(steps => {
-	    			 
-	    			  console.log(steps);
 	    			  
 	    			  let stepArray = steps[context.Step];
 	    				
@@ -62,14 +60,10 @@ function getVariableComponents (targetElementId, emptystepLibraryMessage) {
 	    			  else {
 	    			  document.getElementById(emptystepLibraryMessage).innerHTML ="";
 	    			  document.getElementById(targetElementId).innerHTML = html;
-	    			  console.log(htmlSteps);
-	    			  let toggler = document.getElementsByClassName("caret");
-	    			  for (let i = 0; i < toggler.length; i++) {
-	    				   toggler[i].addEventListener("click", function() {
-	    				     this.parentElement.querySelector(".nested").classList.toggle("active");
-	    				     this.classList.toggle("caret-down");
-	    				   });
-	    				 }
+	    			  
+	    			  //this needs to be redone because at the moment this needs to be called only once after all html elements for steps and variables have been created - need to come back to this
+	    			  //activateToggling ();
+	    			 
 	    			  }
 	    			  hideSpinnerComponents ('loaderVariables', 'contentVariables');
 	    			}
@@ -82,6 +76,15 @@ function getVariableComponents (targetElementId, emptystepLibraryMessage) {
 		
 }
 
+function activateToggling () {
+	 let toggler = document.getElementsByClassName("caret");
+	  for (let i = 0; i < toggler.length; i++) {
+		   toggler[i].addEventListener("click", function() {
+		     this.parentElement.querySelector(".nested").classList.toggle("active");
+		     this.classList.toggle("caret-down");
+		   });
+		 }
+}
 
 function getStepComponents (targetElementId, emptystepLibraryMessage, draggable, dragEvent,rootStep) {
 	 setSpinnerComponents ('loaderSteps', 'contentSteps');
@@ -122,7 +125,10 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 	    			  else {
 	    			  document.getElementById(emptystepLibraryMessage).innerHTML ="";
 	    			  document.getElementById(targetElementId).innerHTML = htmlSteps;
+	    			  
+	    			  activateToggling ();
 	    			  //console.log(htmlSteps);
+	    			  /*
 	    			  let toggler = document.getElementsByClassName("caret");
 	    			  for (let i = 0; i < toggler.length; i++) {
 	    				   toggler[i].addEventListener("click", function() {
@@ -130,6 +136,7 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 	    				     this.classList.toggle("caret-down");
 	    				   });
 	    				 }
+	    			  */
 	    			  }
 	    			  hideSpinnerComponents ('loaderSteps', 'contentSteps');
 	    			}

@@ -87,7 +87,7 @@ function loadAccountableObjectsInDiv () {
 			(data) => {console.log("fetch accountable objects result");	console.log(data);
 			
 			//addAccountableObjectTo is in index.html - you need to genrate HTML differently here if you want to add the function definition in this file..
-			document.getElementById("MainAddObjectLink").innerHTML = '<li class="typeWidget"> <div class="col-md-12"><a href="#" data-toggle="modal" data-target="#accountableObjectModal" onclick="addAccountableObjectTo(\''+btoa(document.getElementById("systemIRI").value)+'\')"> Add Object</a> </div></li>';
+			document.getElementById("MainAddObjectLink").innerHTML = '<li > <div class="col-md-12"><a href="#" data-toggle="modal" data-target="#accountableObjectModal" onclick="addAccountableObjectTo(\''+btoa(document.getElementById("systemIRI").value)+'\')"> Add Object</a> </div></li>';
 
 			document.getElementById("AccountableObjects").innerHTML = constructAccountableObjects (data,  document.getElementById("systemIRI").value) ;
 			 let toggler = document.getElementsByClassName("caret");
@@ -126,7 +126,7 @@ function constructAccountableObjects (accountableObjects,  parentIR) {
 			 
 		 //addAccountableObjectTo is defined in index.html - if you need it here then you need to change ho wthe link is created (e.g. add id) and attach listener 
 			
-		 html = html + '<li  ><span id='+key+'  class="caret container typeWidget"   >'+  value+'</span>  <ul class="nested container"> <li class="typeWidget"> <a href="#" data-toggle="modal" data-target="#accountableObjectModal" onclick="addAccountableObjectTo(\''+btoa(key)+'\')" > Add Object</a> </li> '+nestedElement+' </ul></li>';
+		 html = html + '<li  ><span id='+key+'  class="caret container "   >'+  value+'</span>  <ul class="nested container"> <li > <a href="#" data-toggle="modal" data-target="#accountableObjectModal" onclick="addAccountableObjectTo(\''+btoa(key)+'\')" > Add Object</a> </li> '+nestedElement+' </ul></li>';
 
 	  }
 	}

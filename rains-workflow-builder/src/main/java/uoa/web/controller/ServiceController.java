@@ -89,6 +89,8 @@ public class ServiceController {
 
 		return "uploadForm";
 	}
+	
+	
 
 	@GetMapping("/files/{filename:.+}")
 	@ResponseBody
@@ -121,6 +123,35 @@ public class ServiceController {
 		}
 		return response;
 	}
+	
+	
+	@PostMapping("/uploadTrace")
+	@ResponseBody
+	public String handleTraceUpload(@RequestParam("file") MultipartFile file, @RequestParam("executionTraceBundleIRI") String executionTraceBundleIRI,
+			RedirectAttributes redirectAttributes) throws NoSuchElementException, IllegalStateException, Exception {
+        String response = "";     
+		if (file.isEmpty() ) {
+			response = "you didn.t provide a file";
+             }
+		else {
+		  //  storageService.store(file);
+		    SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		    System.out.println("Received file");
+		    System.out.println( executionTraceBundleIRI);
+		    manager.saveUploadedTraceToGraph (file, executionTraceBundleIRI);
+		    manager.shutdown();
+		 
+		
+		redirectAttributes.addFlashAttribute("message",
+				"You successfully uploaded " + file.getOriginalFilename() + "!");
+		
+		response = "File received";
+		}
+		return response;
+	}
+
+	
+	
 
 	@ExceptionHandler(FileUploadStorageFileNotFoundException.class)
 	public ResponseEntity<?> handleStorageFileNotFound(FileUploadStorageFileNotFoundException exc) {

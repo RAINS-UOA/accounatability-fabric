@@ -21,7 +21,7 @@
  
 
      <div class="row"> 
-  <div class="col-md-6"> 
+  <div class="col-md-8"> 
    <h5> System Details </h5>
  
    <div class="input-group mb-3 ">
@@ -44,13 +44,13 @@
    <div class="input-group-prepend">
     <span class="input-group-text">Comment</span>
   </div>
-   <textarea class="form-control" readonly th:text = "${systemDetails.getDescription()}" ></textarea>
+   <textarea class="form-control" style="height:170px;" readonly th:text = "${systemDetails.getDescription()}" ></textarea>
    </div>
   </div>
-   <div class="col-md-6"> 
-    <h5>Accountable Objects' Hierarchy Inputs (<i class="fas fa-info" data-toggle="tooltip" title="    Accountable objects can be used to organise elements of accountability plans into logical groupings/themes (e.g., individual system parts, sub-systems, etc.) that can be then used to navigate the accountability knowledge graph. Users are free to create a hierarchy that suits their domain. "></i>)</h5>
-<div  style="overflow: scroll;;height:250px">
-   <span class="caret container typeWidget" th:text = "${systemDetails.getLabel()}"> </span> <ul class="nested container">
+   <div class="col-md-4"> 
+    <h5>Accountable Objects' Hierarchy (<i class="fas fa-info" data-toggle="tooltip" title="    Accountable objects can be used to organise elements of accountability plans into logical groupings/themes (e.g., individual system parts, sub-systems, etc.) that can be then used to navigate the accountability knowledge graph. Users are free to create a hierarchy that suits their domain. "></i>)</h5>
+<div  style="overflow: scroll;height:250px; border:1px solid;">
+   <span class="caret container " th:text = "${systemDetails.getLabel()}"> </span> <ul class="nested container">
    <div id="MainAddObjectLink"></div>
    <div id="AccountableObjects"> </div>  
    </ul> 
@@ -187,7 +187,7 @@ getplans.then(
 		break; 
 		
 		case context.ImplementationStageAccountabilityPlan:
-			document.getElementById("implementation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=implementation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br> <! -- <a href="workflowBuilder?mode=open&stage=implementation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a> --></div>';
+			document.getElementById("implementation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=implementation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br> <!-- <a href="workflowBuilder?mode=open&stage=implementation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a> --></div>';
 			delete buttonsToCreate[1]; 
 		break; 
 		/*	

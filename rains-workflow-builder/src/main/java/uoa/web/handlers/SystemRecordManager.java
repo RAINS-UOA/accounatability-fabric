@@ -15,6 +15,8 @@ import java.util.UUID;
 
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.lucene.queries.function.valuesource.MultiFunction.Values;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
@@ -1586,6 +1588,77 @@ String queryString = Constants.PREFIXES + "Select Distinct ?version ?versionDate
 	    
 	    return list;
 	
+}
+
+public void saveUploadedTraceToGraph(MultipartFile file, String executionTraceBundleIRI) {
+	
+	Model model = null;
+	try {
+		  // rdfParser.parse(inputStream	, null);
+		   
+		    RDFParser parser = Rio.createParser(RDFFormat.JSONLD);
+		    parser.set(JSONSettings.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,true);
+		    //parser.parse(new StringReader(jsonld_dummy), null);
+		   
+		    model = Rio.parse(file.getInputStream(), "", RDFFormat.TURTLE);
+		}
+		catch (IOException e) {
+		  // handle IO problems (e.g. the file could not be read)
+			System.out.println(e.getLocalizedMessage());
+		}
+		catch (RDFParseException e) {
+		  // handle unrecoverable parse error
+			System.out.println(e.getLocalizedMessage());
+		}
+		catch (RDFHandlerException e) {
+		  // handle a problem encountered by the RDFHandler
+			System.out.println(e.getLocalizedMessage());
+		}
+		
+	
+	
+	
+	replaceExecutionTraceBunlde (model,executionTraceBundleIRI);
+}
+
+/**
+ * This method will insert an  execution trace into the executionTraceBundle by overwriting previous content of that bundle
+ * @param file
+ * @param executionTraceBundleIRI
+ */
+private void replaceExecutionTraceBunlde (Model model, String executionTraceBundleIRI) {
+	if (model!=null) {
+	conn.begin();
+	
+	
+    //find components in the execution bundle we want to keep 
+    RepositoryResult<Statement> statements = conn.getStatements(f.createIRI(executionTraceBundleIRI), f.createIRI(Constants.PROV_NAMESPACE+"wasDerivedFrom"), null, f.createIRI(executionTraceBundleIRI));
+   
+    String planIri = null;
+    if (statements.iterator().hasNext()) {
+    //we are only expecting one statment
+    	planIri = statements.iterator().next().getObject().toString();
+    }
+    else {
+    	 System.out.println("Something is wrong: No statments found in the context. There shoudl be a statment: " +executionTraceBundleIRI+" "+Constants.PROV_NAMESPACE+"wasDerivedFrom" + "PLAN IRI" );
+    }
+   
+    conn.clear(f.createIRI(executionTraceBundleIRI));
+   
+    //GraphDB does not keep the named graph after clearing so re-create default data for the bundle
+    conn.add(f.createIRI(executionTraceBundleIRI), RDF.TYPE, f.createIRI(EpPlanOntologyComponents.ExecutionTraceBundle), f.createIRI(executionTraceBundleIRI));
+    conn.add(f.createIRI(executionTraceBundleIRI), f.createIRI(Constants.PROV_NAMESPACE+"wasDerivedFrom"),f.createIRI(planIri) , f.createIRI(executionTraceBundleIRI));
+    
+    System.out.println("model size" +model.size() );
+	conn.add(model.getStatements(null, null, null, (Resource)null), f.createIRI(executionTraceBundleIRI));
+	
+	//to do:Need to update the cache!!! and invalidate the token
+	}
+	else {
+		System.out.println("Something is wrong: model that should be saved in the execution trace bundle is null");
+	}
+    
+    conn.commit();
 }
 
 

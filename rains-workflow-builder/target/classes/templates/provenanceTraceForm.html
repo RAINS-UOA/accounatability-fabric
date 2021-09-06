@@ -46,6 +46,7 @@ var informationElementsArray = [];
 var entityIDArray = [];
 var variableIDArray = [];
 var stepIDArray = [];
+var activityIDArray = [];
 var  dataPrefix =  "https://rainsproject.org/InstanceData/";
 var bundleID = "";
 var currentInformationElementPaneId = "";
@@ -257,6 +258,8 @@ for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
 		
 		        
 	}
+	
+	
 		
 	
 }
@@ -289,7 +292,7 @@ document.getElementById("tabContentSteps").innerHTML = `${formhtml}
 	                                                    ${html}`
 	                                                    
 	                                                    
-	                                                              
+	prepopulateFormWithStoredData();                                                              
 	
 }
 
@@ -352,7 +355,7 @@ function createOutputInformationRealizationFormInput (id, types, label, comment,
 	               <div class="instanceTraceWidgetLarge">
 	                 <div class="instanceTraceWidgetLargeHeader" onclick="$('#${randomId}').toggle();">${label} (<i class="fas fa-info" data-toggle="tooltip" title="${typesString}"></i>)</div>
 	                 <label>Enter description:</label>
-	                 <div class="form-group"><div class="input-group input-group-lg" id="information-realization-description-group-${index}"><input required type="text" id="information-realization-input-${index}" class="form-control " > <div class="input-group-append" data-target="#information-realization-description-group-${index}" > <div class="input-group-text"><i class="fas fa-align-justify"></i></div></div></div>
+	                 <div class="form-group"><div class="input-group input-group-lg" id="information-realization-description-group-${index}"><textarea  rows="4" cols="30" required type="text" id="information-realization-input-${index}" class="form-control " > </textarea><div class="input-group-append" data-target="#information-realization-description-group-${index}" > <div class="input-group-text"><i class="fas fa-align-justify"></i></div></div></div>
 	                 <br> <button type="button" class="btn btn-info btn-sm" onclick="showInfoElementModal('InformationElementPane${index}')" > <span class="fa fa-plus-circle"></span> Add Information Element  </button>
 	                 <div id="InformationElementPane${index}" class = "row" > </div>
 	                 </div>
@@ -469,7 +472,7 @@ function createStepFormInput (id, types, label, comment, constraints) {
 	
 	//add agent field
 	html = html + '<div class="agentInputWrapper"><label>Who performed the task (must be a valid IRI)?</label>'
-	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="agent-group-'+index+'"><input required type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div></div>';
+	html = html + '<div class="form-group"><div class="input-group input-group-lg"  id="agent-group-'+index+'"><input required type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div></div>';
 	html = html + '</div>';
 	//html = html + '<label>This step has following types</label>'
 	//html=html+"<p>"+types.toString().replaceAll(',','<br>')+"</p>"
@@ -507,13 +510,173 @@ function createStepFormInput (id, types, label, comment, constraints) {
 	$('#time-end-group-'+index).datetimepicker();
 }
 
+function findStepIndex (stepIRI) {
+	
+	for (let i=0;i<stepIDArray.length;i++) {
+		
+		//console.log("comparing")
+		//console.log(stepIDArray[i]['id'])
+		//console.log(stepIRI)
+		
+		if (stepIDArray[i]['id']===stepIRI ) {
+		 return i;
+		}
+		
+	}
+	console.log("SOMETHING IS WRONG: the stored accountability trace contains step IRI that is not present in the manual interface")
+	
+}
+
+function findInformationRealizationIndex (variableIRI) {
+	
+	for (let i=0;i<variableIDArray.length;i++) {
+		
+		//console.log("comparing")
+		//console.log(entityIDArray[i])
+		//console.log(variableIRI)
+		
+		if (variableIDArray[i]===variableIRI ) {
+		 return i;
+		}
+		
+	}
+	console.log("SOMETHING IS WRONG: the stored accountability trace contains information realization IRI that is not present in the manual interface")
+	
+}
+
+function prepopulateFormWithStoredData () {
+	
+	let executionTraceComponents = fetch("/getExecutionTraceElementsAsGraph?bundleIRI="+bundleID);
+			executionTraceComponents.then(
+    			(data) => {
+    				
+    				return data.json();
+    			}).then(executionTraceComponentsJSONLD => {
+    			
+    		    console.log("EXECUTION TRACE");
+    			console.log(executionTraceComponentsJSONLD);
+    			
+    			for (let i=0;i<executionTraceComponentsJSONLD.length;i++) {
+    				
+    				let el = executionTraceComponentsJSONLD[i];
+    				//console.log(el['@type']);
+    				
+    				
+    				/*
+    				Handle prepopulation of steps  
+    				*/
+    				if (el['@type'].includes(context.MultiActivity)) {
+    					
+    					let stepIndex = findStepIndex (el[context.correspondsToStep['@id']][0]['@id']);
+    					//note the already saved activity ID for later
+    					activityIDArray[stepIndex] = el['@id'];
+    					//!!!!TO OD: handlel for multiple agents - currently the modle card toolkit nor the interface allows for multiple agents 
+    					let agentIRI = el[context.wasAssociatedWith['@id']][0]['@id'];
+    					
+    					
+    					$('#agent-input-'+stepIndex).val(agentIRI);
+
+    				}
+    				
+    				/*
+    				Handle prepopulation of outputs (InformationRealization)  
+    				*/
+    				if (el['@type'].includes(context.InformationRealization)) {
+    					//console.log('-----------');
+    					//console.log(el);
+    					
+    					let entityIndex = findInformationRealizationIndex (el[context.correspondsToVariable['@id']][0]['@id'])
+    					console.log(context.comment)
+    					let infoRealizationDescription = el[context.comment][0]['@value'];
+    					console.log(infoRealizationDescription)
+    					
+    					$('#information-realization-input-'+entityIndex).val(infoRealizationDescription);
+    					
+    					let currentInfoRealisationIRI = el['@id'];
+    				
+    				  /*
+    				  Handle information elements
+    				  */
+    				  
+    				  for (let j=0; j<executionTraceComponentsJSONLD.length;j++) {
+    					
+    					let infoEl = executionTraceComponentsJSONLD[j];
+    					 
+    					
+    					 if (infoEl[context.wasMemberOf['@id']]==null||infoEl[context.wasMemberOf['@id']][0]['@id']!=currentInfoRealisationIRI) {
+    						 continue;
+    					 }
+    					  
+    					 
+    					let infoElement = {};
+    				    console.log(infoEl)
+    					
+    					infoElement ['@id'] = infoEl['@id'];
+						if (infoEl[context.label]) {
+    				    infoElement ['label'] = infoEl[context.label][0]['@value']  
+    				    }
+						else {
+							infoElement ['label'] = 'no label';
+						}
+						if (infoEl[context.comment]) {
+							console.log(infoEl[context.comment])
+    				    infoElement ['comment'] = infoEl[context.comment][0]['@value'] 
+						}
+						else {
+							infoElement ['comment'] = 'no comment';
+						}
+    				    infoElement ['@type'] = infoEl['@type'];
+    				    infoElement ['isElementOfTrace'] = bundleID; 
+    				    
+    				    //use the original IRI
+    				    entityIDArray[entityIndex]= currentInfoRealisationIRI;
+    				    infoElement ['wasMemberOf'] = entityIDArray[entityIndex];
+
+    				    
+    				    informationElementsArray.push(infoElement);
+    				    
+    				        
+    					let widget = document.createElement('div');
+    					widget.className = 'outputVariableWidget';
+    					widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${infoElement['@type']} <br> <strong>Description</strong>:${infoElement['comment']}"> ${infoElement['label']} </label>`;
+    					
+    					document.getElementById ('InformationElementPane'+entityIndex).appendChild ( widget);
+    					
+    				}
+    				
+    				
+    				
+    				}
+    				
+    			}
+    			
+    			
+    			
+    			}
+	    		).catch(
+	    		        // Log the rejection reason
+	    			       (reason) => {
+	    			    	 
+	    			            console.log('Handle rejected promise getPlanComponets ('+reason+') here.');
+	    			           
+	    			        });
+	
+}
+
 function prepareHumanTaskProvenanceTraceGraph () {
 	
 	let traceElementArray = [];
 	
 	for (let i=0;i<stepIDArray.length;i++) {
 		let activity = {};
-		activity ['@id'] = dataPrefix+ uuidv4();
+		
+		//check if the form was prepopulated with saved data and id for teh activity already exist 
+		if (activityIDArray[i]!=null) {
+			activity ['@id'] = activityIDArray[i];
+		}
+		else {
+			activity ['@id'] = dataPrefix+ uuidv4();
+		}
 		activity ['@type'] = [];
 		activity ['@type'].push (context.MultiActivity);
 		activity ['@type'].push (context.Activity);

@@ -535,6 +535,17 @@ public class ServiceController {
 		return response;
 	}
 	
+	@RequestMapping(value="/getExecutionTraceElementsAsGraph", method=RequestMethod.GET, produces={"text/n3"})
+	@ResponseBody
+	public String getExecutionTraceElementsAsGraph (@RequestParam String bundleIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		//TO- DO check the token and see if the form has already been completed 
+		//to do need to check token again
+		
+	    SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		String response = manager.getExecutionTraceElementsAsGraph(bundleIRI);
+		return response;
+	}
+	
 	
 	
 	@PostMapping("/uploadHumanTaskProvenanceTrace")

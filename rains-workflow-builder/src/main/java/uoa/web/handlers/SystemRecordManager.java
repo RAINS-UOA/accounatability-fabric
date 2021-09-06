@@ -535,6 +535,29 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 				return result;
 			}
 	
+	public String  getExecutionTraceElementsAsGraph( String bundleIRI) {
+		  ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+		 
+		  
+		  	  
+		  String queryString = Constants.PREFIXES + "Construct {?s ?p ?o} FROM <"+bundleIRI+">  Where {?s ?p ?o. }";
+				System.out.println(queryString);
+				GraphQuery query  = conn.prepareGraphQuery(queryString);
+				
+			    
+				
+				String result = "no data";
+				
+				ByteArrayOutputStream stream = new ByteArrayOutputStream();
+				RDFWriter writer = Rio.createWriter(RDFFormat.JSONLD, stream);
+				   query.evaluate(writer);
+				   result = new String(stream.toByteArray());
+				
+				return result;
+			}
+	
 	
 	public ArrayList <HashMap>  getPlanElementsForImplementationStage(String systemIri) {
 		  ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();

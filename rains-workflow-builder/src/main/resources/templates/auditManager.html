@@ -147,19 +147,27 @@
  
 
 </div>
-<div class=" col-md-12" >
+<div id="results_agent" style="display:none;" class=" col-md-12" >
 
- <h3>Results</h3>
-
-<table class="table table-bordered table-dark ">
+Accountable Object Filter <select id="filter_agent"> </select>
+<button id="agent_filter_button">Filter</button>
+<script>
+$('#agent_filter_button').click(function(even) {
+	console.log('clicked')
+	getAgentsParticipationDetailsInExecutionTraces(current_systemIRI,currentAgentIRIClicked,$('#filter_agent').val() );
+	
+});
+</script>
+<br><br>
+<table class="table table-striped table-bordered table-dark ">
 
  <thead>
     <tr>
-      <th scope="col">#</th>
+      <th hidden scope="col">#</th>
       <th scope="col">Accountable Action</th>
       <th scope="col">Accountable Result Produced</th>
       <th scope="col">Accountable Actions Directly Influenced By These Results </th>
-      <th scope="col">System Reference </th>
+      <th hidden scope="col">System Reference </th>
     </tr>
   </thead>
   <tbody id="agent_result_body">
@@ -193,18 +201,32 @@
 </div>
 <br>
 
+Accountable Object Filter <select id="filter_process"> </select>
+<button id="process_filter_button">Filter</button>
+<script>
+$('#process_filter_button').click(function(even) {
+	console.log('clicked')
+	//getAgentsParticipationDetailsInExecutionTraces(current_systemIRI,currentAgentIRIClicked,$('#filter_process').val() );
+	getAllActivitiesInExecutionTraces(current_systemIRI,$('#filter_process').val())
+	console.log("clicked")
+	
+});
+</script>
  <div class="card overflow-auto" style="max-height:70vh;">
+ 
+
+ 
 <table class="table table-bordered table-dark ">
 
  <thead>
     <tr>
-      <th scope="col">#</th>
-      <th scope="col">Accountable Action</th>
+      <th hidden scope="col">#</th>
       <th scope="col">Inputs (Accountable results produced by other activities)</th>
+      <th scope="col">Accountable Action</th>
       <th scope="col">Accountable Result Produced</th>
       <th scope="col">Accountable Actions Directly Influenced By These Results </th>
-      <th scope="col">Agent </th>
-      <th scope="col">System Reference </th>
+      <th hidden scope="col">Agent </th>
+      <th hidden scope="col">System Reference </th>
     </tr>
   </thead>
   <tbody id="process_result_body">
@@ -236,13 +258,28 @@
 </div>
 <br>
 
+Result Type Filter <select id="filter_entity"> </select>
+<button id="entity_filter_button">Filter</button>
+<script>
+$('#entity_filter_button').click(function(even) {
+	
+	//getAgentsParticipationDetailsInExecutionTraces(current_systemIRI,currentAgentIRIClicked,$('#filter_process').val() );
+	//getAllActivitiesInExecutionTraces(current_systemIRI,$('#filter_entity').val())
+	getAllEntitiesInExecutionTraces (current_systemIRI,$('#filter_entity').val())
+	
+	cosnole.log("clicked")
+	
+	
+});
+</script>
+
  <div class="card overflow-auto" style="max-height:70vh;">
 <table class="table table-bordered table-dark table-striped">
 
  <thead>
     <tr>
-      <th scope="col">#</th>
-       <th scope="col">Result Type</th>
+      <th hidden scope="col">#</th>
+       <th hidden scope="col">Result Type</th>
       <th scope="col">Accountable Result</th>
       <th scope="col">Produced By Activity</th>
       <th scope="col">Entities on Influence Path</th>

@@ -658,10 +658,26 @@ public void saveUploadToWorkflowComponentLibrary(MultipartFile file) throws RDFP
 
 
 
-public HashMap <String,HashSet <String >> getStepComponentHierarchy () {
+public HashMap <String,HashSet <String >> getStepComponentHierarchy (String plantype) {
+	
 	HashMap <String,HashSet <String >> map = new  HashMap   <String,HashSet <String >> ();
 	//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+	
 	String queryString = Constants.PREFIXES + "Select Distinct * FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.} ";
+	
+	if (plantype.equals("implementation")) {
+		queryString = Constants.PREFIXES + "Select Distinct ?step ?parentStep FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.?step rdfs:subClassOf ?restriction. ?restriction owl:onProperty ep-plan:isStepOfPlan. { ?restriction owl:allValuesFrom rains:ImplementationStageAccountabilityPlan ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first rains:ImplementationStageAccountabilityPlan.} FILTER (!isBlank(?parentStep))}order  by  asc (?step) ";
+		
+	}
+	
+	if (plantype.equals("design")) {
+		queryString = Constants.PREFIXES + "Select Distinct ?step ?parentStep FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.?step rdfs:subClassOf ?restriction. ?restriction owl:onProperty ep-plan:isStepOfPlan. { ?restriction owl:allValuesFrom rains:DesignStageAccountabilityPlan ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first rains:DesignStageAccountabilityPlan.} FILTER (!isBlank(?parentStep))}order  by  asc (?step) ";
+		
+	}
+	
+	System.out.println ("Allowed types query" + queryString);
+	
+
 	
 	TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 		   try (TupleQueryResult result = tupleQuery.evaluate()) {
@@ -849,6 +865,8 @@ String queryString = Constants.PREFIXES + "SELECT Distinct ?allowedPropertyRange
 	
  	return allowedTypes;
 }
+
+
 
 public ArrayList <String> getAllowedInformationElelementForInformationRealizationType(String informationRealizationType) {
 	// TODO Auto-generated method stub

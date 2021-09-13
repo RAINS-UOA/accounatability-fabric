@@ -321,9 +321,9 @@ public class ServiceController {
 	
 	@GetMapping("/getStepComponentHierarchy")
 	@ResponseBody
-	public String getStepComponentHierarchy () throws NoSuchElementException, IllegalStateException, Exception  {
+	public String getStepComponentHierarchy (@RequestParam String planType) throws NoSuchElementException, IllegalStateException, Exception  {
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
-		HashMap <String,HashSet <String >> map = manager.getStepComponentHierarchy();
+		HashMap <String,HashSet <String >> map = manager.getStepComponentHierarchy(planType);
 		manager.shutdown();
 		Gson gson = new Gson(); 
 		return gson.toJson(map);

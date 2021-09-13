@@ -86,9 +86,9 @@ function activateToggling () {
 		 }
 }
 
-function getStepComponents (targetElementId, emptystepLibraryMessage, draggable, dragEvent,rootStep) {
+function getStepComponents (targetElementId, emptystepLibraryMessage, draggable, dragEvent,rootStep, planType = "none") {
 	 setSpinnerComponents ('loaderSteps', 'contentSteps');
-	let steps = fetch("/getStepComponentHierarchy");
+	let steps = fetch("/getStepComponentHierarchy?planType="+planType);
 		steps.then(
 	    			(data) => {
 	    				
@@ -97,13 +97,22 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 	    			 
 	    			  console.log(steps);
 	    			  
+	    			  //hot fix as teh query retruns only steps with owls restrictions it is missing the accountableResult subclass of Multistep that was needed by the old code to construct the hierarchy 
+	    			  if (planType!="none") {
+	    				  steps[context.MultiStep] = [];
+	    				  steps[context.MultiStep].push(context.AccountableAction)
+	    			  }
+	    			  
 	    			  let stepArray = steps[context.Step];
 	    				
 	    			  let htmlSteps ="";
 	    			  
 	    			  //for (let i=0;i<stepArray.length;i++) {
 	    			      if (rootStep!=null) {
+	    			   
+	    			  
 	    				  htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.MultiStep, draggable, dragEvent, rootStep, true);
+	    			   
 	    			      }
 	    			      //alway order design, implementation, deployment, operation - TO DO this is lazy approach as it will make the constructComponentHerarchy run 4 times -> improve in the future
 	    			      else {
@@ -111,10 +120,10 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 	    			    	  //htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.ImplementationStep, false);
 	    			    	  //htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.DeploymentStep, false);
 	    			    	  //htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.OperationStep, false);
-	    			    	  
+	    			    	 
 	    			    	  htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.MultiStep, false,null, context.AccountableAction, false);
 	    			    	 
-
+	    			    	  
 	    			    	  
 	    			      }
 	    			 // }

@@ -2,6 +2,10 @@ let currentResultElementClicked = "";
 
 let currentAgentClicked = "";
 
+let currentAgentIRIClicked = "";
+
+let current_systemIRI ="";
+
 let currentResultElementClickedProcessPane = "";
 
 let currentResultElementClickedEntityPane = "";
@@ -49,7 +53,7 @@ function resultClickHighlighterEntityPane (event) {
 
 //----------> Process view Pane Start
 
-function getAllActivitiesInExecutionTraces (systemIRI) {
+function getAllActivitiesInExecutionTraces (systemIRI, filterValue="all") {
 
 	let details = fetch("getAllActivitiesInExecutionTraces?systemIRI="+ systemIRI);
 	details.then(
@@ -161,6 +165,8 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 				let outputsSeen = [];
 				let activitiesSeen = [];
 				
+				
+				
 				let counter = 1; 
 				for (let x=0; x< resultObjectDependentActionsMerged.length;x++) {
 					let value = resultObjectDependentActionsMerged[x];
@@ -170,19 +176,23 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 					
 					let rowNumb = document.createElement('th');
 					rowNumb.innerHTML=counter;
+					rowNumb.setAttributeNode(document.createAttribute("hidden")	);	
 				
 					
 					let th = document.createElement('td');
 					
 					let th4 = document.createElement('td');
+					th4.setAttributeNode(document.createAttribute("hidden")	);	
 					
 					let th5 = document.createElement('td');
-					
+					th5.setAttributeNode(document.createAttribute("hidden")	);	
 					
 					
 					let inputsCell = document.createElement('td');
 					//th.innerHTML="<div class=\"planWidget\"><strong>Action Name:</strong> "+value.accountableActionLabel + "</div><div class=\"planWidget\" ><strong>Action type:</strong> "+ replaceRainsPrefix(value.accountableActionType)+"</div><div class=\"executionTraceWidget\" ><strong> Corresponding Activity IRI: </strong> "+ replaceDataInstancePrefix(value.activity) +"</div> ";
 					let addcolumns=false;
+					
+					let skippDependentAccountableActionsRepetition = false;
 					
 					if (!activitiesSeen.includes(value.activity)) {
 					
@@ -214,6 +224,7 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 							getOutputDetailsInExecutionTraces (systemIRI,inputs[value.accountableAction][j].inputInfoRealization,"ProcessView") });
 							
 							inputsCell.append(spanOutputs);
+							
 						}
 					 } else {
 						 let spanOutputs = document.createElement('span');
@@ -235,6 +246,9 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 					
 					addcolumns=true;
 					}
+					else {
+						skippDependentAccountableActionsRepetition= true;
+					}
 					
 					
 					
@@ -252,8 +266,9 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 					console.log(value.dependentAccountableActions)
 					
 					
-					
-					if (dependentAccountableActions[value.accountableAction]!=null) { 
+				if(	!skippDependentAccountableActionsRepetition){
+					if ( dependentAccountableActions[value.accountableAction]!=null) { 
+						th3.rowSpan =activityOutputsCounter[value.accountableAction].size;
 						
 						for (let j=0;j< dependentAccountableActions[value.accountableAction].length; j++ ) {
 							
@@ -272,22 +287,32 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 						span.innerHTML = `no dependable actions recorded`;
 						th3.append(span);
 					}
-					 
+				}	 
 					
 					
 					//th4.addEventListener("click", function(){ getOutputDetailsInExecutionTraces (systemIRI,details[i]['entity']) });
 					
 					
+					
 					let tr = document.createElement('tr'); 
 					
+					if (filterValue!="all"&&filterValue!=value.accountableObjectLabel.replaceAll("\"","")) {
+						console.log("skipping this element due to filter")
+					}
+					
+					else {
 					tr.append(rowNumb);
 					if (addcolumns) {
-					tr.append(th);
-					tr.append(inputsCell);
+						tr.append(inputsCell);
+						
+						tr.append(th);
+					
 					}
 					
 					tr.append(th2);
+					if(	!skippDependentAccountableActionsRepetition){
 					tr.append(th3);
+					}
 					if (addcolumns) {
 					tr.append(th4);
 					tr.append(th5);
@@ -296,6 +321,35 @@ function getAllActivitiesInExecutionTraces (systemIRI) {
 					tableBody.append(tr);
 					
 					counter++;
+					}
+					
+					console.log("objects")
+					console.log(resultObjectDependentActionsMerged)
+					
+					let selectedValue = $('#filter_process').val()
+					
+					if (!selectedValue) {
+						selectedValue = "all";
+					}
+						
+					$('#filter_process').html(`<option value="all">Show all</option>`)
+					
+					
+					let uniqueAccountableObjects = [];
+					for (let x=0;x<resultObjectDependentActionsMerged.length;x++){
+						let accountableObjectLabel = resultObjectDependentActionsMerged[x]['accountableObjectLabel'].replaceAll("\"","");
+						if (!uniqueAccountableObjects.includes(accountableObjectLabel)) {
+							uniqueAccountableObjects.push(accountableObjectLabel);
+						}
+					}
+					
+					for (let x=0;x<uniqueAccountableObjects.length;x++){
+						
+						$('#filter_process').append (`<option value="${uniqueAccountableObjects[x]}">${uniqueAccountableObjects[x]}</option>`)
+					}
+					
+					$('#filter_process').val(selectedValue)
+					
 				}
 				
 				
@@ -377,7 +431,7 @@ function getEntityDerivationPath (systemIRI, entityIRI) {
 }
 
 
-function getAllEntitiesInExecutionTraces (systemIRI) {
+function getAllEntitiesInExecutionTraces (systemIRI, filterValue="all") {
 
 	let details = fetch("getAllEntitiesInExecutionTraces?systemIRI="+ systemIRI);
 	details.then(
@@ -421,10 +475,11 @@ function getAllEntitiesInExecutionTraces (systemIRI) {
 					
 					let rowNumb = document.createElement('th');
 					rowNumb.innerHTML=counter;
+					rowNumb.setAttributeNode(document.createAttribute("hidden")	);	
 				
 					let entityType = document.createElement('td');
 					entityType.innerHTML = replaceRainsPrefix(value.accountableResultType).split(":")[1].replace(/([a-z](?=[A-Z]))/g, '$1 ');
-					
+					entityType.setAttributeNode(document.createAttribute("hidden")	);
 					
 					let parentActivity = document.createElement('td');
 					//th.innerHTML="<div class=\"planWidget\"><strong>Action Name:</strong> "+value.accountableActionLabel + "</div><div class=\"planWidget\" ><strong>Action type:</strong> "+ replaceRainsPrefix(value.accountableActionType)+"</div><div class=\"executionTraceWidget\" ><strong> Corresponding Activity IRI: </strong> "+ replaceDataInstancePrefix(value.activity) +"</div> ";
@@ -484,7 +539,11 @@ function getAllEntitiesInExecutionTraces (systemIRI) {
 					
 					
 					let tr = document.createElement('tr'); 
+					if (filterValue!="all"&&filterValue!=replaceRainsPrefix(value.accountableResultType).split(":")[1].replace(/([a-z](?=[A-Z]))/g, '$1 ')) {
+						console.log("skipping this element due to filter")
+					}
 					
+					else {
 					tr.append(rowNumb);
 					tr.append(entityType);
 					tr.append(allEntities);
@@ -496,7 +555,38 @@ function getAllEntitiesInExecutionTraces (systemIRI) {
 					tableBody.append(tr);
 					
 					counter++;
+					}
 				}
+                    let selectedValue = $('#filter_entity').val()
+					
+					if (!selectedValue) {
+						selectedValue = "all";
+					}
+						
+					$('#filter_entity').html(`<option value="all">Show all</option>`)
+					
+					
+					let uniqueAccountableResultTypes = [];
+					console.log("HOLA")
+					console.log(resultObject.length)
+					for (const [key, value] of Object.entries(resultObject)){
+						let accountableResultType = replaceRainsPrefix(value.accountableResultType).split(":")[1].replace(/([a-z](?=[A-Z]))/g, '$1 ');
+						console.log(accountableResultType)
+						if (!uniqueAccountableResultTypes.includes(accountableResultType)) {
+							uniqueAccountableResultTypes.push(accountableResultType);
+						}
+					}
+					
+					for (let x=0;x<uniqueAccountableResultTypes.length;x++){
+						
+						$('#filter_entity').append (`<option value="${uniqueAccountableResultTypes[x]}">${uniqueAccountableResultTypes[x]}</option>`)
+					}
+					
+					$('#filter_entity').val(selectedValue)
+					
+				
+				
+				
 				
 				
 			})
@@ -513,6 +603,7 @@ function getAllEntitiesInExecutionTraces (systemIRI) {
 
 function getAgents (systemIRI) {
 let agents = fetch("getAgentsInExecutionTraces?systemIRI="+ systemIRI);
+current_systemIRI = systemIRI
 agents.then(
 			(data) => {
 				
@@ -529,6 +620,9 @@ agents.then(
 						
 						agentClickHighlighter(event);
 						getAgentsParticipationDetailsInExecutionTraces(systemIRI,agentsIRI[i]);
+						$("#results_agent").show();
+						currentAgentIRIClicked = agentsIRI[i];
+												
 					});
 				}
 				
@@ -619,7 +713,7 @@ function getAgentsParticipationDetailsInExecutionTraces (systemIRI,agentIRI) {
 }
 */
 
-function getAgentsParticipationDetailsInExecutionTraces (systemIRI,agentIRI) {
+function getAgentsParticipationDetailsInExecutionTraces (systemIRI,agentIRI, filterValue="all") {
 
 	let details = fetch("getAgentsParticipationDetailsInExecutionTraces?systemIRI="+ systemIRI+"&agentIRI="+agentIRI);
 	details.then(
@@ -636,6 +730,8 @@ let resultObjectDependentActionsMerged = [];
 let dependentAccountableActions = {};
 
 let activityOutputsCounter = {};
+
+let accountableObjects=[]
 				
 				for (let i=0;i<details.length;i++ ) {
 					
@@ -695,6 +791,7 @@ let activityOutputsCounter = {};
 					
 					let rowNumb = document.createElement('th');
 					rowNumb.innerHTML=counter;
+					rowNumb.setAttributeNode(document.createAttribute("hidden")	);	
 				
 					
 					let th = document.createElement('td');
@@ -727,8 +824,11 @@ let activityOutputsCounter = {};
 
 				    th5.rowSpan =activityOutputsCounter[value.accountableAction].size;
 				    th5.innerHTML=` <div  class="instanceTraceWidget"> ${value.accountableObjectLabel.replaceAll("\"","")} </div> `
-					
-				
+				    th5.setAttributeNode(document.createAttribute("hidden")	);	
+				    
+				    if (!accountableObjects.includes(value.accountableObjectLabel.replaceAll("\"",""))) {
+				       accountableObjects.push(value.accountableObjectLabel.replaceAll("\"",""))
+				    }
 					
 					addcolumns=true;
 					}
@@ -771,6 +871,15 @@ let activityOutputsCounter = {};
 					
 					let tr = document.createElement('tr'); 
 					
+					//console.log(filterValue.length)
+					//console.log(value.accountableObjectLabel.replaceAll("\"","").length)
+					//console.log(filterValue!=value.accountableObjectLabel.replaceAll("\"",""))
+					
+					if (filterValue!="all"&&filterValue!=value.accountableObjectLabel.replaceAll("\"","")) {
+						console.log("skipping this element due to filter")
+					}
+					
+					else {
 					tr.append(rowNumb);
 					if (addcolumns) {
 						tr.append(th);
@@ -783,11 +892,28 @@ let activityOutputsCounter = {};
 						tr.append(th5);
 						}
 					tableBody.append(tr);
-					
+					}
 					
 					counter++;
 				}
 				
+				console.log(accountableObjects)
+				
+				let selectedValue = $('#filter_agent').val()
+				
+				if (!selectedValue) {
+					selectedValue = "all";
+				}
+					
+				$('#filter_agent').html(`<option value="all">Show all</option>`)
+				
+				
+				for (let x=0;x<accountableObjects.length;x++){
+					
+					$('#filter_agent').append (`<option value="${accountableObjects[x]}">${accountableObjects[x]}</option>`)
+				}
+				
+				$('#filter_agent').val(selectedValue)
 				
 			})
 			.catch(

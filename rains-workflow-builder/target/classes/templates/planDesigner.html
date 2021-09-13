@@ -223,7 +223,7 @@ div.scroll {
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Design </button>
       
        <script>
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "design");
       </script>
     
        </div>  
@@ -231,9 +231,9 @@ div.scroll {
          <div th:if="${#httpServletRequest.getParameter('stage') == 'implementation'}">
        
        
-    <!--   <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Implementation </button>-->
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Implementation </button>
       <script>
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "implementation");
       </script>
        </div> 
        

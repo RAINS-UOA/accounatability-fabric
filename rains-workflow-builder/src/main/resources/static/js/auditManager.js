@@ -381,10 +381,13 @@ function getEntityInfluencePath (systemIRI, entityIRI) {
 				
 				return data.json();
 			}).then(details => {
-				console.log(details);
+				
+				
 				let html = '<ul class="list-group">';
 				for (let i=0; i <details.length;i++) {
-				html = `${html} <li onclick="selectEntity('${details[i].entity.split("/")[4]}')" class="list-group-item"><a href="#">${details[i].label.replaceAll("\"","")}</a></li>`
+					
+					let id = details[i].entity.split("/");
+				html = `${html} <li onclick="selectEntity('${id[id.length-1]}')" class="list-group-item"><a href="#">${details[i].label.replaceAll("\"","")}</a></li>`
 					
 				}
 				html = `${html} </ul>`
@@ -412,7 +415,9 @@ function getEntityDerivationPath (systemIRI, entityIRI) {
 				console.log(details);
 				let html = '<ul class="list-group">';
 				for (let i=0; i <details.length;i++) {
-				html = `${html} <li onclick="selectEntity('${details[i].influenceEntity.split("/")[4]}')" class="list-group-item"><a href="#">${details[i].influenceVariableLabel.replaceAll("\"","")}</a></li>`
+					
+					let id = details[i].influenceEntity.split("/");
+				html = `${html} <li onclick="selectEntity('${id[id.length-1]}')" class="list-group-item"><a href="#">${details[i].influenceVariableLabel.replaceAll("\"","")}</a></li>`
 					
 				}
 				html = `${html} </ul>`
@@ -504,8 +509,10 @@ function getAllEntitiesInExecutionTraces (systemIRI, filterValue="all") {
 					
 					let allEntities = document.createElement('td');
 				//	th2.innerHTML="<div class=\"planWidget\"> <h5>"+value.accountableResultLabel.replaceAll("\"","") + "<br> <span style=\"background:black;color:white; \">[" + replaceRainsPrefix(value.accountableResultType) +"]</span></h5></div><div class=\"executionTraceWidget\" ><strong> Corresponding Entity IRI: </strong>"+ replaceDataInstancePrefix(value.infoRealization)+"</div> ");
-					let id = value.infoRealization.split("/")[4];
-					allEntities.innerHTML = ` <div id=${id} class="resultsEntityTraceWidget"> ${value.accountableResultLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableResultType)}"></i>)</div> `
+					let id = value.infoRealization.split("/");
+					
+					
+					allEntities.innerHTML = ` <div id=${id[id.length -1]} class="resultsEntityTraceWidget"> ${value.accountableResultLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(value.accountableResultType)}"></i>)</div> `
 					allEntities.addEventListener("click", function(){ 
 						resultClickHighlighterEntityPane(event);	
 						getOutputDetailsInExecutionTraces (systemIRI,value.infoRealization, "EntityView") });
@@ -843,24 +850,29 @@ let accountableObjects=[]
 						
 						
 						let th3 = document.createElement('td');
-						console.log(value.dependentAccountableActions)
 						
-						let span = document.createElement('span');
-						th3.append(span);
-						console.log("creating span")
-						console.log(dependentAccountableActions)
-						console.log(value.accountableAction)
+						
+						
+						
+						
 						if (dependentAccountableActions[value.accountableAction]!=null) { 
+							console.log("creating span")
+							
 							
 							for (let j=0;j< dependentAccountableActions[value.accountableAction].length; j++ ) {
+								let span = document.createElement('span');
+								th3.append(span);
 								console.log("creating span - loop")
-							 
+							 console.log(value.dependentAccountableActions)
 													
 								span.innerHTML = `${span.innerHTML} <div  class="instanceTraceWidget"> ${dependentAccountableActions[value.accountableAction][j].dependentAccountableActionLabel.replaceAll("\"","")} <br>(<i class="fas fa-info" data-toggle="tooltip" title="${replaceRainsPrefix(dependentAccountableActions[value.accountableAction][j].dependentAccountableActionType)}"></i>)</div> `
-							    span.addEventListener("click", function(){ 
-								resultClickHighlighterRocessPane(event);	
-								getActivityDetailsInExecutionTraces (systemIRI,value.dependentAccountableActions[j].dependentAccountableActionActivity,"AgentView") });
-								th3.append(span);
+							    let actionid = dependentAccountableActions[value.accountableAction][j].dependentAccountableActionActivity;
+								
+								span.addEventListener("click", function(){ 
+								  resultClickHighlighterRocessPane(event);	
+								 console.log(actionid)
+								  getActivityDetailsInExecutionTraces (systemIRI,actionid,"AgentView") });
+								  th3.append(span);
 							}
 						 }
 					
@@ -1376,6 +1388,8 @@ function getOutputDetailsInExecutionTraces (systemIRI,entityIRI, stage) {
 
 
 function getActivityDetailsInExecutionTraces (systemIRI,activityIRI, stage) { 
+	
+	console.log("activityIRI received "+ activityIRI)
 	
 	let details = fetch("getActivityDetailsInExecutionTraces?systemIRI="+ systemIRI+"&activityIRI="+activityIRI);
 	details.then(

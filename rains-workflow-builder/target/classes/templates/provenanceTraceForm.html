@@ -397,7 +397,7 @@ function getAllowedInformationElelementForInformationRealizationType () {
     
     for (let i=0;i<data.length;i++) {
     	
-    	let dataObj =  JSON.parse(data[i]);
+    	let dataObj =  JSON.parse(data[i].replace(/(\r\n|\n|\r)/gm, ""));
     	
     	if (dataObj['iri'].includes(rainsPlanPrefix)||dataObj['iri'].includes(saoPrefix)||dataObj['iri'].includes(mlsPrefix)||dataObj['iri'].includes(dcPrefix)) {
     		

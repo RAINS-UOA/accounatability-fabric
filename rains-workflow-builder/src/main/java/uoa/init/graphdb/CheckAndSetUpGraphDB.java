@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.UUID;
 
+import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -38,6 +40,7 @@ import org.eclipse.rdf4j.rio.RDFParseException;
 import org.springframework.util.ResourceUtils;
 
 import uoa.semantic.system.SystemComponentsIRI;
+import uoa.web.controller.ServiceController;
 import uoa.web.storage.AuthorisationCacheStorage;
 
 
@@ -81,11 +84,20 @@ public static void checkRepositorySetUp () throws ClientProtocolException, IOExc
     	HttpEntity responseEntity = response.getEntity();
     	//to do - check if it worked
     	repository = GraphDBUtils.getFabricRepository(repositoryManager);
+    	
+    	
+    	
     }
 	
 	
 	
     if (repository!=null) {
+    
+    	//set up connection for service controll as well 
+    	ServiceController.repository = repository;
+    	
+    	ServiceController.connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
+    	
     	ValueFactory f = repository.getValueFactory();
 
 	// Open a connection to this repository

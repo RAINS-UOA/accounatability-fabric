@@ -68,9 +68,9 @@ import uoa.web.storage.FileUploadStorageService;
 public class ServiceController {
 	
 	
-	Repository repository = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager());
+	public static Repository repository ;
 	
-	private ObjectPool<RepositoryConnection>  connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
+	public static ObjectPool<RepositoryConnection>  connectionPool ;
 	
 	private final FileUploadStorageService storageService;
 

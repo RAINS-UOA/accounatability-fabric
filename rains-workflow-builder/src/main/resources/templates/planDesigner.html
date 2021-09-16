@@ -554,7 +554,8 @@ function listVaribalesAvailableToStep (stepId,variableMode) {
 			continue;
 		}
 		//skip those that don't yet exist
-		if (variable["belongsToRow"] > selectedStep['belongsToRow']) {
+		//if (variable["belongsToRow"] > selectedStep['belongsToRow']) {
+	    if (parseInt(variable["belongsToRow"].replaceAll("step_row_",""),10) >  parseInt(selectedStep["belongsToRow"].replaceAll("step_row_",""),10)) {
 			continue;
 		}
 		//don't allow two steps to produce same variable 
@@ -569,7 +570,8 @@ function listVaribalesAvailableToStep (stepId,variableMode) {
 		if  (variableMode=="Input"&&variable["isOutputVariableOf"]&&(variable["isOutputVariableOf"].length>0)&&(variable["belongsToRow"] === selectedStep['belongsToRow'])) {
 			continue;
 		}
-			
+		
+		
 			
 		result.push (variable);
 	}

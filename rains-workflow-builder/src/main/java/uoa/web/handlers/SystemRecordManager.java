@@ -77,7 +77,8 @@ public class SystemRecordManager {
 	
 		ugglyConnectionFix ();
 		
-	this.conn = connectionPool.borrowObject();
+	//this.conn = connectionPool.borrowObject();
+	this.conn = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager()).getConnection();
 	this.repository = conn.getRepository();
 	this.f = repository.getValueFactory();
 	this.connectionPool = connectionPool;
@@ -112,14 +113,15 @@ public class SystemRecordManager {
 		No time to fix properly so we will just reset teh connection pool before the plan gets saved*/
 		System.out.println ("Reseting connection to GraphDB");
 		repository = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager());
-		connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
+		//connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
+		conn = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager()).getConnection();
 		System.out.println ("Reseting connection to GraphDB - done");
 		
 	}
 	
 	public void shutdown () throws Exception  {	
-		connectionPool.returnObject(conn);
-		
+		//connectionPool.returnObject(conn);
+		conn.close();
 		//TO DO need to shutdown everything before garbage collected this will now have to be shut down in the connection pool
 		
 	}

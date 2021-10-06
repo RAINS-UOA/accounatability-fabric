@@ -21,7 +21,7 @@ The app will be looking for a repository with this name so don't run the Account
 ## Acountability Fabric
 
 ````
-git clone --single-branch --branch ESWC-2021 https://github.com/RAINS-UOA/rains-workflow-builder.git
+git clone  https://github.com/RAINS-UOA/accountability-fabric.git
 ````
 
 then cd into the project directory and run 

@@ -6,12 +6,13 @@
    
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
- <!-- Bootstrap CSS CDN -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>	 
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+ 
+  
 <!-- dropzone CSS -->
     <link rel="stylesheet" href="/css/dropzone.css">
 
@@ -34,7 +35,7 @@
 
  <script src="./js/json-ld_context.js"></script>
  <script src="./js/provenanceCollector.js"></script>
-  <script src="./js/index.js"></script>
+ <script src="./js/index.js"></script>
   
 
   
@@ -45,10 +46,12 @@ var informationElementsArray = [];
 var entityIDArray = [];
 var variableIDArray = [];
 var stepIDArray = [];
+var activityIDArray = [];
 var  dataPrefix =  "https://rainsproject.org/InstanceData/";
 var bundleID = "";
 var currentInformationElementPaneId = "";
 var graphArray = [];
+var html = '';
 
 
 function checkIfAccountableAgentExist (agentID) {
@@ -112,13 +115,36 @@ function getPlanComponets (token) {
 
 function parsePlanStructureJsonLD () {
 	
-	console.log(graphArray);
+	console.log("GRAPH JSON LD");
 	
+	console.log(graphArray);
+	constraints = {};
 
 	//Find number of rows in the plan as per the plan designer
 	let maxRowCount = 0; 
 	for (let i=0;i<graphArray.length; i++) {
 		let element = graphArray[i];
+		
+		//sort constraints 
+		if (element['@type'].includes(context.HumanConstraint)) {
+			console.log ("FOUND CONSTRAINT"); 
+			console.log (context.constrains['@id'])
+			
+			for (let j =0; j<element[context.constrains['@id']].length;j++) {
+			
+			if (constraints[element[context.constrains['@id']][j]['@id']] != null) {
+				constraints[element[context.constrains['@id']][j]['@id']].push(element)
+			}
+			else {
+				console.log("creating index")
+				console.log(constraints[element[context.constrains['@id']][j]['@id']])
+				constraints[element[context.constrains['@id']][j]['@id']]=[]
+				constraints[element[context.constrains['@id']][j]['@id']].push(element)
+			}
+			
+			}
+		}
+		
 		if (element[context.belongsToRow]!=null) {
 			console.log(element[context.belongsToRow][0]['@value']);
 			let rowId = element[context.belongsToRow][0]['@value'];
@@ -129,6 +155,10 @@ function parsePlanStructureJsonLD () {
 			}
 		}
 	}
+	
+	
+	console.log(constraints)	
+	
 console.log("Found max step row index  "+ maxRowCount + " in the plan");
 
 for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
@@ -153,7 +183,7 @@ for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
 					console.log("saved label: "+ label);
 				} 
 				
-				createStepFormInput (element['@id'], element['@type'], label);
+				createStepFormInput (element['@id'], element['@type'], label,element['http://www.w3.org/2000/01/rdf-schema#comment'][0]['@value'], constraints[element['@id']]);
 				
 				//console.log("hasOutputVariable "+ element[context.hasOutputVariable['@id']]);
 				if (element[context.hasInputVariable['@id']]!=null) {
@@ -173,9 +203,13 @@ for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
 				
 				if ( element[context.hasOutputVariable['@id']]!=null){
 				
+				html = html + '<div class="outputsTraceWidget"><h5><i class="fas fa-sign-out-alt"></i> Outputs</h5></div>';	
+					
 				let outputVariables =   element[context.hasOutputVariable['@id']]; 
 				console.log ("------->");
 				//console.log (outputVariables);
+				
+				
 				
 				for (let j=0;j<outputVariables.length; j++) {
 					for (let x=0;x<graphArray.length; x++) {
@@ -197,41 +231,96 @@ for (let stepRowIndex=0;stepRowIndex<maxRowCount+1; stepRowIndex++) {
 						    if (element2[context.label][0]['@value']!=null) {
 							label = element2[context.label][0]['@value'];
 							console.log("saved label: "+ label);
+						if (element2[context.comment][0]['@value']!=null) {
+							 comment = element2[context.comment][0]['@value']
+						}
 						 } 
 						
 						
-						createOutputInformationRealizationFormInput (element2['@id'], element2['@type'], label)
+						createOutputInformationRealizationFormInput (element2['@id'], element2['@type'], label, comment)
 						
 					}
 					}
 				
 				}
-			}	
+			
+				}	
 				
 			}	
 			
 				
 			
-		} 	
+		} 
+		html = html +"</div>"
+		
+		
+		
+		
+		        
 	}
+	
+	
+		
+	
 }
+
+let navHTML =''
+for (let j=0;j<stepIDArray.length; j++) {
+	
+	if (j==0) {
+	navHTML = `${navHTML}  <li class="nav-item">
+	                        <a class="nav-link active" data-toggle="tab" href="#StepTab${j}">Step ${j+1}</a>
+		                   </li>`
+	}
+	else {
+		navHTML = `${navHTML}  <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#StepTab${j}">Step ${j+1}</a>
+           </li>`
+	}
+	
+}
+		
+
+document.getElementById("navigation").innerHTML = navHTML
+
+
+
+
+let formhtml = document.getElementById("tabContentSteps").innerHTML;
+
+document.getElementById("tabContentSteps").innerHTML = `${formhtml}
+	                                                    ${html}`
+	                                                    
+	                                                    
+	prepopulateFormWithStoredData();                                                              
+	
 }
 
 
 
 function createStepInputsList (variableInputs){
-	let html = "";
+//	let html = "";
 	console.log("---------------------------------------->") 
 	console.log(variableInputs.length) 
 	console.log(variableInputs[0][context.label]) 
-	html = html + '<h4>Inputs</h4> ';
-
-	html = html + "<hr>";
-	html = html + '<p>Below is the list of entities used by the activity realizing this step. These entities would have been recorded as outputs of previous steps and will be linked automatically. </p> ';
+	html = html + '<div class="inputsTraceWidget"><h5><i class="fas fa-sign-in-alt"></i> Inputs (<i class="fas fa-info" data-toggle="tooltip" title="Below is the list of entities used by the activity realizing this step. These entities would have been recorded as outputs of previous steps and will be linked automatically"></i>)</h5> </div> ';
+    
 	for (let j=0;j<variableInputs.length; j++) {
-		  if (variableInputs[j][context.label][0]['@value']!=null) {
-				let label = variableInputs[j][context.label][0]['@value'];
-				html=html+"<p> "+label+"</p>"
+		let randomId = uuidv4();  
+		if (variableInputs[j][context.label][0]['@value']!=null) {
+				let label = variableInputs[j][context.label][0]['@value'];	
+				let types = variableInputs[j]['@type'];
+				html=`${html} 
+				     
+				      <div class="instanceWidgetWrapper" onclick="$('#${randomId}').toggle();" class="instanceTraceWidget">
+				             <div  class="instanceTraceWidget"> ${label} (<i class="fas fa-info" data-toggle="tooltip" title="${types}"></i>)</div> 
+				             <div class="collapse smallTraceWidgetCommentBox" id="${randomId}">
+				               <div class="card card-body">
+		                       <label>Comment</label><p> ${variableInputs[j][context.comment][0]['@value']}</p>
+		                       </div>
+		                     </div>
+		                   </div>`
+		     
 			 } 
 	
 	//	html=html+"<p>"+variableInputs[j]['@id']+"</p>"
@@ -239,16 +328,16 @@ function createStepInputsList (variableInputs){
 
 	
 	
-    let formhtml = document.getElementById("form").innerHTML;
-	document.getElementById("form").innerHTML = formhtml + html;
+   // let formhtml = document.getElementById("form").innerHTML;
+//	document.getElementById("form").innerHTML = formhtml + html;
 	
 
 
 }
 
 
-function createOutputInformationRealizationFormInput (id, types, label, ActivyIdGenearatingThis){
-	let html = "";
+function createOutputInformationRealizationFormInput (id, types, label, comment, ActivyIdGenearatingThis){
+	//let html = "";
 	
 	console.log(types);
 	console.log(id);
@@ -260,20 +349,25 @@ function createOutputInformationRealizationFormInput (id, types, label, ActivyId
 	entityIDArray.push(entityID);
 
 	let index = variableIDArray.length - 1;
-	html = html + "<hr>";
-	html = html + "<h4>Outputs</h4>";
-	html = html + "<hr>";
-	html=html+"<h5>"+label+"</h5>"
-	html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
-	
-	
-	html = html + '<label>Enter description:</label>'
-	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="information-realization-description-group-'+index+'"><input required type="text" id="information-realization-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#information-realization-description-group-'+index+'" > <div class="input-group-text"><i class="fas fa-align-justify"></i></div></div></div>';
-	html = html + '<br> <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-flag="InformationElementPane'+index+'" data-target="#informationElement"> <span class="fa fa-plus-circle"></span> Add Information Element  </button>'
-	
-	html = html + '<div id="InformationElementPane'+index+'" class = "row" > </div>';
-    let formhtml = document.getElementById("form").innerHTML;
-	document.getElementById("form").innerHTML = formhtml + html;
+	let = randomId = uuidv4();
+	let typesString = types.toString().replaceAll(',','\n');
+	html = html + `<div class="instanceWidgetWrapperLarge">
+	               <div class="instanceTraceWidgetLarge">
+	                 <div class="instanceTraceWidgetLargeHeader" onclick="$('#${randomId}').toggle();">${label} (<i class="fas fa-info" data-toggle="tooltip" title="${typesString}"></i>)</div>
+	                 <label>Enter description:</label>
+	                 <div class="form-group"><div class="input-group input-group-lg" id="information-realization-description-group-${index}"><textarea  rows="4" cols="30" required type="text" id="information-realization-input-${index}" class="form-control " > </textarea><div class="input-group-append" data-target="#information-realization-description-group-${index}" > <div class="input-group-text"><i class="fas fa-align-justify"></i></div></div></div>
+	                 <br> <button type="button" class="btn btn-info btn-sm" onclick="showInfoElementModal('InformationElementPane${index}')" > <span class="fa fa-plus-circle"></span> Add Information Element  </button>
+	                 <div id="InformationElementPane${index}" class = "row" > </div>
+	                 </div>
+	                 <div class="collapse largeTraceWidgetCommentBox" id="${randomId}">
+		                <div class="card card-body">
+                      <label>Comment</label><p> ${comment}</p>
+                      </div>
+                     </div> 
+	                </div>
+	                </div>`
+//    let formhtml = document.getElementById("form").innerHTML;
+//	document.getElementById("form").innerHTML = formhtml + html;
 
 }
 
@@ -284,7 +378,7 @@ function getAllowedInformationElelementForInformationRealizationType () {
     
 	
 	
-	//!!!! TO DO - Need to call to query constraints to see whihc type corresponds to variable
+	//!!!! TO DO - Need to call to query OWL constraints to see whihc type corresponds to variable
     informationRealizationType = "https://w3id.org/sao#ModelSpecification";
 	
 	fetch("/getAllowedInformationElelementForInformationRealizationType?informationRealizationType="+encodeURIComponent(btoa(informationRealizationType))+"&restrictionPropertyIRI="+encodeURIComponent(btoa(property)) ) 
@@ -297,11 +391,57 @@ function getAllowedInformationElelementForInformationRealizationType () {
     console.log('Request succeeded with JSON response', data);
     let selectOption = document.getElementById('informationElementType');
     selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
+    
+    //need to remove iris and rename the labels that are same in MLS and RAINS - e.g. Evaluation procedure
+    let sortedAndProcessedArray = [];
+    
+    for (let i=0;i<data.length;i++) {
+    	
+    	let dataObj =  JSON.parse(data[i].replace(/(\r\n|\n|\r)/gm, ""));
+    	
+    	if (dataObj['iri'].includes(rainsPlanPrefix)||dataObj['iri'].includes(saoPrefix)||dataObj['iri'].includes(mlsPrefix)||dataObj['iri'].includes(dcPrefix)) {
+    		
+    		
+    		
+    		let parts = dataObj['iri'].split('/');
+    		parts = parts[parts.length - 1];
+    		parts = parts.split('#');
+    		
+    		let label = parts[parts.length - 1];
+    		console.log(label)
+    		
+    		if (dataObj['iri'].includes(rainsPlanPrefix)&&label =='EvaluationProcedure') {
+    			label = label +' (Generic system component)'
+    		}
+    		
+    		if (dataObj['iri'].includes(rainsPlanPrefix)&&label =='InformationElement') {
+    			label = label +' (Generic)'
+    		}
+    		if (dataObj['iri'].includes(mlsPrefix)&&label =='EvaluationProcedure') {
+    			label = label +' (Model component)'
+    		}
+    		
+    		sortedAndProcessedArray.push({'label':label,'iri':dataObj['iri'], 'comment':dataObj['comment']})
+     	}
+    }
+    
+    sortedAndProcessedArray.sort((a, b) => (a.label > b.label) ? 1 : -1)
+    
+    console.log(sortedAndProcessedArray)
+    
+    for (let i=0;i<sortedAndProcessedArray.length;i++) {
+    	
+    	   selectOption.innerHTML += ' <option value="'+sortedAndProcessedArray[i]['iri']+'" title="'+sortedAndProcessedArray[i]['comment']+'">'+sortedAndProcessedArray[i]['label']+'</option>' ;
+    	
+	}
+    
+    /*
     for (let i=0;i<data.length;i++) {
     	if (data[i].includes(rainsPlanPrefix)||data[i].includes(saoPrefix)||data[i].includes(mlsPrefix)||data[i].includes(dcPrefix)) {
-    	selectOption.innerHTML += ' <option value="'+data[i]+'">'+data[i]+'</option>' ;
+    	   selectOption.innerHTML += ' <option value="'+data[i]+'">'+data[i]+'</option>' ;
     	}
 	}
+    */
     
     
   })
@@ -314,31 +454,213 @@ function getAllowedInformationElelementForInformationRealizationType () {
 
 
 
-function createStepFormInput (id, types, label) {
-	let html = "";
+function createStepFormInput (id, types, label, comment, constraints) {
+//	let html = "";
 	//use this to keep track of which input belongs to which plan element as we cannot use iri as part of element id - JQUERY complaining
-	stepIDArray.push(id);
+	stepIDArray.push({"id":id,"constraints":constraints});
 	let index = stepIDArray.length - 1;
-	html = html + "<hr>";
-	html = html + "<h3>Step - "+label+"</h3>";
-	html = html + "<hr>";
-	html=html+"<p>"+types.toString().replace(',','<br>')+"</p>"
-	html = html + '<div class="class="input-group"">'
-	html = html + '<div class=" input-group date" id="time-start-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-start-input-'+index+'" class=" datetimepicker-input" data-target="#time-start-group-'+index+'"> <div class="input-group-append" data-target="#time-start-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
-	html = html + '<div class="input-group  date" id="time-end-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-end-input-'+index+'" class=" datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
-	html = html + '</div>'
+	if (index==0) {
+	html = html + '<div class="card stepCard tab-pane fade in active show" id="StepTab'+index+'" > <div class="card-body ">';
+	}
+	else {
+		html = html + '<div class="card stepCard tab-pane fade" id="StepTab'+index+'"><div class="card-body ">';
+	}
+	html = html + '<div  data-toggle="collapse" data-target="#collapseStepComment'+index+'" class="stepTraceWidget card-header"> <h4><i class="fas fa-cogs"></i>  '+label+' (<i class="fas fa-info" data-toggle="tooltip" title="'+types.toString().replaceAll(',','\n')+'"></i>)</h4></div>';
+	
+	html = html + '<div class="collapse" id="collapseStepComment'+index+'"><div class="card card-body"><label>Comment:</label>';
+	html = html + "<p>" + comment + "</p></div></div>";
+	
 	//add agent field
-	html = html + '<label>Who performed the task?</label>'
-	html = html + '<div class="form-group"><div class="input-group input-group-lg  " id="agent-group-'+index+'"><input required type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div>';
+	html = html + '<div class="agentInputWrapper"><label>Who performed the task (must be a valid IRI)?</label>'
+	html = html + '<div class="form-group"><div class="input-group input-group-lg"  id="agent-group-'+index+'"><input required type="text" id="agent-input-'+index+'" class="form-control " > <div class="input-group-append" data-target="#agent-input-'+index+'" > <div class="input-group-text"><i class="fas fa-user"></i></div></div></div></div>';
+	html = html + '</div>';
+	//html = html + '<label>This step has following types</label>'
+	//html=html+"<p>"+types.toString().replaceAll(',','<br>')+"</p>"
+	html = html + '<div class="dateInputWrapper"><label>Select time when this activity was performed</label>'
+	html = html + '<div class="class="input-group">'
+	html = html + '<div class=" input-group date" id="time-start-group-'+index+'" data-target-input="nearest"><input placeholder="Start" required type="text" id="time-start-input-'+index+'" class=" datetimepicker-input" data-target="#time-start-group-'+index+'"> <div class="input-group-append" data-target="#time-start-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
+	html = html + '<div class="input-group  date" id="time-end-group-'+index+'" data-target-input="nearest"><input placeholder="End" required type="text" id="time-end-input-'+index+'" class=" datetimepicker-input" data-target="#time-end-group-'+index+'"> <div class="input-group-append" data-target="#time-end-input-'+index+'" data-toggle="datetimepicker"> <div class="input-group-text"><i class="fa fa-calendar"></i></div></div></div>';	
+	html = html + '</div></div>'
 	
 	
+	if (constraints!=null) {
+	html = html + '<div class="constraintTraceWidget"><h5><i class="fas fa-check"></i> Constraints</h5></div>';
 	
 	
-	let formhtml = document.getElementById("form").innerHTML;
+	for (let i =0 ; i < constraints.length;i++) {
+		//TO DO just selecting the first label and comment we find add @lang support later 
+		html = html+ `<div class="instanceWidgetWrapperLarge">
+		              <div class="instanceTraceWidgetLarge" >
+		                <div class="instanceTraceWidgetLargeHeader" onclick="$('#collapseConstraintComment${index}${i}').toggle();"  >  ${constraints[i][context.label][0]['@value']} </div><br><select id="step-${index}-constraintSelect-${i}" required><option value="">Select Option</option><option value="satisfied">Complied with</option><option value="violated">Not complied with</option></select></div>
+		                  <div class="collapse smallTraceWidgetCommentBox" id="collapseConstraintComment${index}${i}">
+		                     <div class="card card-body">
+		                      <label>Comment</label> <p> ${constraints[i][context.comment][0]['@value']}</p>
+		                     </div>
+		                  </div>
+		               </div>
+		        `;
+	}
 	
-	document.getElementById("form").innerHTML = formhtml + html;
+	}
+	
+	//let formhtml = document.getElementById("form").innerHTML;
+	
+	//document.getElementById("form").innerHTML = formhtml + html;
 	
 	$('#time-end-group-'+index).datetimepicker();
+}
+
+function findStepIndex (stepIRI) {
+	
+	for (let i=0;i<stepIDArray.length;i++) {
+		
+		//console.log("comparing")
+		//console.log(stepIDArray[i]['id'])
+		//console.log(stepIRI)
+		
+		if (stepIDArray[i]['id']===stepIRI ) {
+		 return i;
+		}
+		
+	}
+	console.log("SOMETHING IS WRONG: the stored accountability trace contains step IRI that is not present in the manual interface")
+	
+}
+
+function findInformationRealizationIndex (variableIRI) {
+	
+	for (let i=0;i<variableIDArray.length;i++) {
+		
+		//console.log("comparing")
+		//console.log(entityIDArray[i])
+		//console.log(variableIRI)
+		
+		if (variableIDArray[i]===variableIRI ) {
+		 return i;
+		}
+		
+	}
+	console.log("SOMETHING IS WRONG: the stored accountability trace contains information realization IRI that is not present in the manual interface")
+	
+}
+
+function prepopulateFormWithStoredData () {
+	
+	let executionTraceComponents = fetch("/getExecutionTraceElementsAsGraph?bundleIRI="+bundleID);
+			executionTraceComponents.then(
+    			(data) => {
+    				
+    				return data.json();
+    			}).then(executionTraceComponentsJSONLD => {
+    			
+    		    console.log("EXECUTION TRACE");
+    			console.log(executionTraceComponentsJSONLD);
+    			
+    			for (let i=0;i<executionTraceComponentsJSONLD.length;i++) {
+    				
+    				let el = executionTraceComponentsJSONLD[i];
+    				//console.log(el['@type']);
+    				
+    				
+    				/*
+    				Handle prepopulation of steps  
+    				*/
+    				if (el['@type'].includes(context.MultiActivity)) {
+    					
+    					let stepIndex = findStepIndex (el[context.correspondsToStep['@id']][0]['@id']);
+    					//note the already saved activity ID for later
+    					activityIDArray[stepIndex] = el['@id'];
+    					//!!!!TO OD: handlel for multiple agents - currently the modle card toolkit nor the interface allows for multiple agents 
+    					let agentIRI = el[context.wasAssociatedWith['@id']][0]['@id'];
+    					
+    					
+    					$('#agent-input-'+stepIndex).val(agentIRI);
+
+    				}
+    				
+    				/*
+    				Handle prepopulation of outputs (InformationRealization)  
+    				*/
+    				if (el['@type'].includes(context.InformationRealization)) {
+    					//console.log('-----------');
+    					//console.log(el);
+    					
+    					let entityIndex = findInformationRealizationIndex (el[context.correspondsToVariable['@id']][0]['@id'])
+    					console.log(context.comment)
+    					let infoRealizationDescription = el[context.comment][0]['@value'];
+    					console.log(infoRealizationDescription)
+    					
+    					$('#information-realization-input-'+entityIndex).val(infoRealizationDescription);
+    					
+    					let currentInfoRealisationIRI = el['@id'];
+    				
+    				  /*
+    				  Handle information elements
+    				  */
+    				  
+    				  for (let j=0; j<executionTraceComponentsJSONLD.length;j++) {
+    					
+    					let infoEl = executionTraceComponentsJSONLD[j];
+    					 
+    					
+    					 if (infoEl[context.wasMemberOf['@id']]==null||infoEl[context.wasMemberOf['@id']][0]['@id']!=currentInfoRealisationIRI) {
+    						 continue;
+    					 }
+    					  
+    					 
+    					let infoElement = {};
+    				    console.log(infoEl)
+    					
+    					infoElement ['@id'] = infoEl['@id'];
+						if (infoEl[context.label]) {
+    				    infoElement ['label'] = infoEl[context.label][0]['@value']  
+    				    }
+						else {
+							infoElement ['label'] = 'no label';
+						}
+						if (infoEl[context.comment]) {
+							console.log(infoEl[context.comment])
+    				    infoElement ['comment'] = infoEl[context.comment][0]['@value'] 
+						}
+						else {
+							infoElement ['comment'] = 'no comment';
+						}
+    				    infoElement ['@type'] = infoEl['@type'];
+    				    infoElement ['isElementOfTrace'] = bundleID; 
+    				    
+    				    //use the original IRI
+    				    entityIDArray[entityIndex]= currentInfoRealisationIRI;
+    				    infoElement ['wasMemberOf'] = entityIDArray[entityIndex];
+
+    				    
+    				    informationElementsArray.push(infoElement);
+    				    
+    				        
+    					let widget = document.createElement('div');
+    					widget.className = 'outputVariableWidget';
+    					widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${infoElement['@type']} <br> <strong>Description</strong>:${infoElement['comment']}"> ${infoElement['label']} </label>`;
+    					
+    					document.getElementById ('InformationElementPane'+entityIndex).appendChild ( widget);
+    					
+    				}
+    				
+    				
+    				
+    				}
+    				
+    			}
+    			
+    			
+    			
+    			}
+	    		).catch(
+	    		        // Log the rejection reason
+	    			       (reason) => {
+	    			    	 
+	    			            console.log('Handle rejected promise getPlanComponets ('+reason+') here.');
+	    			           
+	    			        });
+	
 }
 
 function prepareHumanTaskProvenanceTraceGraph () {
@@ -347,14 +669,21 @@ function prepareHumanTaskProvenanceTraceGraph () {
 	
 	for (let i=0;i<stepIDArray.length;i++) {
 		let activity = {};
-		activity ['@id'] = dataPrefix+ uuidv4();
+		
+		//check if the form was prepopulated with saved data and id for teh activity already exist 
+		if (activityIDArray[i]!=null) {
+			activity ['@id'] = activityIDArray[i];
+		}
+		else {
+			activity ['@id'] = dataPrefix+ uuidv4();
+		}
 		activity ['@type'] = [];
 		activity ['@type'].push (context.MultiActivity);
 		activity ['@type'].push (context.Activity);
 		activity ['@type'].push (context.namedIndividual);
 		//to do load the IRI from component tree properly
 		activity ['isElementOfTrace'] = bundleID; 
-		activity ['correspondsToStep'] = stepIDArray[i];
+		activity ['correspondsToStep'] = stepIDArray[i]["id"];
 		let agentIRI = document.getElementById('agent-input-'+i).value;
 		activity ['wasAssociatedWith'] = agentIRI;
 		if (!checkIfAccountableAgentExist (agentIRI)) {
@@ -364,9 +693,27 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		activity ['startedAtTime'] =  moment(document.getElementById('time-start-input-'+i).value).utc().format('YYYY-MM-DDTHH:mm:ss');
 		activity ['endedAtTime'] =  moment(document.getElementById('time-end-input-'+i).value).utc().format('YYYY-MM-DDTHH:mm:ss');
 		
+		activity ['violated'] = [];
+		activity ['satisfied'] = [];
+		if (stepIDArray[i]["constraints"]!=null) {
+		//look up constraints
+		for (let j =0 ; j < stepIDArray[i]["constraints"].length;j++) {
+			let value = $('#step-'+i+'-constraintSelect-'+j+'').val();
+			if (value==='satisfied') {
+				activity ['satisfied'].push (stepIDArray[i]["constraints"][j]['@id'])
+			}
+			if (value==='violated') {
+				activity ['violated'].push (stepIDArray[i]["constraints"][j]['@id'])
+			}
+			
+		}
+		}
+		
 		traceElementArray.push(activity);
 	}
 	
+	let stepOutputsArray = [];
+		
 	//generating entities
 	for (let i=0;i<variableIDArray.length;i++) {
 		let entityCollection = {};
@@ -387,6 +734,7 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		//console.log(findActivityGeneratingThisEntity(variableIDArray[i], traceElementArray));
 		let originActivityIRI = findActivityGeneratingThisEntity(variableIDArray[i], traceElementArray);
 		entityCollection ['wasGeneratedBy'] = originActivityIRI;
+		entityCollection ['wasDerivedFrom'] = [];
 		
 		//not best way of doing this - as it relies on activities being in the array already and assumes only one agent per activity - to do fix later
 		linkAccountableAgentFromActivityID (originActivityIRI,entityIDArray[i],traceElementArray );
@@ -395,11 +743,11 @@ function prepareHumanTaskProvenanceTraceGraph () {
 		//console.log(entityCollection);
 		
 		traceElementArray.push(entityCollection);
-		
+		stepOutputsArray.push({activity:originActivityIRI, output:entityCollection});
 	}
 	
 	//horrible code but putting it here separatelly because we need to wait until entities are created
-	addUsedRelationships (traceElementArray); 
+	addUsedRelationships (traceElementArray, stepOutputsArray); 
 	console.log("GRAPH PAYLOAD ------>>>");
 	
 	
@@ -459,7 +807,7 @@ for (let i=0;i<traceElementArray.length; i++) {
 return activityID;
 }
 
-function addUsedRelationships (traceElementArray) {
+function addUsedRelationships (traceElementArray, stepOutputsArray) {
 	for (let i=0;i<graphArray.length; i++) {
 		let element = graphArray[i];
 		if (element[context.hasInputVariable['@id']]!=null) {
@@ -492,8 +840,25 @@ function addUsedRelationships (traceElementArray) {
 		    	let element2 = traceElementArray[y];
 		    	if (element2['correspondsToVariable']!=null) {
 		    		if (element2['correspondsToVariable'] ==variableID) {
-		    			console.log("found correpsonding entity - linking");
+		    			console.log("found correpsonding entity - linking used relationship");
 		    			traceElementArray[activityIndex]['used'] = 	element2['@id'];
+		    			
+		    			//add prov:derivedFromRelationships
+		    			for (let z=0;z<stepOutputsArray.length;z++) {
+		    				//find  the output in trace element array
+		    				for (let a=0;a<traceElementArray.length; a++ ) {
+		    					console.log(stepOutputsArray)
+		    					console.log(traceElementArray)
+		    					console.log(traceElementArray[a])
+		    					console.log(stepOutputsArray[z])
+		    					
+		    					if ((traceElementArray[a]['@id'] == stepOutputsArray[z]['output']['@id'])&&(traceElementArray[activityIndex]['@id']==stepOutputsArray[z]['activity'])) {
+		    						console.log('linking derived from relationship');
+		    						traceElementArray[a]['wasDerivedFrom'].push(element2['@id']);
+		    					}
+		    				}
+		    			}
+		    			
 		    			
 		    		}
 		    	
@@ -506,141 +871,7 @@ function addUsedRelationships (traceElementArray) {
 	
 }
 
-</script>
-<body>
-
- <!-- The Modal  ADD Variables  -->
-  <div class="modal" id="informationElement">
-    <div class="modal-dialog">
-      <div class="modal-content">
-      
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <h4 class="modal-title"> Information Element</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        
-        <!-- Modal body -->
-        <div class="modal-body" >
-       <div class="card">
-           <div class="input-group mb-3">
-        <div class="input-group-prepend">
-           <label class="input-group-text" for="informationElementType">Information Type</label>
-           
-        </div>
-         <select class="custom-select"  id="informationElementType"></select>
-        </div>
-        
-        
-         <div class="input-group mb-3">
-       <div class="input-group-prepend">
-         <span class="input-group-text" >Label</span>
-         </div>
-       <input type="text" class="form-control" id="newInformationElementLabel" placeholder="Default Label" aria-label="label" aria-describedby="newInformationElementLabel">
-      </div>  
-        <div class="input-group mb-3">
-       <div class="input-group-prepend">
-         <span class="input-group-text">Description</span>
-         </div>
-       <input type="text" class="form-control" id="newInformationElementDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
-      </div>  
-      
-      <p>Only relevant to type of RealizableObject and it's subtypes</p>
-      <div class="input-group mb-3">
-       <div class="input-group-prepend">
-         <span class="input-group-text" for="newInformationElementThirdParty">Is This Third Party Element </span>
-         </div>
-      &nbsp;&nbsp;&nbsp; <input type="checkbox"  dissabled id="newInformationElementThirdParty"  aria-label="is third party" aria-describedby="newVariableDescription">
-      </div>  
-       <p>Only relevant to type of AccountableAgent</p>
-       <div class="input-group mb-3">
-        <div class="input-group-prepend">
-           <label class="input-group-text" for="informationElementAccountableAgentIRI" >Accountable Agent IRI</label>
-           
-        </div>
-         <input class="form-control" type="text" dissabled id="informationElementAccountableAgentIRI">
-        </div>
-  <div class="input-group mb-3">
-        <div class="input-group-prepend">
-           <label class="input-group-text" for="informationElementAccountableAgent">Link Realizable Object (optional)</label>
-           
-        </div>
-         <select class="custom-select" dissabled id="informationElementAccountableAgent"></select>
-        </div>
-        
-          
-            
-        </div>
-        
-         
-        </div>
-        <!-- Modal footer -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-success" data-dismiss="modal" id="addInfoElementBtn">Add Element</button>
-        </div>
-        
-      </div>
-    </div>
-  </div>
-
- <div class="container" id="main">
-<script>getPlanComponets (findGetParameter('token'));
-</script>
-
-<h2>Please complete the requested information below</h2> <br><br>
-<form id="form" action="/uploadHumanTaskProvenanceTrace"  method="post">
-<button class="btn btn-primary" id="submitButton">Submit</button>
-</form>
-
-<script>
-$(document).ready(function (e) {
-	
-	$( "#informationElementType" ).change(function() {
-		enableInfoElements ();
-		});
-	
-	$('#informationElement').on('show.bs.modal', function (event) {
-		console.log("modal showing");
-		 
-		enableInfoElements ();
-		getAllowedInformationElelementForInformationRealizationType ();
-		//document.getElementById ("addInformationElementModal").innerHTML ="";
-	     currentInformationElementPaneId = $(event.relatedTarget).data('flag');
-		
-		 // displayCurrentPlanVariables ('currentPlanExistingVariablesList',variableMode);
-		 // $(this).find('#variablesTitle').html(variableMode);
-		  //hold teh info about temporary 
-		//  temporaryVarArray = [];
-		//  if (variableMode!="Output") {
-		//  document.getElementById ("currentPlanNewVariablesList").innerHTML="";
-		  //}
-		 
-		  
-		});
-	
-	$(function () {
-		  $('[data-toggle="tooltip"]').tooltip()
-		}) 
-	
-	$('#addInfoElementBtn').on("click",function(x) {
-		let entityIndex = currentInformationElementPaneId.replace("InformationElementPane","")
-		document.getElementById (currentInformationElementPaneId).appendChild ( createInformationElementWidget (entityIndex)); 		
-		//TO DO - Handle storing of the object 
-		
-		//document.getElementById('newInformationElementType').value ="";
-		document.getElementById('informationElementType').value="";
-		 document.getElementById('newInformationElementDescription').value ="";
-		 document.getElementById('newInformationElementLabel').value ="";
-		 document.getElementById('newInformationElementThirdParty').checked = false;
-		 document.getElementById('informationElementAccountableAgent').value ="";
-		 document.getElementById('informationElementAccountableAgentIRI').value ="";
-		
-		$('#informationElement').modal('toggle');
-	}
-	)
-	
-	//to do handle deletions
+//to do handle deletions
 function createInformationElementWidget (entityIdIndex) {
     let infoElement = {};
     let infoElementType = document.getElementById('informationElementType').value; 
@@ -725,9 +956,140 @@ function createInformationElementWidget (entityIdIndex) {
 		
 	}
 	
-	
-	
-	
+	//adding this as bootstrap doesnt work for some reason
+	function showInfoElementModal (id) {
+		console.log("modal showing fro custom JQuery function "+id);
+		$('#informationElement').toggle();
+		enableInfoElements ();
+		getAllowedInformationElelementForInformationRealizationType ();
+	    currentInformationElementPaneId = id;
+	}
+</script>
+</head>
+<body>
+ <div class="container" id="main">
+ <!-- The Modal  ADD Variables  -->
+  <div class="modal" id="informationElement">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title"> Information Element</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body" >
+       <div class="card">
+           <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementType">Information Type</label>
+           
+        </div>
+         <select class="custom-select"  id="informationElementType"></select>
+        </div>
+        
+        
+         <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text" >Label</span>
+         </div>
+       <input type="text" class="form-control" id="newInformationElementLabel" placeholder="Default Label" aria-label="label" aria-describedby="newInformationElementLabel">
+      </div>  
+        <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text">Description</span>
+         </div>
+       <input type="text" class="form-control" id="newInformationElementDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
+      </div>  
+      
+      <p>Only relevant to type of RealizableObject and it's subtypes</p>
+      <div class="input-group mb-3">
+       <div class="input-group-prepend">
+         <span class="input-group-text" for="newInformationElementThirdParty">Is This Third Party Element </span>
+         </div>
+      &nbsp;&nbsp;&nbsp; <input type="checkbox"  dissabled id="newInformationElementThirdParty"  aria-label="is third party" aria-describedby="newVariableDescription">
+      </div>  
+       <p>Only relevant to type of AccountableAgent</p>
+       <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementAccountableAgentIRI" >Accountable Agent IRI</label>
+           
+        </div>
+         <input class="form-control" type="text" dissabled id="informationElementAccountableAgentIRI">
+        </div>
+  <div class="input-group mb-3">
+        <div class="input-group-prepend">
+           <label class="input-group-text" for="informationElementAccountableAgent">Link Realizable Object (optional)</label>
+           
+        </div>
+         <select class="custom-select" dissabled id="informationElementAccountableAgent"></select>
+        </div>
+        </div>
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal" id="dismissInfoElementBtn">Cancel</button>
+          <button type="button" class="btn btn-success" data-dismiss="modal" id="addInfoElementBtn">Add Element</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+
+<h2 style="text-align:center;padding-top:70px;">Accountability Trace Form</h2> <br><br>
+
+<form id="form" action="/uploadHumanTaskProvenanceTrace"  method="post">
+<div class="text-right">
+<button class="btn btn-primary  " id="submitButton">Submit</button>
+</div>
+
+<br><br>
+<ul class="nav nav-tabs" id="navigation"></ul>
+
+  <div class="tab-content" id="tabContentSteps"></div>
+</form>
+
+<script>getPlanComponets (findGetParameter('token'));
+</script>
+   
+<script>
+$(document).ready(function (e) {
+		
+		//load the form
+		
+		
+		$('#addInfoElementBtn').on("click",function(x) {
+			 let entityIndex = currentInformationElementPaneId.replace("InformationElementPane","")
+			 document.getElementById (currentInformationElementPaneId).appendChild ( createInformationElementWidget (entityIndex)); 		
+			 document.getElementById('informationElementType').value="";
+			 document.getElementById('newInformationElementDescription').value ="";
+			 document.getElementById('newInformationElementLabel').value ="";
+			 document.getElementById('newInformationElementThirdParty').checked = false;
+			 document.getElementById('informationElementAccountableAgent').value ="";
+			 document.getElementById('informationElementAccountableAgentIRI').value ="";
+			
+			$('#informationElement').modal('toggle'); })
+			
+		$('#dismissInfoElementBtn').on("click",function(x) {
+			$('#informationElement').modal('toggle');
+		});
+		
+	    
+		
+		$( "#informationElementType" ).change(function() {
+			enableInfoElements ();
+			});
+		
+		$('#informationElement').on('show.bs.modal', function (event) {
+			console.log("modal showing");
+			 
+			enableInfoElements ();
+			getAllowedInformationElelementForInformationRealizationType ();
+		    currentInformationElementPaneId = $(event.relatedTarget).data('flag');});
+	     
 	$('#form').on("submit",function(x) {
 	 console.log("trying to submit");
 	 console.log($("#form"));

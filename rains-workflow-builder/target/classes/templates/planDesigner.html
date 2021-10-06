@@ -30,11 +30,12 @@
 <style>
 
    .steprow {
-   z-index:-10;}  
+   z-index:10;
+   width:100%;
+   }  
     
 .steps {
 min-height:90px;
-    border-radius: 25px;
 width:120px;
 float:left;
 border-style: dotted;
@@ -68,7 +69,7 @@ min-height:400px;
 }
 
 .step {
-      border-radius: 25px;
+     
 float:left;
 min-width: 200px;
 height: 80px;
@@ -145,11 +146,11 @@ div.scroll {
               <li> <a href="#" onclick="saveTemplate()">Save as Template</a></li>
               </div>
               <div th:if="${#httpServletRequest.getParameter('mode') == 'template' OR #httpServletRequest.getParameter('mode') == 'new' }"> 
-               <li> <a href="javascript:void(0);" data-toggle="modal" data-target="#importTemplateModal" onclick=" getTemplates ()">Import Template</a></li>
+           <!--    <li> <a href="javascript:void(0);" data-toggle="modal" data-target="#importTemplateModal" onclick=" getTemplates ()">Import Template</a></li> -->
                  </div>   
          
                 <li>
-                    <a href="#">Help</a>
+                <!--      <a href="#">Help</a> -->
                 </li>
             </ul>
 
@@ -178,7 +179,7 @@ div.scroll {
             </nav>
 
     
-<div class="jumbotron">
+ <div hidden class="jumbotron">
 <div th:if="${#httpServletRequest.getParameter('systemIri')}">
 <h3>Designing workflow plan for system <span  th:text="${#httpServletRequest.getParameter('systemIri')}"></span></h3>
 </div>
@@ -222,7 +223,7 @@ div.scroll {
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Design </button>
       
        <script>
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "design");
       </script>
     
        </div>  
@@ -232,7 +233,7 @@ div.scroll {
        
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Implementation </button>
       <script>
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "implementation");
       </script>
        </div> 
        
@@ -296,6 +297,29 @@ div.scroll {
   </div>
 </div>
 
+<!-- Modal - Import Template -->
+<div class="modal" id="addConstraints" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Constraints</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="constraintList" style="min-height:200px;">
+       
+     
+      </div>
+      <div class="modal-footer">
+       <button type="button" class="btn btn-success" disabled  id="addConstraintBtn">Save</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+
+      </div>
+    </div>
+  </div>
+</div>
 
 
  <!-- The Modal  ADD Variables  -->
@@ -327,34 +351,34 @@ div.scroll {
          <div class="card">
           <div id="newVariableForm" class="collapse collapsed" aria-labelledby="headingOne" data-parent="#currentPlanNewVariablesList">
       <div class="card-body">
-       
+       <div class="alert alert-danger" id="createVariableAddButtonCheck" style="display:none;"> Please complete all the required fields </div>
        <div class="input-group mb-3">
        <div class="input-group-prepend">
-         <span class="input-group-text" >Label</span>
+         <span class="input-group-text"  >Label *</span>
          </div>
-       <input type="text" class="form-control" id="newVariableLabel" placeholder="Default Label" aria-label="label" aria-describedby="newVariableLabel">
+       <input  type="text" class="form-control" id="newVariableLabel" placeholder="Default Label" aria-label="label" aria-describedby="newVariableLabel">
       </div>
       <div class="input-group mb-3">
        <div class="input-group-prepend">
-         <span class="input-group-text">Description</span>
+         <span class="input-group-text" >Description *</span>
          </div>
-       <input type="text" class="form-control" id="newVariableDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
+       <input  type="text" class="form-control" id="newVariableDescription" placeholder="Add some description" aria-label="description" aria-describedby="newVariableDescription">
       </div>
        <div class="input-group mb-3">
   <div class="input-group-prepend">
-    <label class="input-group-text" for="newVariableType">Variable Type</label>
+    <label class="input-group-text" for="newVariableType" >Variable Type *</label>
   </div>
-  <select class="custom-select" id="newVariableType"></select>
+  <select  class="custom-select" id="newVariableType"></select>
    
 </div>
        <div class="input-group mb-3">
        <div class="input-group-prepend">
-    <label class="input-group-text" for="accountableObjectRel">Relates To Accountable Object</label>
+    <label class="input-group-text" for="accountableObjectRel">Relates To Accountable Object *</label>
   </div>
-  <select class="custom-select" id="accountableObjectRel"></select>
+  <select required class="custom-select" id="accountableObjectRel"></select>
        </div>
- <button type="button" class="close" style="margin-left:10px" data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariableDismissButton">Dismiss</button>
-       <button type="button" class="close"  data-toggle="collapse" data-target="#newVariableForm" aria-expanded="true" aria-controls="newVariableForm" id="createVariableAddButton">Add</button>
+ <button type="button" class="close" style="margin-left:10px"  aria-expanded="true" aria-controls="newVariableForm" id="createVariableDismissButton">Dismiss</button>
+       <button type="button" class="close"   aria-expanded="true" aria-controls="newVariableForm" id="createVariableAddButton">Add</button>
       </div>
     </div>
          <div class="form-check">
@@ -407,7 +431,7 @@ function getAllowedVariablesForSelectedStep (mode) {
     selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
     for (let i=0;i<data.length;i++) {
     	if (data[i].includes(rainsPlanPrefix)) {
-    	selectOption.innerHTML += ' <option value="'+data[i]+'">'+data[i]+'</option>' ;
+    	selectOption.innerHTML += ' <option value="'+data[i]+'">'+removeRainsURIPart(fromCamelCase(data[i]," "))+'</option>' ;
     	}
 	}
     
@@ -416,6 +440,8 @@ function getAllowedVariablesForSelectedStep (mode) {
   .catch(function (error) {
     console.log('Request failed', error);
   });
+	
+	
 	
  //getAccountable objects using accountableObjects.js
  
@@ -432,6 +458,19 @@ function getAllowedVariablesForSelectedStep (mode) {
 			}
 			);
 }
+
+//temporary 
+function removeRainsURIPart (inputString) {
+	
+	inputString = inputString.replaceAll(rainsPlanPrefix,"")
+	
+	return inputString
+}
+
+const fromCamelCase = (str, separator = ' ') =>
+  str
+    .replace(/([a-z\d])([A-Z])/g, '$1' + separator + '$2')
+    .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1' + separator + '$2')
 
 function createOptionsAccountableObjects (accountableObjects, parentkey ) {
 	html = "";
@@ -483,14 +522,22 @@ function displayCurrentPlanVariables (elementId,variableMode) {
 		for (let i=0;i<availableVariables.length;i++) {
 			document.getElementById (elementId).innerHTML += `<div class="form-check" >
                 <input type="checkbox" class="form-check-input" id="${availableVariables[i]['@id']}">
-                <label class="form-check-label" for="random" data-toggle="tooltip" data-placement="top" title="${availableVariables[i]['comment']}"> ${availableVariables[i]['label']} (${availableVariables[i]['@type']}) </label>
+                <label class="form-check-label" for="random" data-toggle="tooltip" data-placement="top" title="${availableVariables[i]['comment']}"> ${availableVariables[i]['label']} (${findRainsVariable(availableVariables[i]['@type'])}) </label>
            </div>`;
 		}
-		
-		//document.getElementById(elementId).innerHTML = "list teh variables to do ";
-		
+		//document.getElementById(elementId).innerHTML = "list teh variables to do ";		
 	}
 }
+
+ const findRainsVariable = (types) => {
+	 let variableType = ''
+	 for (let i =0;i<types.length;i++ ) {
+		 if (types[i].includes(rainsPlanPrefix)) {
+			 variableType = types[i];
+		 }
+	 }
+	 return removeRainsURIPart(fromCamelCase(variableType," "))
+ }
 
 function listVaribalesAvailableToStep (stepId,variableMode) {
 // to do
@@ -507,7 +554,8 @@ function listVaribalesAvailableToStep (stepId,variableMode) {
 			continue;
 		}
 		//skip those that don't yet exist
-		if (variable["belongsToRow"] > selectedStep['belongsToRow']) {
+		//if (variable["belongsToRow"] > selectedStep['belongsToRow']) {
+	    if (parseInt(variable["belongsToRow"].replaceAll("step_row_",""),10) >  parseInt(selectedStep["belongsToRow"].replaceAll("step_row_",""),10)) {
 			continue;
 		}
 		//don't allow two steps to produce same variable 
@@ -522,7 +570,8 @@ function listVaribalesAvailableToStep (stepId,variableMode) {
 		if  (variableMode=="Input"&&variable["isOutputVariableOf"]&&(variable["isOutputVariableOf"].length>0)&&(variable["belongsToRow"] === selectedStep['belongsToRow'])) {
 			continue;
 		}
-			
+		
+		
 			
 		result.push (variable);
 	}
@@ -544,7 +593,225 @@ $('#linkVariables').on('show.bs.modal', function (event) {
 	 
 	  
 	});
+
+
+//reset the modal content every time add constriants is clicked (+) in the element inspector
+$('#addConstraints').on('show.bs.modal', function (event) {
+ let html = `Constraint Type: 
+	        <select class="custom-select" id='constraintTypeSelect' > 
+            <option selected disabled="disabled" >Select Constraint Type</option><option value=${context.HumanConstraint}>Human-Validated Constraint (i.e., checkbox)</option>
+            <option value=${context.AutoConstraint}>Auto-Validated Constraint (i.e., SHACL rule)</option>
+            </select>
+	        <div id="constraintCreatorPane"></div>
+           `;
+
+ $('#constraintList').html(html);
+           
+           
+
+
+ $('#constraintTypeSelect').change( function (event) {
+	let html ;
 	
+	if ($(this).val() == context.HumanConstraint) {	
+		html =`<label for="constraintLabel" class="col-form-label">Name the constraint</label>
+			 <div class="input-group mb-3">
+	        <div class="input-group-prepend">
+	          <span class="input-group-text">Label</span>
+	          </div>
+	        <input type="text" class="form-control" id="constraintLabel" placeholder="Add some label" aria-label="label" aria-describedby="constraintLabel">
+	       </div>
+	        <div class="input-group mb-3">
+	        <div class="input-group-prepend">
+	          <span class="input-group-text">Description</span>
+	          </div>
+	        <input type="text" class="form-control" id="constraintDescription" placeholder="Add some description" aria-label="description" aria-describedby="constraintDescription">
+	       </div>`;
+	       $('#addConstraintBtn').prop('disabled', false)
+	}
+	
+	if ($(this).val() == context.AutoConstraint) {	
+		 
+		html = `Constraint Type:
+	        <select class="custom-select" id='autoConstraintTypeSelect' > 
+	        <option selected disabled="disabled" >Select Constraint </option><option value="requiredInfoElement">Required Info Element</option>
+	        </select>
+	        <div id="autoConstraintCreatorPane"></div>
+	       `;
+	}
+	
+	
+	
+	$('#constraintCreatorPane').html (html); 
+	
+ 
+	
+
+    $('#autoConstraintTypeSelect').change( function (event) {
+	  $('#addConstraintBtn').prop('disabled', false)
+	  console.log("Selection auto constraint")
+	
+	  let html =`<label for="constraintLabel" class="col-form-label">Name the constraint</label>
+		 <div class="input-group mb-3">
+         <div class="input-group-prepend">
+         <span class="input-group-text">Label</span>
+         </div>
+         <input type="text" class="form-control" id="constraintLabel" placeholder="Add some label" aria-label="label" aria-describedby="constraintLabel">
+         </div>
+         <div class="input-group mb-3">
+         <div class="input-group-prepend">
+         <span class="input-group-text">Description</span>
+         </div>
+         <input type="text" class="form-control" id="constraintDescription" placeholder="Add some description" aria-label="description" aria-describedby="constraintDescription">
+         </div>
+         Select output that should contain the info element:
+         <select class="custom-select" id='autoConstraintVariableSelect' > 
+	       
+	     </select>
+	     Select info element type:
+         <select class="custom-select" id='autoConstraintInfoElementTypeSelect' required> 
+	       
+	     </select>
+         `; 
+		
+		$('#autoConstraintCreatorPane').html (html); 
+		
+		
+		populateSelectWithListOfOutputVarsOfSelectedStep (document.getElementById('autoConstraintVariableSelect'));
+		
+		populateSelectWithListOfInfoElements(document.getElementById('autoConstraintInfoElementTypeSelect'));
+     });
+ 
+ });
+
+
+});
+
+$('#addConstraintBtn').click(  
+
+		function () {
+			if ($('#constraintTypeSelect').val()==context.HumanConstraint && $('#constraintLabel').val()!='' && $('#constraintDescription').val() !='') {
+			createNewHumanValidatedConstraint ($('#constraintLabel').val(), $('#constraintDescription').val(), $('#constraintTypeSelect').val() );
+			populateInspectPane (selectedStep );
+			$('#addConstraints').modal('toggle');
+			}
+			
+			
+			else if ($('#constraintTypeSelect').val()==context.AutoConstraint && $('#constraintLabel').val()!='' && $('#constraintDescription').val() !='') {
+				
+				//fetch the SHACL implementation
+				let constraintURI = dataPrefix+ uuidv4();
+				let fetchURL = "/createSHACLconstraint?constraintName="+$('#autoConstraintTypeSelect').val()+"&variable="+encodeURIComponent(btoa($('#autoConstraintVariableSelect').val()))+"&elementType="+encodeURIComponent(btoa($('#autoConstraintInfoElementTypeSelect').val()))+"&target="+encodeURIComponent(btoa(selectedStep['@id']))+"&constraintURI="+encodeURIComponent(btoa(constraintURI));  
+	            console.log(fetchURL)
+				fetch(fetchURL)  
+	             .then((data) => {
+	            	 data.text().then(function (text) { 
+	            	 console.log("constraintImplementation")
+	            	 console.log(text)
+	            	 
+	            	 
+	            	 createNewAutoValidatedConstraint ($('#constraintLabel').val(), $('#constraintDescription').val(), $('#constraintTypeSelect').val(), constraintURI,  text );
+	            	 $('#addConstraints').modal('toggle');
+	            	 populateInspectPane (selectedStep );
+	            	 });
+	             });
+			}
+			else {
+
+				alert ("Please complete label and description of the constraint."); 
+			}
+			
+		}
+);
+
+
+function populateSelectWithListOfOutputVarsOfSelectedStep (selectOption) {
+	let outputVariables = [];
+	for (let i=0;i<variablesArray.length;i++) {
+
+      if (variablesArray[i]['isOutputVariableOf'].includes(selectedStep['@id'])) {
+
+    	  outputVariables.push( variablesArray[i]);
+      }
+	}
+	
+	selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
+	
+	for (let i=0;i<outputVariables.length;i++) {
+		  selectOption.innerHTML += ' <option value="'+outputVariables[i]['@id']+'" title="'+outputVariables[i]['comment']+'">'+outputVariables[i]['label']+'</option>' ;
+	    	
+	}
+	
+	
+}
+
+function populateSelectWithListOfInfoElements (selectOption) { 
+	let property ;
+	
+	//!!!! TO DO - Need to call to query OWL constraints to see whihc type corresponds to variable
+    informationRealizationType = "https://w3id.org/sao#ModelSpecification";
+	
+	fetch("/getAllowedInformationElelementForInformationRealizationType?informationRealizationType="+encodeURIComponent(btoa(informationRealizationType))+"&restrictionPropertyIRI="+encodeURIComponent(btoa(property)) ) 
+	.then((data) => {
+		
+		return data.json();
+	})
+  .then(function (data) {
+	
+    selectOption.innerHTML = ' <option selected disabled="disabled">Choose...</option>';
+    
+    //need to remove iris and rename the labels that are same in MLS and RAINS - e.g. Evaluation procedure
+    let sortedAndProcessedArray = [];
+    
+    for (let i=0;i<data.length;i++) {
+    	 console.log(data[i])
+    	let dataObj =  JSON.parse(data[i].replace(/(\r\n|\n|\r)/gm, ""));
+    	 console.log(dataObj)
+    	if (dataObj['iri'].includes(rainsPlanPrefix)||dataObj['iri'].includes(saoPrefix)||dataObj['iri'].includes(mlsPrefix)||dataObj['iri'].includes(dcPrefix)) {
+    		
+    		
+    		
+    		let parts = dataObj['iri'].split('/');
+    		parts = parts[parts.length - 1];
+    		parts = parts.split('#');
+    		
+    		let label = parts[parts.length - 1];
+    		console.log(label)
+    		
+    		if (dataObj['iri'].includes(rainsPlanPrefix)&&label =='EvaluationProcedure') {
+    			label = label +' (Generic system component)'
+    		}
+    		
+    		if (dataObj['iri'].includes(rainsPlanPrefix)&&label =='InformationElement') {
+    			label = label +' (Generic)'
+    		}
+    		if (dataObj['iri'].includes(mlsPrefix)&&label =='EvaluationProcedure') {
+    			label = label +' (Model component)'
+    		}
+    		
+    		sortedAndProcessedArray.push({'label':label,'iri':dataObj['iri'], 'comment':dataObj['comment']})
+     	}
+    }
+    
+    sortedAndProcessedArray.sort((a, b) => (a.label > b.label) ? 1 : -1)
+    
+   
+    
+    for (let i=0;i<sortedAndProcessedArray.length;i++) {
+    	
+    	   selectOption.innerHTML += ' <option value="'+sortedAndProcessedArray[i]['iri']+'" title="'+sortedAndProcessedArray[i]['comment']+'">'+sortedAndProcessedArray[i]['label']+'</option>' ;
+    	
+	}
+    
+    
+  })
+  .catch(function (error) {
+    console.log('Request failed', error);
+  });
+}
+
+
+
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()
 }) 
@@ -557,34 +824,48 @@ $('#createVariable').hide();
 
 $('#createVariableDismissButton').click(
 function () {
+$('#newVariableForm').collapse('hide')	
+$('#createVariableAddButtonCheck').hide()
 $('#createVariable').show();
 }
 );
 
+
+
 $('#createVariableAddButton').click(
-function () {
-$('#createVariable').show();
-let type = $('#newVariableType').val();
-let label = $('#newVariableLabel').val();
-let description = $('#newVariableDescription').val();
-let accountableObjectRel = $('#accountableObjectRel').val();
-$('#accountableObjectRel').val("");
-$('#newVariableType').val("");
-$('#newVariableLabel').val("");
-$('#newVariableDescription').val("");
-let id = temporaryVarArray.length;
-console.log("Selected Step");
-console.log(selectedStep['@type']);
-document.getElementById ("currentPlanNewVariablesList").innerHTML += `<div class="form-check" >
+function (event) {
+	
+	if (($('#accountableObjectRel').val() == null)||($('#newVariableType').val() == null) ||($('#newVariableDescription').val() == "")||($('#newVariableLabel').val() == ""))      {
+		 $('#createVariableAddButtonCheck').show()
+		 console.log("validation check failed")
+	}
+	else {
+		$('#createVariableAddButtonCheck').hide()
+		$('#newVariableForm').collapse('hide')
+		$('#createVariable').show();
+		let type = $('#newVariableType').val();
+		let label = $('#newVariableLabel').val();
+		let description = $('#newVariableDescription').val();
+		let accountableObjectRel = $('#accountableObjectRel').val();
+		$('#accountableObjectRel').val("");
+		$('#newVariableType').val("");
+		$('#newVariableLabel').val("");
+		$('#newVariableDescription').val("");
+		let id = temporaryVarArray.length;
+		console.log("Selected Step");
+		console.log(selectedStep['@type']);
+		document.getElementById ("currentPlanNewVariablesList").innerHTML += `<div class="form-check" >
                  <input checked type="checkbox" class="form-check-input" id="${id}">
                  <label class="form-check-label" for="random" data-toggle="tooltip" data-placement="top" title="${description}"> ${label} (${type}) </label>
             </div>`;
+            
             temporaryVarArray.push({id:id, label:label, type:type, description:description, accountableObjectRel:accountableObjectRel});
-$('body').tooltip({
-	 selector: '[data-toggle="tooltip"]'
-});
-}
-);
+			
+            $('body').tooltip({
+	 			selector: '[data-toggle="tooltip"]'
+			});
+	}
+	});
 
 $('#addSelectedVarsBtn').click(
 		function () {

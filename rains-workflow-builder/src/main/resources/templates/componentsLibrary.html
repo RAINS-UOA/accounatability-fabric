@@ -1,7 +1,4 @@
-
-
-
-   <!-- Navigation -->
+<!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow fixed-top">
   <div class="container">
     <a class="navbar-brand" href="#" onclick="loadDoc('/home')" >Home</a>
@@ -12,7 +9,7 @@
       <ul class="navbar-nav ml-auto">
  
         <li class="nav-item">
-          <a class="nav-link" href="/settings">Settings</a>
+          <!--<a class="nav-link" href="/settings">Settings</a>-->
         </li>
       </ul>
     </div>
@@ -21,26 +18,31 @@
 <div style="padding-top:100px;" class="container" id="firstpage-content">
 <h2>Components Library</h2>
 
-<p>Here you can add steps and variables that are used by the workflow builder interface</p>
-
 <div  class="row">
- <div class="col-md-12" >
-<h3>Add Components</h3>
+ <div class="col-md-6" >
+ <p>This section currently list plan components which are subclasses of sao:AccountableAction and sao:AccountableResult</p>
+ </div>
+ <div class="col-md-6" >
+<!--  
 <form method="POST" enctype="multipart/form-data" id="uploadForm" action="/upload">
+  <strong>Add Components</strong>
  <div class="custom-file">
+
   <input type="file" class="custom-file-input" name="file" id="customFile">
   <label class="custom-file-label" for="customFile">Choose file</label>
  </div>
  <br>
+ <br>
 			<button class="btn btn-primary pull-right" id="uploadButton"  >Upload</button>	
-		</form>
+		</form>-->
 	
 </div>
 </div>
+<hr>
 <div  class="row">
 
- <div class="col-md-12" >
-  <h3>Steps</h3>
+ <div class="col-md-6" >
+  <h4>Steps</h4>
 
 <div class="overflow-auto componentPane" id="contentSteps">
 <div id="stepsMessage"></div>
@@ -48,12 +50,9 @@
 <ul id="stepsUL"></ul>
 </div>
 </div> 
-</div>
 
-  <!-- Variables Column -->
-  <div  class="row">
-<div class="col-md-12">
-<h3>Variables</h3>
+<div class="col-md-6">
+<h4>Variables</h4>
 <div class="overflow-auto componentPane" id="contentVariables">
 <div id="variablesMessage"></div>
   <div class="loader" id="loaderVariables" ></div>
@@ -69,9 +68,6 @@
  
 
 <script id="script">
- 
- 
-
 $("#uploadButton").click(function() {
 	 console.log("trying to submit");
 	 $("#uploadForm").submit(function(e) {
@@ -121,6 +117,8 @@ $("#uploadButton").click(function() {
 	});
 
  //populate the step components view
- getStepComponents ('stepsUL', 'stepsMessage');
- getVariableComponents ('variablesUL', 'variablesMessage');
+
+  getVariableComponents ('variablesUL', 'variablesMessage');
+  getStepComponents ('stepsUL', 'stepsMessage');
+ 
  </script>

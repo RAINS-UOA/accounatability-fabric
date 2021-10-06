@@ -48,6 +48,8 @@ let parsed =  this.csvToMatrix(text,',');
 
 var stepRowCounter = 0; 
 
+//we have to record the SHACL implementation separately as TTL because I didn't figure out how to do SHACL with SPARQL rules in JSON-LD. The query needs to be wrapped in "" and parsers are escaping it in \"\" which is then causing problems for rdflib validator (used by the model card toolkit mapping tool that cannot read json-ld and when it is parsed into TTL then "" dissapear
+var shacklTTL ="@prefix : <http://nothing.com/> .";
 
 var selectedStep;
 // convenience reference to plan, steps, constraints, and variables as we will
@@ -71,8 +73,8 @@ var dcPrefix = "http://purl.org/dc/terms/";
 var inspectorTemplate =`
 <div class="container-fluid">
   <div class="form-group">
-    <label for="StepID">ID</label>
-    <input type="text" readonly class="form-control" id="StepID" >
+    <label hidden for="StepID">ID</label>
+    <input hidden type="text" readonly class="form-control" id="StepID" > 
   </div>
     <div class="form-group">
     <label for="StepLabel">Step Label</label>
@@ -80,6 +82,7 @@ var inspectorTemplate =`
   </div>
     <div class="row">
     <label for="StepTypes">Types</label>
+    
     <div id="StepTypes" class = "row"> </div>
    </div>
      <hr>
@@ -109,9 +112,10 @@ var inspectorTemplate =`
    <hr>
   <div class="form-group">
     <label for="StepConstraints">Constraints</label>
-     <a href="#" class="btn btn-info btn-sm">
+     <button class="btn btn-info btn-sm" data-toggle="modal" data-flag="Output" data-target="#addConstraints">
           <span class="fa fa-plus-circle"></span>  
-        </a>
+          </button>
+        
      <br>
     <div id="StepConstraints" class = "row"> </div>
   </div>
@@ -162,7 +166,9 @@ let stepTypes = document.getElementById ("StepTypes");
 stepTypes.innerHTML =  "";
 
 for (let i=0;i<element['@type'].length;i++) {
+	if ( replaceForNameSpace (element['@type'][i]).includes("rains")) {
 stepTypes.appendChild (createStepTypeWidget ( replaceForNameSpace (element['@type'][i]) , false));
+	}
 }
 
 let inputs = document.getElementById ("StepInputs");
@@ -180,6 +186,16 @@ for (let i=0;i<variablesArray.length;i++) {
 	if (variablesArray[i]['isOutputVariableOf'].includes(element['@id'])) {
 	
 		outputs.appendChild (createOutputVariableWidget ( variablesArray[i] , false));
+	}
+}
+
+let constraints = document.getElementById ("StepConstraints");
+
+for (let i=0;i<constraintsArray.length;i++) {
+	
+	if (constraintsArray[i]['constrains'].includes(element['@id'])) {
+	
+		constraints.appendChild (createConstraintWidget ( constraintsArray[i] , false));
 	}
 }
     
@@ -305,7 +321,8 @@ function createInputVariableWidget ( input , canDelete) {
 	let widget = document.createElement('div');
 	widget.className = 'inputVariableWidget';
 	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${input['@type']} <br> <strong>Description</strong>: ${input['comment']}"> ${input['label']} </label>`;
-
+	//add the remove button
+	variableCloseButtonElement (widget, input);
 	return widget;
 
 	}
@@ -317,7 +334,29 @@ function createOutputVariableWidget ( output , canDelete) {
 	widget.className = 'outputVariableWidget';
 	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${output['@type']} <br> <strong>Description</strong>:${output['comment']}"> ${output['label']} </label>`;
 
+	variableCloseButtonElement (widget, output);
+	return widget;
 
+	}
+
+function createConstraintWidget ( constraint , canDelete) {
+    
+	//change to handle differences betwee human and automated constraints (i.e. show different colors)
+	let widget = document.createElement('div');
+	
+	console.log(constraint)
+	
+	if (constraint ['@type'].includes(context.AutoConstraint)) {
+		widget.className = 'autoConstraintWidget';
+	}
+	if (constraint ['@type'].includes(context.HumanConstraint))  {
+		widget.className = 'humanConstraintWidget';
+	}
+	
+	widget.innerHTML = `<label class="form-check-label" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Types</strong>: ${constraint['@type']} <br> <strong>Description</strong>:${constraint['comment']}"> ${constraint['label']} </label>`;
+
+	constraintCloseButtonElement(widget, constraint);
+	
 	return widget;
 
 	}
@@ -638,10 +677,65 @@ function createNewVariable (label, description, type, rowId, mode, accountableOb
 	}
 	
 	
+	
+	
+	
 	variablesArray.push(variable);
 
 	
 	
+}
+
+
+function createNewAutoValidatedConstraint (label, description, type, implURI, shaclImpl ) {
+	
+	console.log('CREATING CONSTRAINT PLAN ID IS ')
+	console.log(plan['@id'])
+	
+	let constraint = {} ;
+	constraint ['@id'] = dataPrefix+ uuidv4();
+	constraint ['@type'] = [];
+	constraint ['@type'].push (context.Constraint);
+	constraint ['@type'].push (context.namedIndividual);
+	constraint ['@type'].push (type);
+	constraint ['label'] = label; 
+	constraint ['comment'] = description; 
+	constraint ['isElementOfPlan'] = plan['@id'];
+	constraint ['constrains']=[];
+	constraint ['constrains'].push(selectedStep["@id"]);
+	constraint ['hasConstraintImplementation']= [];
+	constraint ['hasConstraintImplementation'].push(implURI);
+	
+	
+	
+	// to do add additional links if SHACL rule also provided ep-plan:hasConstraintImplementation
+	
+	shacklTTL = shacklTTL + shaclImpl;
+	
+	constraintsArray.push(constraint);
+}
+
+function createNewHumanValidatedConstraint (label, description, type ) {
+	
+	console.log('CREATING CONSTRAINT PLAN ID IS ')
+	console.log(plan['@id'])
+	
+	let constraint = {} ;
+	constraint ['@id'] = dataPrefix+ uuidv4();
+	constraint ['@type'] = [];
+	constraint ['@type'].push (context.Constraint);
+	constraint ['@type'].push (context.namedIndividual);
+	constraint ['@type'].push (type);
+	constraint ['label'] = label; 
+	constraint ['comment'] = description; 
+	constraint ['isElementOfPlan'] = plan['@id'];
+	constraint ['constrains']=[];
+	constraint ['constrains'].push(selectedStep["@id"]);
+	
+	
+	
+	
+	constraintsArray.push(constraint);
 }
 
 
@@ -730,6 +824,63 @@ function addLabel (element, className, data, target) {
 	
 }
 
+
+function constraintCloseButtonElement (widget,constraint) {
+	
+	let more = document.createElement("button");
+
+	more.className= "more close";
+	more.innerHTML = '<span aria-hidden="true">&times;</span>';
+	// let more_text = document.createTextNode("X");
+
+
+	more.addEventListener("click", function(event) {
+	event.stopPropagation();
+	
+	widget.remove();
+//remove also from cached steps array
+	
+	constraintsArray = constraintsArray.filter(function(el) { return el['@id'] != constraint ['@id']; });
+	
+
+	});	
+	widget.appendChild(more);	
+}
+
+
+function variableCloseButtonElement (widget,variable) {
+	
+	let more = document.createElement("button");
+
+	more.className= "more close";
+	more.innerHTML = '<span aria-hidden="true">&times;</span>';
+	// let more_text = document.createTextNode("X");
+
+
+	more.addEventListener("click", function(event) {
+	event.stopPropagation();
+	
+	widget.remove();
+//remove also from cached steps array
+
+	variablesArray = variablesArray.filter(function(el) { return el['@id'] != variable ['@id']; });
+	
+	for (let i = 0; i< stepsArray.length; i++ ) {
+		stepsArray[i]['hasInputVariable'] = stepsArray[i]['hasInputVariable'].filter(function(el) { return el != variable ['@id']; });
+		stepsArray[i]['hasOutputVariable'] = stepsArray[i]['hasOutputVariable'].filter(function(el) { return el != variable ['@id']; })
+	}
+	console.log("Variable Array After")
+	console.log(variablesArray)
+	console.log("Step Array After")
+	console.log(stepsArray)
+	//stepsArray = stepsArray.filter(function(el) { return el['@id'] != step ['@id']; });
+
+	// $('#stepModal').modal('toggle');
+	});	
+	widget.appendChild(more);	
+}
+
+
 function stepCloseButtonElement (step) {
 	
 	let more = document.createElement("button");
@@ -746,11 +897,8 @@ function stepCloseButtonElement (step) {
 	stepsArray = stepsArray.filter(function(el) { return el['@id'] != step ['@id']; });
 	resetInspector ();
 	// $('#stepModal').modal('toggle');
-	});
-
-	
-	step.appendChild(more);
-	
+	});	
+	step.appendChild(more);	
 }
 
 /**
@@ -760,14 +908,17 @@ function stepCloseButtonElement (step) {
  */
 
 function createStepRow (element) {
-
+    let wrapperRow = document.createElement("div");
+    wrapperRow.className= "row";
+	
 	let r = document.createElement("div");
 	r.id = "step_row_"+stepRowCounter;
-	r.className= "row steprow";
+	r.className= "col-sm-10 steprow";
+	
 	let h = document.createElement("div");
 	let text = document.createTextNode("drop here to create new step for this row");
 	h.appendChild (text);
-	h.className= "steps dz-message d-flex flex-column dropzone";
+	h.className= "col-sm-2 steps dz-message d-flex flex-column dropzone";
 	h.addEventListener("dragover", function(event) {
 										event.preventDefault();
 									});
@@ -788,9 +939,11 @@ function createStepRow (element) {
 		r.style.backgroundColor = "#f5f5f5";
 	}
 
-	r.appendChild (h);
+	wrapperRow.appendChild (h);
+	wrapperRow.appendChild (r);
+	
 	stepRowCounter++;
-	element.appendChild (r);
+	element.appendChild (wrapperRow);
 }
 
 
@@ -1017,20 +1170,25 @@ function getTopLevelPlan (systemiri) {
 
 //to do all XMLH should be rewritten as promise
 function getStagePlanIRI (systemiri, stage) {
+	console.log ("QUERYING PLAN IRI for STAGE")
+	console.log (stage)
 	return fetch("/getStagePlanIRI?systemIri="+systemiri+"&stage="+stage);
+	
+	
 }
 
 function savePlan () {
 	
 	console.log("saving" + findGetParameter('systemIri'));
 	
+	console.log(shacklTTL);
 	
 	fetch('/savePlan', {
 	    method: 'post',
 	    headers: {
 	      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
 	    },
-	    body: 'systemIri='+findGetParameter('systemIri')+'&payload='+generateJsonLDpayload (context,prepareGraph())
+	    body: 'systemIri='+findGetParameter('systemIri')+'&shaclImpl='+shacklTTL+'&payload='+generateJsonLDpayload (context,prepareGraph())
 	  })
 	  .then((data) => {
 			return data.json();

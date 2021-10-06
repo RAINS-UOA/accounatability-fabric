@@ -1,6 +1,10 @@
 package uoa.web.controller;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -8,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
@@ -15,11 +20,21 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.solr.common.util.Base64;
+import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.JSONSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +45,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,9 +66,11 @@ import uoa.web.storage.FileUploadStorageService;
 
 @Controller
 public class ServiceController {
-	Repository repository = GraphDBUtils.getFabricRepository(GraphDBUtils.getRepositoryManager());
 	
-	private ObjectPool<RepositoryConnection>  connectionPool = new GenericObjectPool<RepositoryConnection>(new ConnectionFactory(repository));
+	
+	public static Repository repository ;
+	
+	public static ObjectPool<RepositoryConnection>  connectionPool ;
 	
 	private final FileUploadStorageService storageService;
 
@@ -70,6 +89,8 @@ public class ServiceController {
 
 		return "uploadForm";
 	}
+	
+	
 
 	@GetMapping("/files/{filename:.+}")
 	@ResponseBody
@@ -102,6 +123,35 @@ public class ServiceController {
 		}
 		return response;
 	}
+	
+	
+	@PostMapping("/uploadTrace")
+	@ResponseBody
+	public String handleTraceUpload(@RequestParam("file") MultipartFile file, @RequestParam("executionTraceBundleIRI") String executionTraceBundleIRI,
+			RedirectAttributes redirectAttributes) throws NoSuchElementException, IllegalStateException, Exception {
+        String response = "";     
+		if (file.isEmpty() ) {
+			response = "you didn.t provide a file";
+             }
+		else {
+		  //  storageService.store(file);
+		    SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		    System.out.println("Received file");
+		    System.out.println( executionTraceBundleIRI);
+		    manager.saveUploadedTraceToGraph (file, executionTraceBundleIRI);
+		    manager.shutdown();
+		 
+		
+		redirectAttributes.addFlashAttribute("message",
+				"You successfully uploaded " + file.getOriginalFilename() + "!");
+		
+		response = "File received";
+		}
+		return response;
+	}
+
+	
+	
 
 	@ExceptionHandler(FileUploadStorageFileNotFoundException.class)
 	public ResponseEntity<?> handleStorageFileNotFound(FileUploadStorageFileNotFoundException exc) {
@@ -167,10 +217,12 @@ public class ServiceController {
 	@PostMapping("/savePlan")
 	@ResponseBody
 	public String savePlan (@RequestParam MultiValueMap<String,String> paramMap) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		
+		
 		System.out.println(paramMap);
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
-
-		manager.savePlanFromJSONLD(paramMap.getFirst("systemIri"),paramMap.getFirst("payload"));
+		manager.savePlanFromJSONLD(paramMap.getFirst("systemIri"),paramMap.getFirst("payload"), paramMap.getFirst("shaclImpl"));
 		manager.shutdown();
 		return "{\"result\":\"Received\"}";
 	}
@@ -185,6 +237,9 @@ public class ServiceController {
 		return jsonResult;
 	}
 	
+	
+	
+	
 	@GetMapping("/getSavedPlanForEachStage")
 	@ResponseBody
 	public String getSavedPlanForEachStage (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
@@ -194,6 +249,31 @@ public class ServiceController {
 		Gson gson = new Gson(); 
 		return gson.toJson(list);
 	}
+	
+	@GetMapping("/getPlanElementsForImplementationStage")
+	@ResponseBody
+	public String getPlanElementsForImplementationStage (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap > list = manager.getPlanElementsForImplementationStage(systemIri);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		System.out.println(gson.toJson(list));
+		return gson.toJson(list);
+	}
+	
+	@GetMapping("/getAfModelCard")
+	@ResponseBody
+	public String getAfModelCard (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		HashMap <String,ArrayList> list = manager.getAfModelCard(systemIri);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		System.out.println(gson.toJson(list));
+		return gson.toJson(list);
+	}
+	
 	
 	@GetMapping("/getTemplate")
 	@ResponseBody
@@ -241,9 +321,9 @@ public class ServiceController {
 	
 	@GetMapping("/getStepComponentHierarchy")
 	@ResponseBody
-	public String getStepComponentHierarchy () throws NoSuchElementException, IllegalStateException, Exception  {
+	public String getStepComponentHierarchy (@RequestParam String planType) throws NoSuchElementException, IllegalStateException, Exception  {
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
-		HashMap <String,HashSet <String >> map = manager.getStepComponentHierarchy();
+		HashMap <String,HashSet <String >> map = manager.getStepComponentHierarchy(planType);
 		manager.shutdown();
 		Gson gson = new Gson(); 
 		return gson.toJson(map);
@@ -337,6 +417,9 @@ public class ServiceController {
 	@GetMapping("/getAllowedInformationElelementForInformationRealizationType")
 	@ResponseBody
 	public String getAllowedInformationElelementForInformationRealizationType(@RequestParam String informationRealizationType) throws NoSuchElementException, IllegalStateException, Exception {
+		
+		
+		
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
 		Gson gson = new Gson();
 		//System.out.println(new String(Base64.base64ToByteArray(stepTypeIRI)));
@@ -379,11 +462,99 @@ public class ServiceController {
 		return "provenanceTraceForm";
 	}
 	
+	//@GetMapping("/createSHACLconstraint")
+	@RequestMapping(value="/createSHACLconstraint", method=RequestMethod.GET, produces={"text/turtle"})
+	@ResponseBody
+	public String createSHACLconstraint (@RequestParam String constraintName, @RequestParam String target, @RequestParam String elementType,@RequestParam String variable, @RequestParam String constraintURI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		//TO- DO check the token and see if the form has already been completed 
+		String response = "no constraint found";
+		try {  
+		StringBuilder str = new StringBuilder ();	 
+		File myObj = new File("./src/main/resources/static/SHACL_constraints/"+constraintName+".ttl");
+	      Scanner myReader = new Scanner(myObj);
+	      while (myReader.hasNextLine()) {
+	        String data = myReader.nextLine();
+	        str.append(data);
+	        
+	        response = str.toString();
+	        response = response.replaceAll("<TARGET NODE>", new String(Base64.base64ToByteArray(target))) ;
+	        response = response.replaceAll("<ELEMENT TYPE>", new String(Base64.base64ToByteArray(elementType))) ;
+	        response = response.replaceAll("<VARIABLE>", new String(Base64.base64ToByteArray(variable))) ;
+	        response = response.replaceAll("<Constraint ID>", new String(Base64.base64ToByteArray(constraintURI)));
+	      }
+	      myReader.close();
+	    } catch (FileNotFoundException e) {
+	      System.out.println("An error occurred.");
+	      e.printStackTrace();
+	    }
+		
+		
+
+		/*
+		org.eclipse.rdf4j.model.Model results = null;
+		try {
+			  // rdfParser.parse(inputStream	, null);
+			   
+			    RDFParser parser = Rio.createParser(RDFFormat.JSONLD);
+			    //parser.set(JSONSettings.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,true);
+			    //parser.parse(new StringReader(jsonld_dummy), null);
+			   
+			    results = Rio.parse(new StringReader(response), null, RDFFormat.JSONLD);
+			}
+			catch (IOException e) {
+			  // handle IO problems (e.g. the file could not be read)
+				System.out.println(e.getLocalizedMessage());
+			}
+			catch (RDFParseException e) {
+			  // handle unrecoverable parse error
+				System.out.println(e.getLocalizedMessage());
+			}
+			catch (RDFHandlerException e) {
+			  // handle a problem encountered by the RDFHandler
+				System.out.println(e.getLocalizedMessage());
+			}
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		//RDFWriter writer = Rio.createWriter(RDFFormat.JSONLD, stream);
+		Rio.write(results,stream, RDFFormat.TURTLE);
+		String ldjson = new String(stream.toByteArray());
+		
+		return ldjson;
+		*/
+		return response;
+	}
+	
+	
+	@RequestMapping(value="/getPlanElementsAsGraph", method=RequestMethod.GET, produces={"text/n3"})
+	@ResponseBody
+	public String getPlanElementsAsGraph (@RequestParam String systemIri, @RequestParam String stage ) throws NoSuchElementException, IllegalStateException, Exception  {
+		//TO- DO check the token and see if the form has already been completed 
+		//to do need to check token again
+		
+	    SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		String response = manager.getPlanElementsAsGraph(systemIri,stage);
+		return response;
+	}
+	
+	@RequestMapping(value="/getExecutionTraceElementsAsGraph", method=RequestMethod.GET, produces={"text/n3"})
+	@ResponseBody
+	public String getExecutionTraceElementsAsGraph (@RequestParam String bundleIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		//TO- DO check the token and see if the form has already been completed 
+		//to do need to check token again
+		
+	    SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		String response = manager.getExecutionTraceElementsAsGraph(bundleIRI);
+		return response;
+	}
+	
 	
 	
 	@PostMapping("/uploadHumanTaskProvenanceTrace")
 	@ResponseBody
 	public String uploadHumanTaskProvenanceTrace (@RequestParam String payload, @RequestParam String token) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		
+		
+		
 		//to do need to check token again
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
 		System.out.println("Creating trace");
@@ -408,6 +579,46 @@ public class ServiceController {
 	public String getAgentsInExecutionTraces (@RequestParam String systemIRI,@RequestParam String agentIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
 		SystemRecordManager manager = new SystemRecordManager(connectionPool);
 		ArrayList <HashMap> list = manager.getAgentsParticipationDetailsInExecutionTraces (systemIRI, agentIRI);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(list);
+	}
+	
+	@GetMapping("/getAllActivitiesInExecutionTraces")
+	@ResponseBody
+	public String getAllActivitiesInExecutionTraces (@RequestParam String systemIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap> list = manager.getAllActivitiesInExecutionTraces (systemIRI);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(list);
+	}
+	
+	@GetMapping("/getAllEntitiesInExecutionTraces")
+	@ResponseBody
+	public String getAllEntitiesInExecutionTraces (@RequestParam String systemIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap> list = manager.getAllEntitiesInExecutionTraces (systemIRI);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(list);
+	}
+	
+	@GetMapping("/getEntitiesOnDerivationPath")
+	@ResponseBody
+	public String getEntitiesOnDerivationPath (@RequestParam String systemIRI,@RequestParam String entityIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap> list = manager.getEntitiesOnDerivationPath (systemIRI,entityIRI);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(list);
+	}
+	
+	@GetMapping("/getEntitiesOnInfluencePath")
+	@ResponseBody
+	public String getEntitiesOnInfluencePath (@RequestParam String systemIRI,@RequestParam String entityIRI ) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap> list = manager.getEntitiesOnInfluencePath (systemIRI,entityIRI);
 		manager.shutdown();
 		Gson gson = new Gson(); 
 		return gson.toJson(list);

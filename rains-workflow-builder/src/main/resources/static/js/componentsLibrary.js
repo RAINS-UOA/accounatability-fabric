@@ -43,8 +43,6 @@ function getVariableComponents (targetElementId, emptystepLibraryMessage) {
 	    				
 	    				return data.json();
 	    			}).then(steps => {
-	    			 
-	    			  console.log(steps);
 	    			  
 	    			  let stepArray = steps[context.Step];
 	    				
@@ -62,14 +60,10 @@ function getVariableComponents (targetElementId, emptystepLibraryMessage) {
 	    			  else {
 	    			  document.getElementById(emptystepLibraryMessage).innerHTML ="";
 	    			  document.getElementById(targetElementId).innerHTML = html;
-	    			  console.log(htmlSteps);
-	    			  let toggler = document.getElementsByClassName("caret");
-	    			  for (let i = 0; i < toggler.length; i++) {
-	    				   toggler[i].addEventListener("click", function() {
-	    				     this.parentElement.querySelector(".nested").classList.toggle("active");
-	    				     this.classList.toggle("caret-down");
-	    				   });
-	    				 }
+	    			  
+	    			  //this needs to be redone because at the moment this needs to be called only once after all html elements for steps and variables have been created - need to come back to this
+	    			  //activateToggling ();
+	    			 
 	    			  }
 	    			  hideSpinnerComponents ('loaderVariables', 'contentVariables');
 	    			}
@@ -82,10 +76,19 @@ function getVariableComponents (targetElementId, emptystepLibraryMessage) {
 		
 }
 
+function activateToggling () {
+	 let toggler = document.getElementsByClassName("caret");
+	  for (let i = 0; i < toggler.length; i++) {
+		   toggler[i].addEventListener("click", function() {
+		     this.parentElement.querySelector(".nested").classList.toggle("active");
+		     this.classList.toggle("caret-down");
+		   });
+		 }
+}
 
-function getStepComponents (targetElementId, emptystepLibraryMessage, draggable, dragEvent,rootStep) {
+function getStepComponents (targetElementId, emptystepLibraryMessage, draggable, dragEvent,rootStep, planType = "none") {
 	 setSpinnerComponents ('loaderSteps', 'contentSteps');
-	let steps = fetch("/getStepComponentHierarchy");
+	let steps = fetch("/getStepComponentHierarchy?planType="+planType);
 		steps.then(
 	    			(data) => {
 	    				
@@ -94,13 +97,22 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 	    			 
 	    			  console.log(steps);
 	    			  
+	    			  //hot fix as teh query retruns only steps with owls restrictions it is missing the accountableResult subclass of Multistep that was needed by the old code to construct the hierarchy 
+	    			  if (planType!="none") {
+	    				  steps[context.MultiStep] = [];
+	    				  steps[context.MultiStep].push(context.AccountableAction)
+	    			  }
+	    			  
 	    			  let stepArray = steps[context.Step];
 	    				
 	    			  let htmlSteps ="";
 	    			  
 	    			  //for (let i=0;i<stepArray.length;i++) {
 	    			      if (rootStep!=null) {
+	    			   
+	    			  
 	    				  htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.MultiStep, draggable, dragEvent, rootStep, true);
+	    			   
 	    			      }
 	    			      //alway order design, implementation, deployment, operation - TO DO this is lazy approach as it will make the constructComponentHerarchy run 4 times -> improve in the future
 	    			      else {
@@ -108,10 +120,10 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 	    			    	  //htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.ImplementationStep, false);
 	    			    	  //htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.DeploymentStep, false);
 	    			    	  //htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.Step, false, null, context.OperationStep, false);
-	    			    	  
+	    			    	 
 	    			    	  htmlSteps = htmlSteps + constructComponentHerarchy (steps, context.MultiStep, false,null, context.AccountableAction, false);
 	    			    	 
-
+	    			    	  
 	    			    	  
 	    			      }
 	    			 // }
@@ -122,7 +134,10 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 	    			  else {
 	    			  document.getElementById(emptystepLibraryMessage).innerHTML ="";
 	    			  document.getElementById(targetElementId).innerHTML = htmlSteps;
+	    			  
+	    			  activateToggling ();
 	    			  //console.log(htmlSteps);
+	    			  /*
 	    			  let toggler = document.getElementsByClassName("caret");
 	    			  for (let i = 0; i < toggler.length; i++) {
 	    				   toggler[i].addEventListener("click", function() {
@@ -130,6 +145,7 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 	    				     this.classList.toggle("caret-down");
 	    				   });
 	    				 }
+	    			  */
 	    			  }
 	    			  hideSpinnerComponents ('loaderSteps', 'contentSteps');
 	    			}

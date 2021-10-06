@@ -1,0 +1,17 @@
+<<Constraint ID>> a <http://www.w3.org/ns/shacl#NodeShape> ;
+<http://www.w3.org/ns/shacl#targetNode> <<TARGET NODE>> ;
+<http://www.w3.org/ns/shacl#sparql> [
+<http://www.w3.org/ns/shacl#message> "The <<ELEMENT TYPE>> element is missing" ;
+<http://www.w3.org/ns/shacl#prefixes>  <https://w3id.org/rains#> , <http://www.w3.org/ns/prov#>  ;
+<http://www.w3.org/ns/shacl#select> """
+Prefix ep-plan: <https://w3id.org/ep-plan#>
+Prefix rains: <https://w3id.org/rains#>
+Prefix prov: <http://www.w3.org/ns/prov#>
+SELECT $this 
+WHERE {
+FILTER NOT EXISTS {
+$this ep-plan:hasOutputVariable <<VARIABLE>>.
+?activity ep-plan:correspondsToStep $this.
+?coll ep-plan:correspondsToVariable ?var;prov:wasGeneratedBy ?activity; prov:hadMember ?element.
+?element a <<ELEMENT TYPE>>.  
+}}""" ;].

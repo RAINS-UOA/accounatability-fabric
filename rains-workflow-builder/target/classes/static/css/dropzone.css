@@ -1,6 +1,7 @@
 .dropzone {
+	min-height:100%;
   border: 2px dashed #dedede;
-  border-radius: 5px;
+ 
   background: #f5f5f5;
   -webkit-user-select: none; /* Safari */        
 	-moz-user-select: none; /* Firefox */

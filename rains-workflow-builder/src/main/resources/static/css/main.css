@@ -1,3 +1,18 @@
+.clicked {
+	border-color:red;
+	    border-style: solid;
+}
+
+.scrollBody {
+	
+  overflow-y: scroll;
+  height: 40vh;
+ margin-right:15px;
+  position: absolute;
+}
+	
+}
+
 #svgContainer { 
 	z-index: -10;
 	position:absolute;
@@ -14,16 +29,12 @@ border-radius: 25px;
   background: #ffb84d;
 margin:5px;
 display: inline-block;
+position:relative;
 
 vertical-align: middle;
 padding:10px;
 
- display:table;
-    white-space: pre-wrap; /* css-3 */
-    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-    white-space: -pre-wrap; /* Opera 4-6 */
-    white-space: -o-pre-wrap; /* Opera 7 */
-    word-wrap: break-word; /* Internet Explorer 5.5+ */
+
 
 }
 
@@ -36,32 +47,247 @@ border-radius: 25px;
   background: #b38600;
 margin:5px;
 display: inline-block;
+position:relative;
 
 vertical-align: middle;
 padding:10px;
 
+}
+
+.humanConstraintWidget {
+	
+	float:left;
+min-width: 100px;
+
+min-height: 40px;
+border-radius: 25px;
+  background: #6b5b95;
+margin:5px;
+display: inline-block;
+position:relative;
+
+vertical-align: middle;
+padding:10px;
+
+	
+}
+
+.autoConstraintWidget {
+	
+	float:left;
+min-width: 100px;
+
+min-height: 40px;
+border-radius: 25px;
+  background: #878f99;
+margin:5px;
+display: inline-block;
+position:relative;
+
+vertical-align: middle;
+padding:10px;
+
+
+	
+}
+
+.constraintTraceWidget {
+	width :100%;
+	vertical-align: middle;
+padding:10px;
+margin-top:15px;
+margin-bottom:15px;
+
+  background: #6b5b95;
  display:table;
     white-space: pre-wrap; /* css-3 */
     white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
     white-space: -pre-wrap; /* Opera 4-6 */
     white-space: -o-pre-wrap; /* Opera 7 */
     word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
 
+.instanceWidgetWrapper {
+	position:relative;
+	display: inline-block;
+	width:190px;
+	 margin:10px;
+}
+
+.instanceWidgetWrapperLarge {
+	position:relative;
+	display: inline-block;
+    margin:10px;	
+}
+
+.stepCard{
+	margin-top:20px;
+}
+
+.objectDetailsCard{
+	margin-top:20px;
+	background: #E8E8E8;
+}
+
+.resultCard{
+	margin-top:20px;
+	background: #E8E8E8;
+}
+
+
+.agentInputWrapper {
+	display:inline-block;
+	width:60%;
+}
+
+.dateInputWrapper {
+	display:inline-block;
+	width:35%;
+	margin-left:40px;
+	
+}
+
+
+.largeTraceWidgetCommentBox {
+	
+	width:92%;
+	position:absolute;
+	
+	margin-left:-15px;	
+}
+
+.smallTraceWidgetCommentBox {
+	margin:15px;
+	z-index:1000;
+	position:absolute;
+	margin-top:-15px;	
+}
+
+
+
+.inputsTraceWidget{
+	width :100%;
+	vertical-align: middle;
+padding:10px;
+margin-top:15px;
+margin-bottom:15px;
+
+  background: #ffb84d;
+ display:table;
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+.outputsTraceWidget{
+	width :100%;
+	vertical-align: middle;
+padding:10px;
+margin-top:15px;
+margin-bottom:15px;
+
+  background: #b38600;
+ display:table;
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+
+.stepTraceWidget {
+	
+	margin-left:-20px;
+	margin-top:-20px;
+	margin-right:-20px;
+	vertical-align: middle;
+padding-left:10px;
+margin-bottom:15px;
+
+  background: #FFFFCC;
+ 
+  
+}
+
+.resultsEntityTraceWidget {
+	 border-radius: 50%;
+	 display: inline-block;
+    width: 190px;
+    margin-bottom:15px;
+    padding:15px;
+    text-align: center;
+    min-height: 50px;
+
+   
+    background:brown;
+    margin:10px;
+    color:white;
+}
+
+.instanceTraceWidget 
+{
+	display: inline-block;
+    width: 190px;
+    margin-bottom:15px;
+    padding:15px;
+    text-align: center;
+    min-height: 50px;
+
+   
+    background:#8A2BE2;
+    margin:10px;
+    color:white;
+}
+
+.instanceTraceWidgetLargeHeader {
+	margin-right:-15px;
+	margin-left:-15px;
+	margin-top:-15px;
+	color:white;
+	background:#8A2BE2;
+}
+.instanceTraceWidgetLarge 
+{
+	 margin:10px;
+	display: inline-block;
+    
+    margin-bottom:15px;
+    padding:15px;
+    text-align: center;
+    min-height: 50px;
+     background:#D8BFD8;
+    border-style: solid;
+    border-color: #8A2BE2;
 }
 
 .typeWidget {
 float:left;
 min-width: 100px;
-
+z-index:1000;
 min-height: 40px;
-border-radius: 25px;
-  background: #93e9be;
+
+/*
+vertical-align: middle;
+padding:10px;
+*/
 margin:5px;
 display: inline-block;
 
-vertical-align: middle;
-padding:10px;
-
+width:100%;
+background-color: #93e9be;
+margin-top:20px;
+ color: black;
+  border: none;
+  padding:10px;
+  text-align: left;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+ 
+ 
  display:table;
     white-space: pre-wrap; /* css-3 */
     white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
@@ -91,6 +317,19 @@ padding:10px;
     white-space: -o-pre-wrap; /* Opera 7 */
     word-wrap: break-word; /* Internet Explorer 5.5+ */
 
+}
+
+
+
+.agentWidgetTable {
+	
+width:95%;
+color:black;
+min-height: 40px;
+border-radius: 25px;
+background: #F7D2B1;
+text-align:center;
+padding:10px;
 }
 
 .planWidget {

@@ -13,6 +13,7 @@ context.startedAtTime = {"@id":"http://www.w3.org/ns/prov#startedAtTime","@type"
 context.wasAssociatedWith = {"@id":"http://www.w3.org/ns/prov#wasAssociatedWith","@type": "@id"};
 context.wasMemberOf = {"@id":"http://www.w3.org/ns/prov#wasMemberOf","@type": "@id"}
 context.wasGeneratedBy = {"@id":"http://www.w3.org/ns/prov#wasGeneratedBy","@type": "@id"}
+context.wasDerivedFrom = {"@id":"http://www.w3.org/ns/prov#wasDerivedFrom","@type": "@id"}
 context.used = {"@id":"http://www.w3.org/ns/prov#used","@type": "@id"}
 
 ///SAO context
@@ -28,6 +29,9 @@ context.isAccountableFor   = {"@id":"https://w3id.org/sao#isAccountableFor","@ty
 
 
 //Rains context
+context.HumanConstraint   = "https://w3id.org/rains#HumanConstraint";
+context.AutoConstraint   = "https://w3id.org/rains#AutoConstraint";
+context.hasConstraintImplementation = {"@id":"https://w3id.org/ep-plan#hasConstraintImplementation","@type": "@id"};
 context.AccountabilityPlan   = "https://w3id.org/rains#AccountabilityPlan";
 context.SupportingInfrastructure   = "https://w3id.org/rains#SupportingInfrastructure";
 context.RealizableObject   = "https://w3id.org/rains#RealizableObject";

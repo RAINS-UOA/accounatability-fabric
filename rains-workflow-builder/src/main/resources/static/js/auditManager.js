@@ -1678,8 +1678,8 @@ function getModelCard (systemIRI) {
 						if (details['considerations'][i]['riskMitigation']!=null) {
 							bias +="<br> MITIGATION STRATEGY: "+ details['considerations'][i]['biasMitigation']
 						}
-						if (!risks.includes(bias)){
-							biases.push(risk)
+						if (!biases.includes(bias)){
+							biases.push(bias)
 						}
 					}
 					

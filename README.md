@@ -1,4 +1,6 @@
-# rains-workflow-builder
+# Accountability Fabric
+
+Note: This is a research prototype, hence expect lots of incomplete code, missing features, lack of input validation checks, etc. 
 
 # How to run
 

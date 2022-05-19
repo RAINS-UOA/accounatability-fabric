@@ -1,105 +1,131 @@
 @prefix : <https://w3id.org/rains#> .
-@prefix mls: <http://www.w3.org/ns/mls#> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix dc: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix sao: <https://w3id.org/sao#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix prov: <http://www.w3.org/ns/prov-o#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix rains: <https:w3id.org/rains#> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix ep-plan: <https://w3id.org/ep-plan#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
 @base <https://w3id.org/rains> .
 
 <https://w3id.org/rains> rdf:type owl:Ontology ;
-                          dcterms:creator <https://www.abdn.ac.uk/ncs/profiles/iman.naja> ,
-                                          <https://www.abdn.ac.uk/ncs/profiles/milan.markovic/> ,
-                                          "https://www.abdn.ac.uk/ncs/profiles/p.edwards" ;
-                          dcterms:license <https://creativecommons.org/licenses/by-nc-sa/4.0/> ;
-                          dcterms:title "The RAInS Ontology"@en ;
-                          rdfs:comment "To contact the RAInS team, please send an email to therainsproject [at] gmail [dot] com"@en ;
+                          cc:license <https://creativecommons.org/licenses/by-nc-sa/4.0/> ;
+                          dc:creator <https://www.abdn.ac.uk/ncs/profiles/iman.naja> ,
+                                     <https://www.abdn.ac.uk/ncs/profiles/p.edwards> ,
+                                     <https://www.abdn.ac.uk/ncs/profiles/milan.markovic/> ;
+                          dc:description "An ontology to model accountability of AI systems which use machine learning."@en ;
+                          dc:issued "2020-12-18"^^xsd:date ;
+                          dc:modified "2022-04-04"@en ;
+                          dc:rights "Copyright 2020 University of Aberdeen" ;
+                          dc:title "The RAInS Ontology"@en ;
+                          vann:preferredNamespacePrefix "rains" ;
+                          vann:preferredNamespaceUri "https://w3id.org/rains#" ;
+                          rdfs:comment """-Version 3.0: added classes and relationships to model the Deployment and Operation stages of an AI system 
+-Version 2.1: minor edits and additions of relationships: corrected the range of version and added the dropped properties hasInputFormat and hasOutputFormat. Plus minor edits and additions to the ontology metadata to reflect LOV requirements. 
+-Version 2.0: added classes and relationships to model the Implementation stage of an AI system 
+-Version 1.1: creation, models the Design stage of an AI system"""@en ,
+                                       "To contact the RAInS team, please send an email to therainsproject [at] gmail [dot] com"@en ;
                           rdfs:label "The RAInS Ontology"@en ;
-                          owl:versionInfo "2.0, Sep 2021"@en .
+                          owl:versionInfo "3.0"@en .
 
 #################################################################
 #    Annotation properties
 #################################################################
 
+###  http://creativecommons.org/ns#license
+cc:license rdf:type owl:AnnotationProperty .
+
+
 ###  http://purl.org/dc/terms/creator
-dcterms:creator rdf:type owl:AnnotationProperty .
+dc:creator rdf:type owl:AnnotationProperty .
 
 
-###  http://purl.org/dc/terms/license
-dcterms:license rdf:type owl:AnnotationProperty .
+###  http://purl.org/dc/terms/description
+dc:description rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/issued
+dc:issued rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/modified
+dc:modified rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/rights
+dc:rights rdf:type owl:AnnotationProperty .
 
 
 ###  http://purl.org/dc/terms/title
-dcterms:title rdf:type owl:AnnotationProperty .
+dc:title rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/vocab/vann/preferredNamespacePrefix
+vann:preferredNamespacePrefix rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/vocab/vann/preferredNamespaceUri
+vann:preferredNamespaceUri rdf:type owl:AnnotationProperty .
 
 
 #################################################################
 #    Object Properties
 #################################################################
 
-###  http://purl.org/dc/terms/isReferencedBy
-dcterms:isReferencedBy rdf:type owl:ObjectProperty ;
-                       rdfs:comment "Imported Definition: A related resource that references, cites, or otherwise points to the described resource." .
-
-
-###  http://purl.org/dc/terms/references
-dcterms:references rdf:type owl:ObjectProperty ;
-                   rdfs:comment "Imported Definition: A related resource that is referenced, cited, or otherwise pointed to by the described resource." .
-
-
 ###  https://w3id.org/ep-plan#hasInputVariable
-ep-plan:hasInputVariable rdf:type owl:ObjectProperty .
+<https://w3id.org/ep-plan#hasInputVariable> rdf:type owl:ObjectProperty .
 
 
 ###  https://w3id.org/ep-plan#hasOutputVariable
-ep-plan:hasOutputVariable rdf:type owl:ObjectProperty .
+<https://w3id.org/ep-plan#hasOutputVariable> rdf:type owl:ObjectProperty .
 
 
 ###  https://w3id.org/ep-plan#includesPlanElement
-ep-plan:includesPlanElement rdf:type owl:ObjectProperty .
+<https://w3id.org/ep-plan#includesPlanElement> rdf:type owl:ObjectProperty .
 
 
 ###  https://w3id.org/ep-plan#includesStep
-ep-plan:includesStep rdf:type owl:ObjectProperty ;
-                     owl:inverseOf ep-plan:isStepOfPlan .
+<https://w3id.org/ep-plan#includesStep> rdf:type owl:ObjectProperty ;
+                                        owl:inverseOf <https://w3id.org/ep-plan#isStepOfPlan> .
 
 
 ###  https://w3id.org/ep-plan#includesVariable
-ep-plan:includesVariable rdf:type owl:ObjectProperty .
+<https://w3id.org/ep-plan#includesVariable> rdf:type owl:ObjectProperty .
 
 
 ###  https://w3id.org/ep-plan#isElementOfPlan
-ep-plan:isElementOfPlan rdf:type owl:ObjectProperty .
+<https://w3id.org/ep-plan#isElementOfPlan> rdf:type owl:ObjectProperty .
 
 
 ###  https://w3id.org/ep-plan#isInputVariableOf
-ep-plan:isInputVariableOf rdf:type owl:ObjectProperty .
+<https://w3id.org/ep-plan#isInputVariableOf> rdf:type owl:ObjectProperty .
 
 
 ###  https://w3id.org/ep-plan#isOutputVariableOf
-ep-plan:isOutputVariableOf rdf:type owl:ObjectProperty ;
-                           rdfs:subPropertyOf owl:topObjectProperty .
+<https://w3id.org/ep-plan#isOutputVariableOf> rdf:type owl:ObjectProperty ;
+                                              rdfs:subPropertyOf owl:topObjectProperty .
 
 
 ###  https://w3id.org/ep-plan#isStepOfPlan
-ep-plan:isStepOfPlan rdf:type owl:ObjectProperty .
+<https://w3id.org/ep-plan#isStepOfPlan> rdf:type owl:ObjectProperty .
 
 
 ###  https://w3id.org/ep-plan#isVariableOfPlan
-ep-plan:isVariableOfPlan rdf:type owl:ObjectProperty .
+<https://w3id.org/ep-plan#isVariableOfPlan> rdf:type owl:ObjectProperty .
 
 
 ###  https://w3id.org/rains#hasEvaluationResult
 :hasEvaluationResult rdf:type owl:ObjectProperty ;
                      owl:inverseOf :isEvaluationResultOf ;
                      rdfs:domain :EvaluationMeassure ;
-                     rdfs:range :EvaluationResult .
+                     rdfs:range :EvaluationResult ;
+                     rdfs:comment "A relation that links some evaluation measure to one or more results produced for this measure." ;
+                     rdfs:label "hasEvaluationResult" .
+
+
+###  https://w3id.org/rains#hasJustification
+:hasJustification rdf:type owl:ObjectProperty .
 
 
 ###  https://w3id.org/rains#hasRealizableObjectCharacteristic
@@ -120,7 +146,11 @@ ep-plan:isVariableOfPlan rdf:type owl:ObjectProperty .
 
 
 ###  https://w3id.org/rains#isEvaluationResultOf
-:isEvaluationResultOf rdf:type owl:ObjectProperty .
+:isEvaluationResultOf rdf:type owl:ObjectProperty ;
+                      rdfs:domain :EvaluationResult ;
+                      rdfs:range :EvaluationMeassure ;
+                      rdfs:comment "A relation that links a result to some evaluation measure for which the result was produced." ;
+                      rdfs:label "isEvaluationResultOf" .
 
 
 #################################################################
@@ -128,44 +158,84 @@ ep-plan:isVariableOfPlan rdf:type owl:ObjectProperty .
 #################################################################
 
 ###  https://w3id.org/rains#computedOnDecisionThreshold
-:computedOnDecisionThreshold rdf:type owl:DatatypeProperty ;
-                             rdfs:domain :EvaluationResult .
+:computedOnDecisionThreshold rdf:type owl:DatatypeProperty ,
+                                      owl:FunctionalProperty ;
+                             rdfs:domain :EvaluationResult ;
+                             rdfs:comment "The decision threshold the metric that produced evaluation result was computed on. Inspired by the Model Card Toolkit schema https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json" ;
+                             rdfs:label "computedOnDecisionThreshold" .
 
 
 ###  https://w3id.org/rains#computedOnSlice
-:computedOnSlice rdf:type owl:DatatypeProperty ;
-                 rdfs:domain :EvaluationResult .
+:computedOnSlice rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                 rdfs:domain :EvaluationResult ;
+                 rdfs:comment "The description of slice that the metric which  produced evaluation result was computed on. Inspired by the Model Card Toolkit schema https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json" ;
+                 rdfs:label "computedOnSlice" .
 
 
 ###  https://w3id.org/rains#hasBase64Image
 :hasBase64Image rdf:type owl:DatatypeProperty ;
-                rdfs:domain sao:InformationElement ;
+                rdfs:domain <https://w3id.org/sao#InformationElement> ;
                 rdfs:range xsd:string ;
-                rdfs:comment "A value indicating what an :InformationElement's base 64 image is in String format." ;
+                rdfs:comment "A value indicating what an :InformationElement's base 64 image is in String format. Inspired by the Model Card Toolkit schema https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json" ;
                 rdfs:label "hasBase64Image" .
+
+
+###  https://w3id.org/rains#hasConfidenceLevel
+:hasConfidenceLevel rdf:type owl:DatatypeProperty .
+
+
+###  https://w3id.org/rains#hasInputFormat
+:hasInputFormat rdf:type owl:DatatypeProperty ;
+                rdfs:range xsd:string ;
+                rdfs:comment "A value describing the format of an input. Inspired by the Model Card Toolkit schema https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json" ;
+                rdfs:label "hasInputFormat" .
 
 
 ###  https://w3id.org/rains#hasMitigationStrategy
 :hasMitigationStrategy rdf:type owl:DatatypeProperty ;
                        rdfs:domain :Risk ;
                        rdfs:range xsd:string ;
-                       rdfs:comment "A value indicating what a :Risk's mitigation strategy is, expressed in String format." ;
+                       rdfs:comment "A value indicating what a :Risk's mitigation strategy is, expressed in String format. Inspired by the Model Card Toolkit schema https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json" ;
                        rdfs:label "hasMitigationStrategy" .
 
 
+###  https://w3id.org/rains#hasOutputFormat
+:hasOutputFormat rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 rdfs:comment "A value describing the format of an output. Inspired by the Model Card Toolkit schema https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json" ;
+                 rdfs:label "hasOutputFormat" .
+
+
 ###  https://w3id.org/rains#hasResultLowerBound
-:hasResultLowerBound rdf:type owl:DatatypeProperty ;
-                     rdfs:domain :EvaluationResult .
+:hasResultLowerBound rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                     rdfs:domain :EvaluationResult ;
+                     rdfs:comment "The lower bound of the confidence interval. Inspired by the Model Card Toolkit schema https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json" ;
+                     rdfs:label "hasResultLowerBound" .
 
 
 ###  https://w3id.org/rains#hasResultUpperBound
-:hasResultUpperBound rdf:type owl:DatatypeProperty ;
-                     rdfs:domain :EvaluationResult .
+:hasResultUpperBound rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                     rdfs:domain :EvaluationResult ;
+                     rdfs:comment """The upper bound of the confidence interval.
+
+Inspired by the Model Card Toolkit schema https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json""" ;
+                     rdfs:label "hasResultUpperBound" .
 
 
 ###  https://w3id.org/rains#hasResultValue
-:hasResultValue rdf:type owl:DatatypeProperty ;
-                rdfs:domain :EvaluationResult .
+:hasResultValue rdf:type owl:DatatypeProperty ,
+                         owl:FunctionalProperty ;
+                rdfs:domain :EvaluationResult ;
+                rdfs:comment "The description of the result value." ;
+                rdfs:label "hasResultValue" .
+
+
+###  https://w3id.org/rains#isFinalSystemOutput
+:isFinalSystemOutput rdf:type owl:DatatypeProperty ;
+                     rdfs:subPropertyOf owl:topDataProperty .
 
 
 ###  https://w3id.org/rains#isReusedObject
@@ -184,7 +254,8 @@ ep-plan:isVariableOfPlan rdf:type owl:ObjectProperty .
 
 
 ###  https://w3id.org/rains#version
-:version rdf:type owl:DatatypeProperty ;
+:version rdf:type owl:DatatypeProperty ,
+                  owl:FunctionalProperty ;
          rdfs:domain [ rdf:type owl:Class ;
                        owl:unionOf ( <http://ontosoft.org/software#Software>
                                      :ExcludedObject
@@ -192,13 +263,14 @@ ep-plan:isVariableOfPlan rdf:type owl:ObjectProperty .
                                      :RealizededObject
                                    )
                      ] ;
-         rdfs:range xsd:positiveInteger ;
-         rdfs:comment "A value indicating what a :RealizableObject's version is." ;
+         rdfs:range xsd:string ;
+         rdfs:comment "A value indicating what a :RealizableObject's version is. Inspired by the Model Card Toolkit schema https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json" ;
          rdfs:label "version" .
 
 
 ###  https://w3id.org/rains#versionDate
-:versionDate rdf:type owl:DatatypeProperty ;
+:versionDate rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
              rdfs:domain [ rdf:type owl:Class ;
                            owl:unionOf ( <http://ontosoft.org/software#Software>
                                          :ExcludedObject
@@ -207,7 +279,7 @@ ep-plan:isVariableOfPlan rdf:type owl:ObjectProperty .
                                        )
                          ] ;
              rdfs:range xsd:dateTime ;
-             rdfs:comment "A value indicating what the version date of a :RealizableObject's is." ;
+             rdfs:comment "A value indicating what the version date of a :RealizableObject's is. Inspired by the Model Card Toolkit schema https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json" ;
              rdfs:label "versionDate" .
 
 
@@ -221,7 +293,7 @@ ep-plan:isVariableOfPlan rdf:type owl:ObjectProperty .
                                        )
                          ] ;
              rdfs:range xsd:string ;
-             rdfs:comment "A value describing a note about the version date of a :RealizableObject." ;
+             rdfs:comment "A value describing a note about the version date of a :RealizableObject. Inspired by the Model Card Toolkit schema https://github.com/tensorflow/model-card-toolkit/blob/master/model_card_toolkit/schema/v0.0.1/model_card.schema.json" ;
              rdfs:label "versionNote" .
 
 
@@ -232,76 +304,82 @@ ep-plan:isVariableOfPlan rdf:type owl:ObjectProperty .
 ###  http://ontosoft.org/software#Software
 <http://ontosoft.org/software#Software> rdf:type owl:Class ;
                                         rdfs:subClassOf <http://www.w3.org/ns/prov#SoftwareAgent> ,
-                                                        ep-plan:Agent ,
-                                                        sao:InformationElement ;
-                                        rdfs:comment "Imported Definition: A Software is any piece of code that is described in Ontosoft. This could some visualisation software, software package, library, componentised scripts, etc. This can be subclassed if software categories with extra properties are required, otherwise one should use SoftwareTag to categorise software." .
+                                                        <https://w3id.org/ep-plan#Agent> ,
+                                                        <https://w3id.org/sao#InformationElement> ;
+                                        rdfs:comment "Imported definitoin: A Software is any piece of code that is described in Ontosoft. This could some visualisation software, software package, library, componentised scripts, etc. This can be subclassed if software categories with extra properties are required, otherwise one should use SoftwareTag to categorise software." .
 
 
 ###  http://purl.org/dc/terms/LicenseDocument
-dcterms:LicenseDocument rdf:type owl:Class ;
-                        rdfs:subClassOf sao:InformationElement ;
-                        rdfs:comment "Imported Definition: A legal document giving official permission to do something with a resource." .
+dc:LicenseDocument rdf:type owl:Class ;
+                   rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
+                   rdfs:comment "Imported definition: A legal document giving official permission to do something with a resource." .
 
 
 ###  http://www.w3.org/ns/mls#Algorithm
-mls:Algorithm rdf:type owl:Class ;
-              rdfs:subClassOf :RealizableObjectCharacteristic ;
-              rdfs:comment "Imported Definition: The algorithm regardless software implementation." .
+<http://www.w3.org/ns/mls#Algorithm> rdf:type owl:Class ;
+                                     rdfs:subClassOf :RealizableObjectCharacteristic ;
+                                     rdfs:comment "Imported Definition: The algorithm regardless software implementation." .
 
 
 ###  http://www.w3.org/ns/mls#Dataset
-mls:Dataset rdf:type owl:Class ;
-            rdfs:subClassOf :RealizableObject ,
-                            [ rdf:type owl:Class ;
-                              owl:unionOf ( :ExcludedObject
-                                            :RealizededObject
-                                          )
-                            ] .
+<http://www.w3.org/ns/mls#Dataset> rdf:type owl:Class ;
+                                   rdfs:subClassOf :RealizableObject ,
+                                                   [ rdf:type owl:Class ;
+                                                     owl:unionOf ( :ExcludedObject
+                                                                   :RealizededObject
+                                                                 )
+                                                   ] ;
+                                   rdfs:comment "A data item composed of data examples." ;
+                                   rdfs:label "Dataset" .
 
 
 ###  http://www.w3.org/ns/mls#DatasetCharacteristic
-mls:DatasetCharacteristic rdf:type owl:Class ;
-                          rdfs:subClassOf :RealizableObjectCharacteristic ;
-                          rdfs:comment """This concept is imported from ML-Schema to describe the characteristics of the dataset. 
+<http://www.w3.org/ns/mls#DatasetCharacteristic> rdf:type owl:Class ;
+                                                 rdfs:subClassOf :RealizableObjectCharacteristic ;
+                                                 rdfs:comment """This concept is imported from ML-Schema to describe the characteristics of the dataset. 
 
 In RAInS, this includes how many instances make up the dataset, what do the instances represent, what are the types of instances, whether the instances have associated labels or targets, whether the relationships between instances are explicit, as well as the errors, noises, redundancies in the dataset and whether is there any information missing from instances.
 
-When used to descriped a Training Dataset, Validation Dataset, or Evaluation Dataset produced by splitting the Dataset Component, it is advisable to describe how the dataset was split, including the ratios of train-validate-test and the class representation percentage in each.""" .
+When used to describe a Training Dataset, Validation Dataset, or Evaluation Dataset produced by splitting the Dataset Component, it is advisable to describe how the dataset was split, including the ratios of train-validate-test and the class representation percentage in each.""" .
 
 
 ###  http://www.w3.org/ns/mls#EvaluationMeasure
-mls:EvaluationMeasure rdf:type owl:Class ;
-                      rdfs:subClassOf :EvaluationMeassure ;
-                      rdfs:comment "Imported Definition: EvaluationMeasure is a measure to assess the performance of the model generated by the process that realizes the task. Examples are predictive accuracy or f-measure." .
+<http://www.w3.org/ns/mls#EvaluationMeasure> rdf:type owl:Class ;
+                                             rdfs:subClassOf :EvaluationMeassure ;
+                                             rdfs:comment "Imported Definition: EvaluationMeasure is a measure to assess the performance of the model generated by the process that realizes the task. Examples are predictive accuracy or f-measure." ;
+                                             rdfs:label "Evaluation Measure" .
 
 
 ###  http://www.w3.org/ns/mls#EvaluationProcedure
-mls:EvaluationProcedure rdf:type owl:Class ;
-                        rdfs:subClassOf :EvaluationProcedure ;
-                        rdfs:comment "Imported Definition: EvaluationProcedure is a technique to evaluate machine learning models. Examples are cross-validation and leave-one-out." .
+<http://www.w3.org/ns/mls#EvaluationProcedure> rdf:type owl:Class ;
+                                               rdfs:subClassOf :EvaluationProcedure ;
+                                               rdfs:comment "Imported Definition: EvaluationProcedure is a technique to evaluate machine learning models. Examples are cross-validation and leave-one-out." ;
+                                               rdfs:label "Evaluation Procedure" .
 
 
 ###  http://www.w3.org/ns/mls#HyperParameter
-mls:HyperParameter rdf:type owl:Class ;
-                   rdfs:subClassOf :Parameter ;
-                   rdfs:comment "Imported Definition: Hyperparameter is a prior parameter of an implementation, i.e., a parameter which is set before its execution (e.g. C, the complexity parameter, in weka.SMO)." .
+<http://www.w3.org/ns/mls#HyperParameter> rdf:type owl:Class ;
+                                          rdfs:subClassOf :Parameter ;
+                                          rdfs:comment "Imported Definition: Hyperparameter is a prior parameter of an implementation, i.e., a parameter which is set before its execution (e.g. C, the complexity parameter, in weka.SMO)." ;
+                                          rdfs:label "Hyperparameter" .
 
 
 ###  http://www.w3.org/ns/mls#Model
-mls:Model rdf:type owl:Class ;
-          rdfs:subClassOf :RealizableObject ,
-                          [ rdf:type owl:Class ;
-                            owl:unionOf ( :ExcludedObject
-                                          :RealizededObject
-                                        )
-                          ] ;
-          rdfs:comment "Imported Definition: Model is a generalization of a set of training data able to predict values for unseen instances. It is an output from an execution of a data mining algorithm implementation. Models have a dual nature. They can be treated as data structures and as such represented, stored and manipulated. On the other hand, they act as functions and are executed, taking as input data examples and giving as output the result of applying the function to a data example. Models can also be divided into global or local ones. A global model has global coverage of a data set, i.e., it generalizes the whole data set. A local model, such as a pattern set, is a set of local hypotheses, i.e. each applies to a limited region of the data set." .
+<http://www.w3.org/ns/mls#Model> rdf:type owl:Class ;
+                                 rdfs:subClassOf :RealizableObject ,
+                                                 [ rdf:type owl:Class ;
+                                                   owl:unionOf ( :ExcludedObject
+                                                                 :RealizededObject
+                                                               )
+                                                 ] ;
+                                 rdfs:comment "Imported Definition: Model is a generalization of a set of training data able to predict values for unseen instances. It is an output from an execution of a data mining algorithm implementation. Models have a dual nature. They can be treated as data structures and as such represented, stored and manipulated. On the other hand, they act as functions and are executed, taking as input data examples and giving as output the result of applying the function to a data example. Models can also be divided into global or local ones. A global model has global coverage of a data set, i.e., it generalizes the whole data set. A local model, such as a pattern set, is a set of local hypotheses, i.e. each applies to a limited region of the data set." ;
+                                 rdfs:label "Model" .
 
 
 ###  http://www.w3.org/ns/mls#ModelCharacteristic
-mls:ModelCharacteristic rdf:type owl:Class ;
-                        rdfs:subClassOf :RealizableObjectCharacteristic ;
-                        rdfs:comment """Imported Definition: ModelCharacteristic is a distinguishing quality or property that distinguish one model from another. An example model characetristic may be interpretabilty or a complexity of the model.
+<http://www.w3.org/ns/mls#ModelCharacteristic> rdf:type owl:Class ;
+                                               rdfs:subClassOf :RealizableObjectCharacteristic ;
+                                               rdfs:comment """Imported Definition: ModelCharacteristic is a distinguishing quality or property that distinguish one model from another. An example model characteristic may be interpretabilty or a complexity of the model.
 
 In RAInS, this includes the type of model, programming method, excluded features, emphasized features, decision thresholds, basis of prioritisation, semantics and similarity functions, editorial criteria, and type of uncertainty. Plus, how those were chosen.
 
@@ -309,9 +387,10 @@ There are separate concepts that represent the algorithm and parameters.""" .
 
 
 ###  http://www.w3.org/ns/mls#ModelEvaluation
-mls:ModelEvaluation rdf:type owl:Class ;
-                    rdfs:subClassOf :EvaluationResult ;
-                    rdfs:comment "Imported Definition: ModelEvaluation is a setting of a value of the performance measure  specified by the evaluation specification. It connects a measure specification with its value." .
+<http://www.w3.org/ns/mls#ModelEvaluation> rdf:type owl:Class ;
+                                           rdfs:subClassOf :EvaluationResult ;
+                                           rdfs:comment "Imported Definition: ModelEvaluation is a setting of a value of the performance measure  specified by the evaluation specification. It connects a measure specification with its value." ;
+                                           rdfs:label "Model Evaluation" .
 
 
 ###  http://www.w3.org/ns/prov#Agent
@@ -324,26 +403,57 @@ mls:ModelEvaluation rdf:type owl:Class ;
 
 
 ###  https://w3id.org/ep-plan#Agent
-ep-plan:Agent rdf:type owl:Class ;
-              rdfs:subClassOf <http://www.w3.org/ns/prov#Agent> .
+<https://w3id.org/ep-plan#Agent> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://www.w3.org/ns/prov#Agent> .
 
 
 ###  https://w3id.org/ep-plan#Constraint
-ep-plan:Constraint rdf:type owl:Class .
+<https://w3id.org/ep-plan#Constraint> rdf:type owl:Class .
 
 
 ###  https://w3id.org/rains#AI_System
 :AI_System rdf:type owl:Class ;
-           rdfs:subClassOf sao:System ;
+           rdfs:subClassOf <https://w3id.org/sao#System> ;
            rdfs:comment "The AI System for which the accountability plan is specified." ;
            rdfs:label "AI System" .
+
+
+###  https://w3id.org/rains#ActuateOutput
+:ActuateOutput rdf:type owl:Class ;
+               rdfs:subClassOf :ReturnOutput .
+
+
+###  https://w3id.org/rains#AffectedAgent
+:AffectedAgent rdf:type owl:Class ;
+               rdfs:subClassOf <https://w3id.org/sao#InformationElement> .
+
+
+###  https://w3id.org/rains#Aggeregate
+:Aggeregate rdf:type owl:Class ;
+            rdfs:subClassOf :SystemAction ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
+                              owl:allValuesFrom :OperationStageAccountabilityPlan
+                            ] ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
+                              owl:allValuesFrom :OperationStageAccountabilityPlan
+                            ] ;
+            owl:disjointWith :Consent ,
+                             :ProvideSystemInputData ,
+                             :Validate .
+
+
+###  https://w3id.org/rains#AggregationResult
+:AggregationResult rdf:type owl:Class ;
+                   rdfs:subClassOf :SystemData .
 
 
 ###  https://w3id.org/rains#ApprovalDecision
 :ApprovalDecision rdf:type owl:Class ;
                   rdfs:subClassOf :HumanDecision ,
                                   [ rdf:type owl:Restriction ;
-                                    owl:onProperty ep-plan:isElementOfPlan ;
+                                    owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                     owl:allValuesFrom [ rdf:type owl:Class ;
                                                         owl:unionOf ( :DesignStageAccountabilityPlan
                                                                       :ImplementationStageAccountabilityPlan
@@ -351,11 +461,11 @@ ep-plan:Constraint rdf:type owl:Class .
                                                       ]
                                   ] ,
                                   [ rdf:type owl:Restriction ;
-                                    owl:onProperty ep-plan:isOutputVariableOf ;
+                                    owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                     owl:allValuesFrom :Decide
                                   ] ,
                                   [ rdf:type owl:Restriction ;
-                                    owl:onProperty ep-plan:isVariableOfPlan ;
+                                    owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                     owl:allValuesFrom [ rdf:type owl:Class ;
                                                         owl:unionOf ( :DesignStageAccountabilityPlan
                                                                       :ImplementationStageAccountabilityPlan
@@ -366,11 +476,16 @@ ep-plan:Constraint rdf:type owl:Class .
                   rdfs:label "Approval Decision" .
 
 
+###  https://w3id.org/rains#ApproveOutput
+:ApproveOutput rdf:type owl:Class ;
+               rdfs:subClassOf :SystemAction .
+
+
 ###  https://w3id.org/rains#AutoConstraint
 :AutoConstraint rdf:type owl:Class ;
-                rdfs:subClassOf ep-plan:Constraint ;
+                rdfs:subClassOf <https://w3id.org/ep-plan#Constraint> ;
                 owl:disjointWith :HumanConstraint ;
-                rdfs:comment "A specific type of planned Constraint that describes any automatically evaluated constraint." ;
+                rdfs:comment "A specific type of planned Constraint that describes a constraint which can be evaluated automatically against corresponding accountability trace. Such constraint would normally link to its implementation (e.g., a SHACL rule) using the  https://w3id.org/ep-plan#hasConstraintImplementation property." ;
                 rdfs:label "Auto Constraint" .
 
 
@@ -385,7 +500,7 @@ If a mitigation strategy is used to abate the bias, then these can be indicated 
 
 ###  https://w3id.org/rains#Certificate
 :Certificate rdf:type owl:Class ;
-             rdfs:subClassOf sao:InformationElement ;
+             rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
              rdfs:comment "A sao:InformnationElement which records information describing a certificate (e.g. an ISO certificate) that is granted during the implementation (or deployment or use and maintenance) life cycle stages." ;
              rdfs:label "Certificate" .
 
@@ -394,7 +509,7 @@ If a mitigation strategy is used to abate the bias, then these can be indicated 
 :CertificationDecision rdf:type owl:Class ;
                        rdfs:subClassOf :ComplianceAssuranceDecision ,
                                        [ rdf:type owl:Restriction ;
-                                         owl:onProperty ep-plan:isElementOfPlan ;
+                                         owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                          owl:allValuesFrom [ rdf:type owl:Class ;
                                                              owl:unionOf ( :DesignStageAccountabilityPlan
                                                                            :ImplementationStageAccountabilityPlan
@@ -402,11 +517,11 @@ If a mitigation strategy is used to abate the bias, then these can be indicated 
                                                            ]
                                        ] ,
                                        [ rdf:type owl:Restriction ;
-                                         owl:onProperty ep-plan:isOutputVariableOf ;
+                                         owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                          owl:allValuesFrom :Decide
                                        ] ,
                                        [ rdf:type owl:Restriction ;
-                                         owl:onProperty ep-plan:isVariableOfPlan ;
+                                         owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                          owl:allValuesFrom [ rdf:type owl:Class ;
                                                              owl:unionOf ( :DesignStageAccountabilityPlan
                                                                            :ImplementationStageAccountabilityPlan
@@ -417,22 +532,27 @@ If a mitigation strategy is used to abate the bias, then these can be indicated 
                        rdfs:label "Certification Decision" .
 
 
+###  https://w3id.org/rains#Change
+:Change rdf:type owl:Class ;
+        rdfs:subClassOf <https://w3id.org/sao#InformationElement> .
+
+
 ###  https://w3id.org/rains#ChangeJustification
 :ChangeJustification rdf:type owl:Class ;
-                     rdfs:subClassOf sao:InformationElement ;
+                     rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
                      rdfs:comment "A sao:InformnationElement which records information describing the justification behind a deviation from the Design Specification. For example, the reason behind realizing a dataset other than the one indicated by the Dataset Design Specification was used, or why an evaluation measure was recorded which differed from the one indicated to be expected in an Evaluation Specification." ;
                      rdfs:label "Change Justification" .
 
 
 ###  https://w3id.org/rains#ChangeLog
 :ChangeLog rdf:type owl:Class ;
-           rdfs:subClassOf sao:AccountableResult ,
+           rdfs:subClassOf :Log ,
                            [ rdf:type owl:Restriction ;
-                             owl:onProperty ep-plan:isElementOfPlan ;
+                             owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                              owl:allValuesFrom :ImplementationStageAccountabilityPlan
                            ] ,
                            [ rdf:type owl:Restriction ;
-                             owl:onProperty ep-plan:isOutputVariableOf ;
+                             owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                              owl:allValuesFrom [ rdf:type owl:Class ;
                                                  owl:unionOf ( :Evaluate
                                                                :MergeAndSplitDataset
@@ -441,7 +561,7 @@ If a mitigation strategy is used to abate the bias, then these can be indicated 
                                                ]
                            ] ,
                            [ rdf:type owl:Restriction ;
-                             owl:onProperty ep-plan:isVariableOfPlan ;
+                             owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                              owl:allValuesFrom :ImplementationStageAccountabilityPlan
                            ] ;
            owl:disjointWith :DatasetComponent ,
@@ -450,18 +570,27 @@ If a mitigation strategy is used to abate the bias, then these can be indicated 
                             :Guideline ,
                             :HumanDecision ,
                             :ModelComponent ,
-                            :SupportingInfrastructureComponent ;
+                            :SupportingInfrastructureComponent ,
+                            :UserTrainingReport ;
            rdfs:comment """A specific type of planned sao:AccountableResult that describes any change from a design specification or guideline. It is expected to be the result of any accountable action that has an input a design specification or a guideline.
 
 It is advisable that the information realization corresponding to the Evaluation contains the following information element ChangeJustification.""" ;
            rdfs:label "Change Log" .
 
 
+###  https://w3id.org/rains#CollectUserFeedback
+:CollectUserFeedback rdf:type owl:Class ;
+                     rdfs:subClassOf :SystemAction ;
+                     owl:disjointWith :Consent ,
+                                      :ProvideSystemInputData ,
+                                      :Validate .
+
+
 ###  https://w3id.org/rains#ComplianceAssuranceDecision
 :ComplianceAssuranceDecision rdf:type owl:Class ;
                              rdfs:subClassOf :HumanDecision ,
                                              [ rdf:type owl:Restriction ;
-                                               owl:onProperty ep-plan:isElementOfPlan ;
+                                               owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                                owl:allValuesFrom [ rdf:type owl:Class ;
                                                                    owl:unionOf ( :DesignStageAccountabilityPlan
                                                                                  :ImplementationStageAccountabilityPlan
@@ -469,11 +598,11 @@ It is advisable that the information realization corresponding to the Evaluation
                                                                  ]
                                              ] ,
                                              [ rdf:type owl:Restriction ;
-                                               owl:onProperty ep-plan:isOutputVariableOf ;
+                                               owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                                owl:allValuesFrom :Decide
                                              ] ,
                                              [ rdf:type owl:Restriction ;
-                                               owl:onProperty ep-plan:isVariableOfPlan ;
+                                               owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                                owl:allValuesFrom [ rdf:type owl:Class ;
                                                                    owl:unionOf ( :DesignStageAccountabilityPlan
                                                                                  :ImplementationStageAccountabilityPlan
@@ -486,7 +615,7 @@ It is advisable that the information realization corresponding to the Evaluation
 
 ###  https://w3id.org/rains#ComplianceEntity
 :ComplianceEntity rdf:type owl:Class ;
-                  rdfs:subClassOf sao:InformationElement ;
+                  rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
                   rdfs:comment "A specific type of sao:InformationElement which records a specific piece of  information about  a compliance requirement that is to be complied with as part of an information realization collection." ;
                   rdfs:label "Compliance Entity" .
 
@@ -495,7 +624,7 @@ It is advisable that the information realization corresponding to the Evaluation
 :ComplianceSpecification rdf:type owl:Class ;
                          rdfs:subClassOf :DesignSpecification ,
                                          [ rdf:type owl:Restriction ;
-                                           owl:onProperty ep-plan:isElementOfPlan ;
+                                           owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                            owl:allValuesFrom [ rdf:type owl:Class ;
                                                                owl:unionOf ( :DesignStageAccountabilityPlan
                                                                              :ImplementationStageAccountabilityPlan
@@ -503,11 +632,11 @@ It is advisable that the information realization corresponding to the Evaluation
                                                              ]
                                          ] ,
                                          [ rdf:type owl:Restriction ;
-                                           owl:onProperty ep-plan:isOutputVariableOf ;
+                                           owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                            owl:allValuesFrom :ProduceSpecification
                                          ] ,
                                          [ rdf:type owl:Restriction ;
-                                           owl:onProperty ep-plan:isVariableOfPlan ;
+                                           owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                            owl:allValuesFrom [ rdf:type owl:Class ;
                                                                owl:unionOf ( :DesignStageAccountabilityPlan
                                                                              :ImplementationStageAccountabilityPlan
@@ -527,12 +656,41 @@ It is advisable that the information realization corresponding to SystemPurposeS
                          rdfs:label "Compliance Specification" .
 
 
+###  https://w3id.org/rains#ConfigurationAccountabilityPlan
+:ConfigurationAccountabilityPlan rdf:type owl:Class ;
+                                 rdfs:subClassOf :OperationStageAccountabilityPlan .
+
+
+###  https://w3id.org/rains#ConfigurationData
+:ConfigurationData rdf:type owl:Class ;
+                   rdfs:subClassOf :SystemData .
+
+
+###  https://w3id.org/rains#Configure
+:Configure rdf:type owl:Class ;
+           rdfs:subClassOf :SystemAction ;
+           owl:disjointWith :Consent ,
+                            :Validate .
+
+
+###  https://w3id.org/rains#Consent
+:Consent rdf:type owl:Class ;
+         rdfs:subClassOf :SystemAction ;
+         owl:disjointWith :Explain ,
+                          :GenerateOutput ,
+                          :NotifyUser ,
+                          :Override ,
+                          :PreprocessInputData ,
+                          :ProvideSystemInputData ,
+                          :Validate .
+
+
 ###  https://w3id.org/rains#DataCollectionProcedure
 :DataCollectionProcedure rdf:type owl:Class ;
-                         rdfs:subClassOf sao:InformationElement ;
+                         rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
                          rdfs:comment """A specific type of sao:InformationElement which records a specific piece of  information detailing how the data is collected. This includes the information about mechanism used for collecting data (e.g. hardware sensors, software program, or manually), the timeframe over which the data was collected, any consent reporting, etc. 
 
-There is a separate concept that represents the data collection software.""" ;
+There is a separate concept that represents the data collection software see rainsDataCollectionSoftware.""" ;
                          rdfs:label "Data Collection Procedure" .
 
 
@@ -543,9 +701,14 @@ There is a separate concept that represents the data collection software.""" ;
                         rdfs:label "Data Collection Software" .
 
 
+###  https://w3id.org/rains#DataItem
+:DataItem rdf:type owl:Class ;
+          rdfs:subClassOf <https://w3id.org/sao#InformationElement> .
+
+
 ###  https://w3id.org/rains#DataPreprocessingProcedure
 :DataPreprocessingProcedure rdf:type owl:Class ;
-                            rdfs:subClassOf sao:InformationElement ;
+                            rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
                             rdfs:comment """A specific type of sao:InformationElement which records a specific piece of  information detailing how the data is preprocessed. This includes information on what is done to the data (e.g., cleaning, sampling, filtering, feature engineering, etc) and how it is done (e.g., manually, programmatically, or using feature engineering software).
 
 There is a separate concept that represents the data preprocessing software.""" ;
@@ -561,13 +724,13 @@ There is a separate concept that represents the data preprocessing software.""" 
 
 ###  https://w3id.org/rains#DatasetComponent
 :DatasetComponent rdf:type owl:Class ;
-                  rdfs:subClassOf sao:AccountableResult ,
+                  rdfs:subClassOf <https://w3id.org/sao#AccountableResult> ,
                                   [ rdf:type owl:Restriction ;
-                                    owl:onProperty ep-plan:isElementOfPlan ;
+                                    owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                     owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                   ] ,
                                   [ rdf:type owl:Restriction ;
-                                    owl:onProperty ep-plan:isOutputVariableOf ;
+                                    owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                     owl:allValuesFrom [ rdf:type owl:Class ;
                                                         owl:unionOf ( :MergeAndSplitDataset
                                                                       :RealizeComponent
@@ -575,13 +738,14 @@ There is a separate concept that represents the data preprocessing software.""" 
                                                       ]
                                   ] ,
                                   [ rdf:type owl:Restriction ;
-                                    owl:onProperty ep-plan:isVariableOfPlan ;
+                                    owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                     owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                   ] ;
                   owl:disjointWith :DesignSpecification ,
                                    :Guideline ,
                                    :HumanDecision ,
-                                   :SupportingInfrastructureComponent ;
+                                   :SupportingInfrastructureComponent ,
+                                   :UserTrainingReport ;
                   rdfs:comment """A specific type of planned sao:AccountableResult  which represents the description of an realized dataset, including its characteristics, how it was collected, its risks, etc. The dataset component represents a collection of collected and pre-processed data. Once it is split, the subclasses TestingDataset, ValidationDataset, and EvaluationDataset can be used.
 
 It is advisable that the information realization corresponding to the DatasetComponent variable contains the following information elements:
@@ -619,7 +783,7 @@ It is discouraged that the information realization corresponding to the DtasetCo
 :DatasetSpecification rdf:type owl:Class ;
                       rdfs:subClassOf :DesignSpecification ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:isElementOfPlan ;
+                                        owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                         owl:allValuesFrom [ rdf:type owl:Class ;
                                                             owl:unionOf ( :DesignStageAccountabilityPlan
                                                                           :ImplementationStageAccountabilityPlan
@@ -627,11 +791,11 @@ It is discouraged that the information realization corresponding to the DtasetCo
                                                           ]
                                       ] ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:isOutputVariableOf ;
+                                        owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                         owl:allValuesFrom :ProduceSpecification
                                       ] ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:isVariableOfPlan ;
+                                        owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                         owl:allValuesFrom [ rdf:type owl:Class ;
                                                             owl:unionOf ( :DesignStageAccountabilityPlan
                                                                           :ImplementationStageAccountabilityPlan
@@ -675,9 +839,9 @@ It is discouraged that the information realization corresponding to the Dataset 
 
 ###  https://w3id.org/rains#Decide
 :Decide rdf:type owl:Class ;
-        rdfs:subClassOf sao:AccountableAction ,
+        rdfs:subClassOf <https://w3id.org/sao#AccountableAction> ,
                         [ rdf:type owl:Restriction ;
-                          owl:onProperty ep-plan:hasOutputVariable ;
+                          owl:onProperty <https://w3id.org/ep-plan#hasOutputVariable> ;
                           owl:allValuesFrom [ rdf:type owl:Class ;
                                               owl:unionOf ( :ApprovalDecision
                                                             :CertificationDecision
@@ -688,7 +852,7 @@ It is discouraged that the information realization corresponding to the Dataset 
                                             ]
                         ] ,
                         [ rdf:type owl:Restriction ;
-                          owl:onProperty ep-plan:isElementOfPlan ;
+                          owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                           owl:allValuesFrom [ rdf:type owl:Class ;
                                               owl:unionOf ( :DesignStageAccountabilityPlan
                                                             :ImplementationStageAccountabilityPlan
@@ -696,7 +860,7 @@ It is discouraged that the information realization corresponding to the Dataset 
                                             ]
                         ] ,
                         [ rdf:type owl:Restriction ;
-                          owl:onProperty ep-plan:isStepOfPlan ;
+                          owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
                           owl:allValuesFrom [ rdf:type owl:Class ;
                                               owl:unionOf ( :DesignStageAccountabilityPlan
                                                             :ImplementationStageAccountabilityPlan
@@ -707,16 +871,22 @@ It is discouraged that the information realization corresponding to the Dataset 
                          :GenerateGuideline ,
                          :MergeAndSplitDataset ,
                          :ProduceSpecification ,
-                         :RealizeComponent ;
+                         :RealizeComponent ,
+                         :TrainUser ;
         rdfs:comment "A planned step describing a decision to be taken by a human when incorporating accountability in AI Systems, e.g. approve the design of an ML Model." ;
         rdfs:label "Decide" .
 
 
+###  https://w3id.org/rains#DeploymentStageAccountabilityPlan
+:DeploymentStageAccountabilityPlan rdf:type owl:Class ;
+                                   rdfs:subClassOf <https://w3id.org/sao#AccountabilityPlan> .
+
+
 ###  https://w3id.org/rains#DesignSpecification
 :DesignSpecification rdf:type owl:Class ;
-                     rdfs:subClassOf sao:AccountableResult ,
+                     rdfs:subClassOf <https://w3id.org/sao#AccountableResult> ,
                                      [ rdf:type owl:Restriction ;
-                                       owl:onProperty ep-plan:isElementOfPlan ;
+                                       owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                        owl:allValuesFrom [ rdf:type owl:Class ;
                                                            owl:unionOf ( :DesignStageAccountabilityPlan
                                                                          :ImplementationStageAccountabilityPlan
@@ -724,11 +894,11 @@ It is discouraged that the information realization corresponding to the Dataset 
                                                          ]
                                      ] ,
                                      [ rdf:type owl:Restriction ;
-                                       owl:onProperty ep-plan:isOutputVariableOf ;
+                                       owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                        owl:allValuesFrom :ProduceSpecification
                                      ] ,
                                      [ rdf:type owl:Restriction ;
-                                       owl:onProperty ep-plan:isVariableOfPlan ;
+                                       owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                        owl:allValuesFrom [ rdf:type owl:Class ;
                                                            owl:unionOf ( :DesignStageAccountabilityPlan
                                                                          :ImplementationStageAccountabilityPlan
@@ -739,16 +909,17 @@ It is discouraged that the information realization corresponding to the Dataset 
                                       :Guideline ,
                                       :HumanDecision ,
                                       :ModelComponent ,
-                                      :SupportingInfrastructureComponent ;
-                     rdfs:comment "A specific type of planned sao:AccountableResult which represents a high reference to a specification  (e.g. a specification report) that is expected to be produced during the design stage in order to inform the future AI system lifecycle stages (e.g. implementation)." ;
+                                      :SupportingInfrastructureComponent ,
+                                      :UserTrainingReport ;
+                     rdfs:comment "A specific type of planned sao:AccountableResult which represents a high level reference to a specification  (e.g. a specification report) that is expected to be produced during the design stage in order to inform the future AI system lifecycle stages (e.g. implementation)." ;
                      rdfs:label "Design Specification" .
 
 
 ###  https://w3id.org/rains#DesignStageAccountabilityPlan
 :DesignStageAccountabilityPlan rdf:type owl:Class ;
-                               rdfs:subClassOf sao:AccountabilityPlan ,
+                               rdfs:subClassOf <https://w3id.org/sao#AccountabilityPlan> ,
                                                [ rdf:type owl:Restriction ;
-                                                 owl:onProperty ep-plan:includesStep ;
+                                                 owl:onProperty <https://w3id.org/ep-plan#includesStep> ;
                                                  owl:allValuesFrom [ rdf:type owl:Class ;
                                                                      owl:unionOf ( :Decide
                                                                                    :GrantCertification
@@ -757,7 +928,7 @@ It is discouraged that the information realization corresponding to the Dataset 
                                                                    ]
                                                ] ,
                                                [ rdf:type owl:Restriction ;
-                                                 owl:onProperty ep-plan:includesVariable ;
+                                                 owl:onProperty <https://w3id.org/ep-plan#includesVariable> ;
                                                  owl:allValuesFrom [ rdf:type owl:Class ;
                                                                      owl:unionOf ( :ApprovalDecision
                                                                                    :CertificationDecision
@@ -774,16 +945,25 @@ It is discouraged that the information realization corresponding to the Dataset 
                                                                                  )
                                                                    ]
                                                ] ;
-                               owl:disjointWith :ImplementationStageAccountabilityPlan ;
                                rdfs:comment "A plan that identifies sao:AccountableAction(s) and sao:AccountableResult(s) relevant to the design stage of an AI system and  which are required to be documented for accountability purposes. The Accountable Actions that can be done at this stage are: Produce Specification and Decide." ;
                                rdfs:label "Design Stage Accountability Plan" .
 
 
+###  https://w3id.org/rains#DisclaimerNotification
+:DisclaimerNotification rdf:type owl:Class ;
+                        rdfs:subClassOf :Notification .
+
+
+###  https://w3id.org/rains#ErrorNotification
+:ErrorNotification rdf:type owl:Class ;
+                   rdfs:subClassOf :Notification .
+
+
 ###  https://w3id.org/rains#Evaluate
 :Evaluate rdf:type owl:Class ;
-          rdfs:subClassOf sao:AccountableAction ,
+          rdfs:subClassOf <https://w3id.org/sao#AccountableAction> ,
                           [ rdf:type owl:Restriction ;
-                            owl:onProperty ep-plan:hasOutputVariable ;
+                            owl:onProperty <https://w3id.org/ep-plan#hasOutputVariable> ;
                             owl:allValuesFrom [ rdf:type owl:Class ;
                                                 owl:unionOf ( :ChangeLog
                                                               :Evaluation
@@ -792,39 +972,41 @@ It is discouraged that the information realization corresponding to the Dataset 
                                               ]
                           ] ,
                           [ rdf:type owl:Restriction ;
-                            owl:onProperty ep-plan:isElementOfPlan ;
+                            owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                             owl:allValuesFrom :ImplementationStageAccountabilityPlan
                           ] ,
                           [ rdf:type owl:Restriction ;
-                            owl:onProperty ep-plan:isStepOfPlan ;
+                            owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
                             owl:allValuesFrom :ImplementationStageAccountabilityPlan
                           ] ;
           owl:disjointWith :GenerateGuideline ,
                            :MergeAndSplitDataset ,
                            :ProduceSpecification ,
-                           :RealizeComponent ;
+                           :RealizeComponent ,
+                           :TrainUser ;
           rdfs:comment "A planned step describing an evaluation, i.e, testing  and producing evaluation metrics, that has some impact on the AI System, e.g. the evaluation of the ML model using a specified Dataset or the :AI_System undergoing a third party evaluation." ;
           rdfs:label "Evaluate" .
 
 
 ###  https://w3id.org/rains#Evaluation
 :Evaluation rdf:type owl:Class ;
-            rdfs:subClassOf sao:AccountableResult ,
+            rdfs:subClassOf <https://w3id.org/sao#AccountableResult> ,
                             [ rdf:type owl:Restriction ;
-                              owl:onProperty ep-plan:isElementOfPlan ;
+                              owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                               owl:allValuesFrom :ImplementationStageAccountabilityPlan
                             ] ,
                             [ rdf:type owl:Restriction ;
-                              owl:onProperty ep-plan:isOutputVariableOf ;
+                              owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                               owl:allValuesFrom :Evaluate
                             ] ,
                             [ rdf:type owl:Restriction ;
-                              owl:onProperty ep-plan:isVariableOfPlan ;
+                              owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                               owl:allValuesFrom :ImplementationStageAccountabilityPlan
                             ] ;
             owl:disjointWith :Guideline ,
-                             :HumanDecision ;
-            rdfs:comment """A specific type of planned sao:AccountableResult which represents a high reference to testing at least one component and recording the results of the test(s) (e.g. testing the model with a specified dataset) that is expected to be produced during the implementation stage.
+                             :HumanDecision ,
+                             :UserTrainingReport ;
+            rdfs:comment """A specific type of planned sao:AccountableResult which represents a high level reference to testing at least one component and recording the results of the test(s) (e.g. testing the model with a specified dataset) that is expected to be produced during the implementation stage.
 
 It is advisable that the information realization corresponding to the Evaluation variable contains the following information elements:
 1. Either an instance of mls:EvaluationProcedure (if it is the model being evaluated) or EvaluationProcedure (if it is not the ML model being evaluated). Either should also be an instance of RealizedObject. If the evaluation deviates from the design, then an additional instance of mls:EvaluationProcedure or EvaluationProcedure should be indicated as an instance of ExcludedObject.
@@ -846,11 +1028,11 @@ It is discouraged that the information realization corresponding to the Evaluati
 :EvaluationDataset rdf:type owl:Class ;
                    rdfs:subClassOf :DatasetComponent ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty ep-plan:isElementOfPlan ;
+                                     owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                      owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                    ] ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty ep-plan:isOutputVariableOf ;
+                                     owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                      owl:allValuesFrom [ rdf:type owl:Class ;
                                                          owl:unionOf ( :MergeAndSplitDataset
                                                                        :RealizeComponent
@@ -858,7 +1040,7 @@ It is discouraged that the information realization corresponding to the Evaluati
                                                        ]
                                    ] ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty ep-plan:isVariableOfPlan ;
+                                     owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                      owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                    ] ;
                    rdfs:comment "A specific type of a Dataset Component  which represents a subset of the whole collected and pre-processed datasets after they were merged then split to be fed into the ML Model. This specific type represents the data used to evaluate the ML Model. The other subsets are used to train and evaluate the model. This type can also represent a standalone dataset used to evaluate the model independent of the datasets used to train and validate it." ;
@@ -867,21 +1049,21 @@ It is discouraged that the information realization corresponding to the Evaluati
 
 ###  https://w3id.org/rains#EvaluationMeassure
 :EvaluationMeassure rdf:type owl:Class ;
-                    rdfs:subClassOf sao:InformationElement ;
+                    rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
                     rdfs:comment "A  sao:InformationElement which records a specific piece of  information detailing some measure used as part of an evaluation process. This is broader than mls:EvaluationMeassure which describes a measure related to a model performance." ;
                     rdfs:label "Evaluation Measure" .
 
 
 ###  https://w3id.org/rains#EvaluationProcedure
 :EvaluationProcedure rdf:type owl:Class ;
-                     rdfs:subClassOf sao:InformationElement ;
+                     rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
                      rdfs:comment "A sao:InformationElement  which records a specific piece of  information detailing procedure by which some aspects of an :AI_Sytem were evaluated. This is broader than mls:EvaluationProcedure which relates to model evaluation." ;
                      rdfs:label "Evaluation Procedure" .
 
 
 ###  https://w3id.org/rains#EvaluationResult
 :EvaluationResult rdf:type owl:Class ;
-                  rdfs:subClassOf sao:InformationElement ;
+                  rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
                   rdfs:comment "A  sao:InformationElement which records a specific piece of  information detailing the result of an evaluation process. This is broader than mls:EvaluationMeassure which describes a result related to a specific model evaluation." ;
                   rdfs:label "Evaluation Result" .
 
@@ -890,7 +1072,7 @@ It is discouraged that the information realization corresponding to the Evaluati
 :EvaluationSpecification rdf:type owl:Class ;
                          rdfs:subClassOf :DesignSpecification ,
                                          [ rdf:type owl:Restriction ;
-                                           owl:onProperty ep-plan:isElementOfPlan ;
+                                           owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                            owl:allValuesFrom [ rdf:type owl:Class ;
                                                                owl:unionOf ( :DesignStageAccountabilityPlan
                                                                              :ImplementationStageAccountabilityPlan
@@ -898,11 +1080,11 @@ It is discouraged that the information realization corresponding to the Evaluati
                                                              ]
                                          ] ,
                                          [ rdf:type owl:Restriction ;
-                                           owl:onProperty ep-plan:isOutputVariableOf ;
+                                           owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                            owl:allValuesFrom :ProduceSpecification
                                          ] ,
                                          [ rdf:type owl:Restriction ;
-                                           owl:onProperty ep-plan:isVariableOfPlan ;
+                                           owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                            owl:allValuesFrom [ rdf:type owl:Class ;
                                                                owl:unionOf ( :DesignStageAccountabilityPlan
                                                                              :ImplementationStageAccountabilityPlan
@@ -930,12 +1112,28 @@ It is discouraged that the information realization corresponding to the Evaluati
 
 ###  https://w3id.org/rains#ExcludedObject
 :ExcludedObject rdf:type owl:Class ;
-                rdfs:subClassOf sao:InformationElement ;
+                rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
                 owl:disjointWith :RealizededObject ;
                 rdfs:comment """A sao:InformationElement which records information detailing a piece of data, software or hardware that should have been realized but was not.
 
-For example, assume the dataset design specification specifices that dataset foorbar is to be realised (to be used to train the model), but the implementation team realises dataset xyzzy instead. In this case, the dataset foobar should be indicated by the implementation team as an Excluded Object - whereas the dataset xyzzy should be created as an instance of Realized Object.""" ;
+For example, assume the dataset design specification specifies that dataset foobar is to be realised (to be used to train the model), but the implementation team realises dataset xyzzy instead. In this case, the dataset foobar should be indicated by the implementation team as an Excluded Object - whereas the dataset xyzzy should be created as an instance of :RealizedObject.""" ;
                 rdfs:label "Excluded Object" .
+
+
+###  https://w3id.org/rains#Explain
+:Explain rdf:type owl:Class ;
+         rdfs:subClassOf :SystemAction ;
+         owl:disjointWith :Validate .
+
+
+###  https://w3id.org/rains#Explanation
+:Explanation rdf:type owl:Class ;
+             rdfs:subClassOf :SystemData .
+
+
+###  https://w3id.org/rains#ExplanationNotification
+:ExplanationNotification rdf:type owl:Class ;
+                         rdfs:subClassOf :Notification .
 
 
 ###  https://w3id.org/rains#FairnessOrBiasDetectionSoftware
@@ -949,7 +1147,7 @@ For example, assume the dataset design specification specifices that dataset foo
 :FitnessConfirmationDecision rdf:type owl:Class ;
                              rdfs:subClassOf :HumanDecision ,
                                              [ rdf:type owl:Restriction ;
-                                               owl:onProperty ep-plan:isElementOfPlan ;
+                                               owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                                owl:allValuesFrom [ rdf:type owl:Class ;
                                                                    owl:unionOf ( :DesignStageAccountabilityPlan
                                                                                  :ImplementationStageAccountabilityPlan
@@ -957,11 +1155,11 @@ For example, assume the dataset design specification specifices that dataset foo
                                                                  ]
                                              ] ,
                                              [ rdf:type owl:Restriction ;
-                                               owl:onProperty ep-plan:isOutputVariableOf ;
+                                               owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                                owl:allValuesFrom :Decide
                                              ] ,
                                              [ rdf:type owl:Restriction ;
-                                               owl:onProperty ep-plan:isVariableOfPlan ;
+                                               owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                                owl:allValuesFrom [ rdf:type owl:Class ;
                                                                    owl:unionOf ( :DesignStageAccountabilityPlan
                                                                                  :ImplementationStageAccountabilityPlan
@@ -974,16 +1172,16 @@ For example, assume the dataset design specification specifices that dataset foo
 
 ###  https://w3id.org/rains#Funding
 :Funding rdf:type owl:Class ;
-         rdfs:subClassOf sao:InformationElement ;
+         rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
          rdfs:comment "A sao:InformationElement  which records a specific piece of  information detailing a funding source." ;
          rdfs:label "Funding" .
 
 
 ###  https://w3id.org/rains#GenerateGuideline
 :GenerateGuideline rdf:type owl:Class ;
-                   rdfs:subClassOf sao:AccountableAction ,
+                   rdfs:subClassOf <https://w3id.org/sao#AccountableAction> ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty ep-plan:hasOutputVariable ;
+                                     owl:onProperty <https://w3id.org/ep-plan#hasOutputVariable> ;
                                      owl:allValuesFrom [ rdf:type owl:Class ;
                                                          owl:unionOf ( :Guideline
                                                                        :SystemDeploymentGuideline
@@ -992,11 +1190,11 @@ For example, assume the dataset design specification specifices that dataset foo
                                                        ]
                                    ] ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty ep-plan:isElementOfPlan ;
+                                     owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                      owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                    ] ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty ep-plan:isStepOfPlan ;
+                                     owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
                                      owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                    ] ;
                    owl:disjointWith :MergeAndSplitDataset ,
@@ -1006,15 +1204,25 @@ For example, assume the dataset design specification specifices that dataset foo
                    rdfs:label "Generate Guideline" .
 
 
+###  https://w3id.org/rains#GenerateModelOutput
+:GenerateModelOutput rdf:type owl:Class ;
+                     rdfs:subClassOf :GenerateOutput .
+
+
+###  https://w3id.org/rains#GenerateOutput
+:GenerateOutput rdf:type owl:Class ;
+                rdfs:subClassOf :SystemAction .
+
+
 ###  https://w3id.org/rains#GrantCertification
 :GrantCertification rdf:type owl:Class ;
                     rdfs:subClassOf :Decide ,
                                     [ rdf:type owl:Restriction ;
-                                      owl:onProperty ep-plan:hasOutputVariable ;
+                                      owl:onProperty <https://w3id.org/ep-plan#hasOutputVariable> ;
                                       owl:allValuesFrom :CertificationDecision
                                     ] ,
                                     [ rdf:type owl:Restriction ;
-                                      owl:onProperty ep-plan:isElementOfPlan ;
+                                      owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                       owl:allValuesFrom [ rdf:type owl:Class ;
                                                           owl:unionOf ( :DesignStageAccountabilityPlan
                                                                         :ImplementationStageAccountabilityPlan
@@ -1022,7 +1230,7 @@ For example, assume the dataset design specification specifices that dataset foo
                                                         ]
                                     ] ,
                                     [ rdf:type owl:Restriction ;
-                                      owl:onProperty ep-plan:isStepOfPlan ;
+                                      owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
                                       owl:allValuesFrom [ rdf:type owl:Class ;
                                                           owl:unionOf ( :DesignStageAccountabilityPlan
                                                                         :ImplementationStageAccountabilityPlan
@@ -1035,30 +1243,30 @@ For example, assume the dataset design specification specifices that dataset foo
 
 ###  https://w3id.org/rains#Guidance
 :Guidance rdf:type owl:Class ;
-          rdfs:subClassOf sao:InformationElement ;
-          rdfs:comment "A sao:InformationElement  which records a specific piece of  information detailing guidance to the deployment or operation of the :AI_System." ;
+          rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
+          rdfs:comment "A sao:InformationElement  which records a specific piece of  information detailing instructions that should be followed during the deployment or operation stage of the :AI_System lifecycle." ;
           rdfs:label "Guidance" .
 
 
 ###  https://w3id.org/rains#Guideline
 :Guideline rdf:type owl:Class ;
-           rdfs:subClassOf sao:AccountableResult ,
+           rdfs:subClassOf <https://w3id.org/sao#AccountableResult> ,
                            [ rdf:type owl:Restriction ;
-                             owl:onProperty ep-plan:isElementOfPlan ;
+                             owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                              owl:allValuesFrom :ImplementationStageAccountabilityPlan
                            ] ,
                            [ rdf:type owl:Restriction ;
-                             owl:onProperty ep-plan:isOutputVariableOf ;
+                             owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                              owl:allValuesFrom :GenerateGuideline
                            ] ,
                            [ rdf:type owl:Restriction ;
-                             owl:onProperty ep-plan:isVariableOfPlan ;
+                             owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                              owl:allValuesFrom :ImplementationStageAccountabilityPlan
                            ] ;
            owl:disjointWith :HumanDecision ,
                             :ModelComponent ,
                             :SupportingInfrastructureComponent ;
-           rdfs:comment "A specific type of planned sao:AccountableResult which represents a high reference to a guideline (e.g. a guideline document) that is expected to be produced during the implementation (or deployment stages) in order to inform the future AI system lifecycle stages (e.g. deployment or use and maintenance)." ;
+           rdfs:comment "A specific type of planned sao:AccountableResult which represents a high level reference to a guideline (e.g. a guideline document) that is expected to be produced during the implementation in order to inform on the correct procedure for deploying, using and maintaining the system or any of its components." ;
            rdfs:label "Guideline" .
 
 
@@ -1074,16 +1282,16 @@ When used as part of an information realization corresponding to a design specif
 
 ###  https://w3id.org/rains#HumanConstraint
 :HumanConstraint rdf:type owl:Class ;
-                 rdfs:subClassOf ep-plan:Constraint ;
-                 rdfs:comment "A specific type of planned Constraint that describes a constraint that must be evaluated by a human." ;
+                 rdfs:subClassOf <https://w3id.org/ep-plan#Constraint> ;
+                 rdfs:comment "A specific type of planned ep-plan:Constraint that describes some constraint which cannot be evaluated automatically against the accountability trace. This can be, for example, because the constraint is too high level or difficult to express as a rule. Such constraint would be typically expected to be evaluated manually by a human." ;
                  rdfs:label "Human Constraint" .
 
 
 ###  https://w3id.org/rains#HumanDecision
 :HumanDecision rdf:type owl:Class ;
-               rdfs:subClassOf sao:AccountableResult ,
+               rdfs:subClassOf <https://w3id.org/sao#AccountableResult> ,
                                [ rdf:type owl:Restriction ;
-                                 owl:onProperty ep-plan:isElementOfPlan ;
+                                 owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                  owl:allValuesFrom [ rdf:type owl:Class ;
                                                      owl:unionOf ( :DesignStageAccountabilityPlan
                                                                    :ImplementationStageAccountabilityPlan
@@ -1091,11 +1299,11 @@ When used as part of an information realization corresponding to a design specif
                                                    ]
                                ] ,
                                [ rdf:type owl:Restriction ;
-                                 owl:onProperty ep-plan:isOutputVariableOf ;
+                                 owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                  owl:allValuesFrom :Decide
                                ] ,
                                [ rdf:type owl:Restriction ;
-                                 owl:onProperty ep-plan:isVariableOfPlan ;
+                                 owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                  owl:allValuesFrom [ rdf:type owl:Class ;
                                                      owl:unionOf ( :DesignStageAccountabilityPlan
                                                                    :ImplementationStageAccountabilityPlan
@@ -1103,16 +1311,17 @@ When used as part of an information realization corresponding to a design specif
                                                    ]
                                ] ;
                owl:disjointWith :ModelComponent ,
-                                :SupportingInfrastructureComponent ;
+                                :SupportingInfrastructureComponent ,
+                                :UserTrainingReport ;
                rdfs:comment "A specific type of a planned sao:AccountableResult which represents a decision made by a human." ;
                rdfs:label "Human Decision" .
 
 
 ###  https://w3id.org/rains#ImplementationStageAccountabilityPlan
 :ImplementationStageAccountabilityPlan rdf:type owl:Class ;
-                                       rdfs:subClassOf sao:AccountabilityPlan ,
+                                       rdfs:subClassOf <https://w3id.org/sao#AccountabilityPlan> ,
                                                        [ rdf:type owl:Restriction ;
-                                                         owl:onProperty ep-plan:includesStep ;
+                                                         owl:onProperty <https://w3id.org/ep-plan#includesStep> ;
                                                          owl:allValuesFrom [ rdf:type owl:Class ;
                                                                              owl:unionOf ( :Decide
                                                                                            :Evaluate
@@ -1124,7 +1333,7 @@ When used as part of an information realization corresponding to a design specif
                                                                            ]
                                                        ] ,
                                                        [ rdf:type owl:Restriction ;
-                                                         owl:onProperty ep-plan:includesVariable ;
+                                                         owl:onProperty <https://w3id.org/ep-plan#includesVariable> ;
                                                          owl:allValuesFrom [ rdf:type owl:Class ;
                                                                              owl:unionOf ( :ApprovalDecision
                                                                                            :CertificationDecision
@@ -1158,6 +1367,21 @@ When used as part of an information realization corresponding to a design specif
                   rdfs:label "Incorrect Use Case" .
 
 
+###  https://w3id.org/rains#Install
+:Install rdf:type owl:Class ;
+         rdfs:subClassOf <https://w3id.org/sao#AccountableAction> .
+
+
+###  https://w3id.org/rains#InstallationAccountabilityPlan
+:InstallationAccountabilityPlan rdf:type owl:Class ;
+                                rdfs:subClassOf :DeploymentStageAccountabilityPlan .
+
+
+###  https://w3id.org/rains#InstallationLog
+:InstallationLog rdf:type owl:Class ;
+                 rdfs:subClassOf :Log .
+
+
 ###  https://w3id.org/rains#IntendedUseCase
 :IntendedUseCase rdf:type owl:Class ;
                  rdfs:subClassOf :UseCase ;
@@ -1167,23 +1391,38 @@ When used as part of an information realization corresponding to a design specif
 
 ###  https://w3id.org/rains#IntendedUserGroup
 :IntendedUserGroup rdf:type owl:Class ;
-                   rdfs:subClassOf sao:InformationElement ;
+                   rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
                    rdfs:comment "A sao:InformationElement  which records a specific piece of  information detailing the target user audience for the functionality of the overall :AI_System or the components used to develop such system (e.g., a reused public training dataset or a model would be associated with this information)." ;
                    rdfs:label "Intended User Group" .
 
 
 ###  https://w3id.org/rains#Limitation
 :Limitation rdf:type owl:Class ;
-            rdfs:subClassOf sao:InformationElement ;
+            rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
             rdfs:comment "A sao:InformationElement  which records a specific piece of  information detailing the limitations of any aspect related to an :AI_System including the system as whole, its components (e.g., ML model),  or associated processes (e.g., evaluation)." ;
             rdfs:label "Limitation" .
 
 
+###  https://w3id.org/rains#Log
+:Log rdf:type owl:Class ;
+     rdfs:subClassOf <https://w3id.org/sao#AccountableResult> .
+
+
+###  https://w3id.org/rains#MaintenanceAccountabilityPlan
+:MaintenanceAccountabilityPlan rdf:type owl:Class ;
+                               rdfs:subClassOf :OperationStageAccountabilityPlan .
+
+
+###  https://w3id.org/rains#ManualProductionAccountabilityPlan
+:ManualProductionAccountabilityPlan rdf:type owl:Class ;
+                                    rdfs:subClassOf :DeploymentStageAccountabilityPlan .
+
+
 ###  https://w3id.org/rains#MergeAndSplitDataset
 :MergeAndSplitDataset rdf:type owl:Class ;
-                      rdfs:subClassOf sao:AccountableAction ,
+                      rdfs:subClassOf <https://w3id.org/sao#AccountableAction> ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:hasOutputVariable ;
+                                        owl:onProperty <https://w3id.org/ep-plan#hasOutputVariable> ;
                                         owl:allValuesFrom [ rdf:type owl:Class ;
                                                             owl:unionOf ( :ChangeLog
                                                                           :DatasetComponent
@@ -1194,32 +1433,33 @@ When used as part of an information realization corresponding to a design specif
                                                           ]
                                       ] ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:isElementOfPlan ;
+                                        owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                         owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                       ] ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:isStepOfPlan ;
+                                        owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
                                         owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                       ] ;
                       owl:disjointWith :ProduceSpecification ,
-                                       :RealizeComponent ;
+                                       :RealizeComponent ,
+                                       :TrainUser ;
                       rdfs:comment "A planned step that has some impact on the AI System where the dataset(s) used to produce the ML Model are merged and/or split. Merging takes place when there is more than one dataset in use. Typically, splitting results in three subsets: Training, Validation, and Testing. This step is typically part of the Implementation stage of an AI System's life cycle." ;
                       rdfs:label "Merge and Split Dataset" .
 
 
 ###  https://w3id.org/rains#ModelComponent
 :ModelComponent rdf:type owl:Class ;
-                rdfs:subClassOf sao:AccountableResult ,
+                rdfs:subClassOf <https://w3id.org/sao#AccountableResult> ,
                                 [ rdf:type owl:Restriction ;
-                                  owl:onProperty ep-plan:isElementOfPlan ;
+                                  owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                   owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                 ] ,
                                 [ rdf:type owl:Restriction ;
-                                  owl:onProperty ep-plan:isOutputVariableOf ;
+                                  owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                   owl:allValuesFrom :RealizeComponent
                                 ] ,
                                 [ rdf:type owl:Restriction ;
-                                  owl:onProperty ep-plan:isVariableOfPlan ;
+                                  owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                   owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                 ] ;
                 owl:disjointWith :SupportingInfrastructureComponent ;
@@ -1253,11 +1493,16 @@ It is discouraged that the information realization corresponding to the ModelCom
                 rdfs:label "Model Component" .
 
 
+###  https://w3id.org/rains#ModelOutput
+:ModelOutput rdf:type owl:Class ;
+             rdfs:subClassOf :SystemData .
+
+
 ###  https://w3id.org/rains#ModelSpecification
 :ModelSpecification rdf:type owl:Class ;
                     rdfs:subClassOf :DesignSpecification ,
                                     [ rdf:type owl:Restriction ;
-                                      owl:onProperty ep-plan:isElementOfPlan ;
+                                      owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                       owl:allValuesFrom [ rdf:type owl:Class ;
                                                           owl:unionOf ( :DesignStageAccountabilityPlan
                                                                         :ImplementationStageAccountabilityPlan
@@ -1265,11 +1510,11 @@ It is discouraged that the information realization corresponding to the ModelCom
                                                         ]
                                     ] ,
                                     [ rdf:type owl:Restriction ;
-                                      owl:onProperty ep-plan:isOutputVariableOf ;
+                                      owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                       owl:allValuesFrom :ProduceSpecification
                                     ] ,
                                     [ rdf:type owl:Restriction ;
-                                      owl:onProperty ep-plan:isVariableOfPlan ;
+                                      owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                       owl:allValuesFrom [ rdf:type owl:Class ;
                                                           owl:unionOf ( :DesignStageAccountabilityPlan
                                                                         :ImplementationStageAccountabilityPlan
@@ -1309,18 +1554,56 @@ It is discouraged that the information realization corresponding to the ModelSpe
                     rdfs:label "Model Specification" .
 
 
+###  https://w3id.org/rains#Notification
+:Notification rdf:type owl:Class ;
+              rdfs:subClassOf :SystemData .
+
+
+###  https://w3id.org/rains#NotificationProof
+:NotificationProof rdf:type owl:Class ;
+                   rdfs:subClassOf <https://w3id.org/sao#InformationElement> .
+
+
+###  https://w3id.org/rains#NotifyUser
+:NotifyUser rdf:type owl:Class ;
+            rdfs:subClassOf :SystemAction ;
+            owl:disjointWith :Validate .
+
+
+###  https://w3id.org/rains#OperationStageAccountabilityPlan
+:OperationStageAccountabilityPlan rdf:type owl:Class ;
+                                  rdfs:subClassOf <https://w3id.org/sao#AccountabilityPlan> .
+
+
+###  https://w3id.org/rains#Override
+:Override rdf:type owl:Class ;
+          rdfs:subClassOf :SystemAction ;
+          owl:disjointWith :Validate .
+
+
+###  https://w3id.org/rains#OverrideResult
+:OverrideResult rdf:type owl:Class ;
+                rdfs:subClassOf :SystemData .
+
+
 ###  https://w3id.org/rains#Parameter
 :Parameter rdf:type owl:Class ;
-           rdfs:subClassOf sao:InformationElement ;
+           rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
            rdfs:comment "A  sao:InformationElement which records a specific piece of  information describing a model's parameter. This is broader than mls:HyperParameter which describes only a hyperparameter of a model." ;
            rdfs:label "Parameter" .
 
 
+###  https://w3id.org/rains#PreprocessInputData
+:PreprocessInputData rdf:type owl:Class ;
+                     rdfs:subClassOf :SystemAction ;
+                     owl:disjointWith :Validate .
+
+
 ###  https://w3id.org/rains#ProduceSpecification
 :ProduceSpecification rdf:type owl:Class ;
-                      rdfs:subClassOf sao:AccountableAction ,
+                      rdfs:subClassOf <https://w3id.org/sao#AccountableAction> ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:hasOutputVariable ;
+                                        owl:onProperty <https://w3id.org/ep-plan#hasOutputVariable> ;
                                         owl:allValuesFrom [ rdf:type owl:Class ;
                                                             owl:unionOf ( :ComplianceSpecification
                                                                           :DatasetSpecification
@@ -1333,37 +1616,44 @@ It is discouraged that the information realization corresponding to the ModelSpe
                                                           ]
                                       ] ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:isElementOfPlan ;
+                                        owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                         owl:allValuesFrom :DesignStageAccountabilityPlan
                                       ] ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:isStepOfPlan ;
+                                        owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
                                         owl:allValuesFrom :DesignStageAccountabilityPlan
                                       ] ;
-                      owl:disjointWith :RealizeComponent ;
+                      owl:disjointWith :RealizeComponent ,
+                                       :TrainUser ;
                       rdfs:comment "A planned step describing the creation of a specification that has some impact on the AI System, e.g. the production of the design specification describing the training dataset to be used. This step is typically part of the Design stage of an AI System's life cycle." ;
                       rdfs:label "Produce Specification" .
 
 
+###  https://w3id.org/rains#ProvideSystemInputData
+:ProvideSystemInputData rdf:type owl:Class ;
+                        rdfs:subClassOf :SystemAction ;
+                        owl:disjointWith :Validate .
+
+
 ###  https://w3id.org/rains#RealizableObject
 :RealizableObject rdf:type owl:Class ;
-                  rdfs:subClassOf sao:InformationElement ;
+                  rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
                   rdfs:comment "A sao:InformationElement  which records  information detailing  a piece of data, software or hardware that may be realized during the Implementation stage. A reused object (e.g., public training datasets) is also considered as :RealizableObject during the Design stage as it is not yet implemented (i.e., physical copies have not yet been integrated withing the ML pipeline)" ;
                   rdfs:label "Realizable Object" .
 
 
 ###  https://w3id.org/rains#RealizableObjectCharacteristic
 :RealizableObjectCharacteristic rdf:type owl:Class ;
-                                rdfs:subClassOf sao:InformationElement ;
-                                rdfs:comment "A sao:InformationElement  which records  information detailing  a specific quality of :ReallizableObject." ;
+                                rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
+                                rdfs:comment "A sao:InformationElement  which records  information detailing  a specific quality of :RealizableObject." ;
                                 rdfs:label "Realizable Object Characteristic" .
 
 
 ###  https://w3id.org/rains#RealizeComponent
 :RealizeComponent rdf:type owl:Class ;
-                  rdfs:subClassOf sao:AccountableAction ,
+                  rdfs:subClassOf <https://w3id.org/sao#AccountableAction> ,
                                   [ rdf:type owl:Restriction ;
-                                    owl:onProperty ep-plan:hasOutputVariable ;
+                                    owl:onProperty <https://w3id.org/ep-plan#hasOutputVariable> ;
                                     owl:allValuesFrom [ rdf:type owl:Class ;
                                                         owl:unionOf ( :ChangeLog
                                                                       :DatasetComponent
@@ -1376,33 +1666,49 @@ It is discouraged that the information realization corresponding to the ModelSpe
                                                       ]
                                   ] ,
                                   [ rdf:type owl:Restriction ;
-                                    owl:onProperty ep-plan:isElementOfPlan ;
+                                    owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                     owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                   ] ,
                                   [ rdf:type owl:Restriction ;
-                                    owl:onProperty ep-plan:isStepOfPlan ;
+                                    owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
                                     owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                   ] ;
+                  owl:disjointWith :TrainUser ;
                   rdfs:comment "A planned step describing the realization of a component. This includes implementing a component or retrieving it from a different (or third party) source. The realization of the component has some impact on the AI System, e.g. the implementation of the ML model or importing a third party dataset." ;
                   rdfs:label "Realize Component" .
 
 
 ###  https://w3id.org/rains#RealizededObject
 :RealizededObject rdf:type owl:Class ;
-                  rdfs:subClassOf sao:InformationElement ;
+                  rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
                   rdfs:comment """A sao:InformationElement which records information detailing a piece of data, software or hardware that was realized - whether or not it followed a design specification or a guideline.
 
-For example, assume the dataset design specification specifices that dataset foorbar is to be realised (to be used to train the model), but the implementation team realises dataset xyzzy. In this case, only dataset xyzzy is created as an instance of Realized Object.""" ;
+For example, assume the dataset design specification specifies that dataset foobar is to be realised (to be used to train the model), but the implementation team realises dataset xyzzy. In this case, only dataset xyzzy is created as an instance of Realized Object.""" ;
                   rdfs:label "Realized Object" .
+
+
+###  https://w3id.org/rains#ReturnOutput
+:ReturnOutput rdf:type owl:Class ;
+              rdfs:subClassOf :SystemAction .
 
 
 ###  https://w3id.org/rains#Risk
 :Risk rdf:type owl:Class ;
-      rdfs:subClassOf sao:InformationElement ;
+      rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
       rdfs:comment """A sao:InformationElement  which records a specific piece of  information detailing possible undesired or dangerous outcomes caused by any aspects of :AI_Sytem. 
 
 If a mitigation strategy is used to abate the risk, then these can be indicated using the property :hasMitigationStrategy. It is advisable that information about the risk before and after mitigation is included.""" ;
       rdfs:label "Risk" .
+
+
+###  https://w3id.org/rains#RuntimeAccountabilityPlan
+:RuntimeAccountabilityPlan rdf:type owl:Class ;
+                           rdfs:subClassOf :OperationStageAccountabilityPlan .
+
+
+###  https://w3id.org/rains#RuntimeInputData
+:RuntimeInputData rdf:type owl:Class ;
+                  rdfs:subClassOf :SystemData .
 
 
 ###  https://w3id.org/rains#SoftLaw
@@ -1428,19 +1734,20 @@ When used as part of an information realization corresponding to a design specif
 
 ###  https://w3id.org/rains#SupportingInfrastructureComponent
 :SupportingInfrastructureComponent rdf:type owl:Class ;
-                                   rdfs:subClassOf sao:AccountableResult ,
+                                   rdfs:subClassOf <https://w3id.org/sao#AccountableResult> ,
                                                    [ rdf:type owl:Restriction ;
-                                                     owl:onProperty ep-plan:isElementOfPlan ;
+                                                     owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                                      owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                                    ] ,
                                                    [ rdf:type owl:Restriction ;
-                                                     owl:onProperty ep-plan:isOutputVariableOf ;
+                                                     owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                                      owl:allValuesFrom :RealizeComponent
                                                    ] ,
                                                    [ rdf:type owl:Restriction ;
-                                                     owl:onProperty ep-plan:isVariableOfPlan ;
+                                                     owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                                      owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                                    ] ;
+                                   owl:disjointWith :UserTrainingReport ;
                                    rdfs:comment """A specific type of planned sao:AccountableResult which represents the characteristics, performance, etc. related to all the implemented hardware and software 'plumbing' that is not generally considered part of the AI processes, however, may also be source of erroneous behaviour in AI systems.
 
 It is advisable that the information realization corresponding to the SupportingInfrastructureComponent variable contains the following information elements:
@@ -1462,7 +1769,7 @@ It is advisable that the information realization corresponding to the Supporting
 :SupportingInfrastructureSpecification rdf:type owl:Class ;
                                        rdfs:subClassOf :DesignSpecification ,
                                                        [ rdf:type owl:Restriction ;
-                                                         owl:onProperty ep-plan:isElementOfPlan ;
+                                                         owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                                          owl:allValuesFrom [ rdf:type owl:Class ;
                                                                              owl:unionOf ( :DesignStageAccountabilityPlan
                                                                                            :ImplementationStageAccountabilityPlan
@@ -1470,11 +1777,11 @@ It is advisable that the information realization corresponding to the Supporting
                                                                            ]
                                                        ] ,
                                                        [ rdf:type owl:Restriction ;
-                                                         owl:onProperty ep-plan:isOutputVariableOf ;
+                                                         owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                                          owl:allValuesFrom :ProduceSpecification
                                                        ] ,
                                                        [ rdf:type owl:Restriction ;
-                                                         owl:onProperty ep-plan:isVariableOfPlan ;
+                                                         owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                                          owl:allValuesFrom [ rdf:type owl:Class ;
                                                                              owl:unionOf ( :DesignStageAccountabilityPlan
                                                                                            :ImplementationStageAccountabilityPlan
@@ -1499,11 +1806,29 @@ It is advisable that the information realization corresponding to SupportingInfr
                                        rdfs:label "Supporting Infrastructure Specification" .
 
 
+###  https://w3id.org/rains#SystemAction
+:SystemAction rdf:type owl:Class ;
+              rdfs:subClassOf <https://w3id.org/sao#AccountableAction> ,
+                              [ rdf:type owl:Restriction ;
+                                owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
+                                owl:allValuesFrom :OperationStageAccountabilityPlan
+                              ] ,
+                              [ rdf:type owl:Restriction ;
+                                owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
+                                owl:allValuesFrom :OperationStageAccountabilityPlan
+                              ] .
+
+
 ###  https://w3id.org/rains#SystemAuditMechanism
 :SystemAuditMechanism rdf:type owl:Class ;
                       rdfs:subClassOf :RealizableObjectCharacteristic ;
                       rdfs:comment "A type of :RealizableObjectCharacteristic detailing how :AI_System may be interrogated about its inner processes and outputs produced." ;
                       rdfs:label "System Audit Mechanism" .
+
+
+###  https://w3id.org/rains#SystemData
+:SystemData rdf:type owl:Class ;
+            rdfs:subClassOf <https://w3id.org/sao#AccountableResult> .
 
 
 ###  https://w3id.org/rains#SystemDeploymentGuidance
@@ -1517,18 +1842,18 @@ It is advisable that the information realization corresponding to SupportingInfr
 :SystemDeploymentGuideline rdf:type owl:Class ;
                            rdfs:subClassOf :Guideline ,
                                            [ rdf:type owl:Restriction ;
-                                             owl:onProperty ep-plan:isElementOfPlan ;
+                                             owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                              owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                            ] ,
                                            [ rdf:type owl:Restriction ;
-                                             owl:onProperty ep-plan:isOutputVariableOf ;
+                                             owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                              owl:allValuesFrom :GenerateGuideline
                                            ] ,
                                            [ rdf:type owl:Restriction ;
-                                             owl:onProperty ep-plan:isVariableOfPlan ;
+                                             owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                              owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                            ] ;
-                           rdfs:comment """A specific type of :Guideline which represents the description of guidelines to the Deployment stage of the AI System.
+                           rdfs:comment """A specific type of :Guideline which represents the description of guidelines for the Deployment stage of the AI System.
 
 It is advisable that the information realization corresponding to the System Deployment Guideline variable contains the following information elements:
 Guidance.
@@ -1552,6 +1877,11 @@ Guidance.
                             rdfs:label "System Explanation Mechanism" .
 
 
+###  https://w3id.org/rains#SystemFeedbackFromUserMechanism
+:SystemFeedbackFromUserMechanism rdf:type owl:Class ;
+                                 rdfs:subClassOf :RealizableObjectCharacteristic .
+
+
 ###  https://w3id.org/rains#SystemHumanOversightMechanism
 :SystemHumanOversightMechanism rdf:type owl:Class ;
                                rdfs:subClassOf :RealizableObjectCharacteristic ;
@@ -1559,11 +1889,14 @@ Guidance.
                                rdfs:label "System Human Oversight Mechanism" .
 
 
-###  https://w3id.org/rains#SystemIntegrationGuidance
-:SystemIntegrationGuidance rdf:type owl:Class ;
-                           rdfs:subClassOf :Guidance ;
-                           rdfs:comment "A specific type of :Guidance which records a specific piece of information about the guidance to how the :AI_System should be integrated with other systems or services." ;
-                           rdfs:label "System Integration Guidance" .
+###  https://w3id.org/rains#SystemInstallationGuidance
+:SystemInstallationGuidance rdf:type owl:Class ;
+                            rdfs:subClassOf :SystemDeploymentGuidance .
+
+
+###  https://w3id.org/rains#SystemInstallationGuideline
+:SystemInstallationGuideline rdf:type owl:Class ;
+                             rdfs:subClassOf :SystemDeploymentGuideline .
 
 
 ###  https://w3id.org/rains#SystemMaintenanceGuidance
@@ -1573,22 +1906,27 @@ Guidance.
                            rdfs:label "System Maintenance Guidance" .
 
 
+###  https://w3id.org/rains#SystemMaintenanceGuideline
+:SystemMaintenanceGuideline rdf:type owl:Class ;
+                            rdfs:subClassOf :SystemOperationGuideline .
+
+
 ###  https://w3id.org/rains#SystemOperationGuideline
 :SystemOperationGuideline rdf:type owl:Class ;
                           rdfs:subClassOf :Guideline ,
                                           [ rdf:type owl:Restriction ;
-                                            owl:onProperty ep-plan:isElementOfPlan ;
+                                            owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                             owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                           ] ,
                                           [ rdf:type owl:Restriction ;
-                                            owl:onProperty ep-plan:isOutputVariableOf ;
+                                            owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                             owl:allValuesFrom :GenerateGuideline
                                           ] ,
                                           [ rdf:type owl:Restriction ;
-                                            owl:onProperty ep-plan:isVariableOfPlan ;
+                                            owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                             owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                           ] ;
-                          rdfs:comment """A specific type of :Guideline which represents the description of guidelines to the Operation stage of the AI System. 
+                          rdfs:comment """A specific type of :Guideline which represents the description of guidelines for the Operation stage of the AI System. 
 
 It is advisable that the information realization corresponding to the System Operation  Guideline variable contains the following information elements:
 Guidance.
@@ -1597,11 +1935,16 @@ Guidance.
                           rdfs:label "System Operation Guideline" .
 
 
+###  https://w3id.org/rains#SystemOutput
+:SystemOutput rdf:type owl:Class ;
+              rdfs:subClassOf :SystemData .
+
+
 ###  https://w3id.org/rains#SystemPurposeSpecification
 :SystemPurposeSpecification rdf:type owl:Class ;
                             rdfs:subClassOf :DesignSpecification ,
                                             [ rdf:type owl:Restriction ;
-                                              owl:onProperty ep-plan:isElementOfPlan ;
+                                              owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                               owl:allValuesFrom [ rdf:type owl:Class ;
                                                                   owl:unionOf ( :DesignStageAccountabilityPlan
                                                                                 :ImplementationStageAccountabilityPlan
@@ -1609,11 +1952,11 @@ Guidance.
                                                                 ]
                                             ] ,
                                             [ rdf:type owl:Restriction ;
-                                              owl:onProperty ep-plan:isOutputVariableOf ;
+                                              owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                               owl:allValuesFrom :ProduceSpecification
                                             ] ,
                                             [ rdf:type owl:Restriction ;
-                                              owl:onProperty ep-plan:isVariableOfPlan ;
+                                              owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                               owl:allValuesFrom [ rdf:type owl:Class ;
                                                                   owl:unionOf ( :DesignStageAccountabilityPlan
                                                                                 :ImplementationStageAccountabilityPlan
@@ -1643,19 +1986,24 @@ It is advisable that the information realization corresponding to SystemPurposeS
                      rdfs:label "System Usage Guidance" .
 
 
+###  https://w3id.org/rains#SystemUsageGuideline
+:SystemUsageGuideline rdf:type owl:Class ;
+                      rdfs:subClassOf :SystemOperationGuideline .
+
+
 ###  https://w3id.org/rains#ThirdPartyEvaluation
 :ThirdPartyEvaluation rdf:type owl:Class ;
                       rdfs:subClassOf :Evaluation ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:isElementOfPlan ;
+                                        owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                         owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                       ] ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:isOutputVariableOf ;
+                                        owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                         owl:allValuesFrom :Evaluate
                                       ] ,
                                       [ rdf:type owl:Restriction ;
-                                        owl:onProperty ep-plan:isVariableOfPlan ;
+                                        owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                         owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                       ] ;
                       rdfs:comment "A specific type of :Evaluation which represents an evaluation performed by a third party independent of the developers of the AI System." ;
@@ -1664,20 +2012,25 @@ It is advisable that the information realization corresponding to SystemPurposeS
 
 ###  https://w3id.org/rains#TradeOff
 :TradeOff rdf:type owl:Class ;
-          rdfs:subClassOf sao:InformationElement ;
+          rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
           rdfs:comment "A sao:InformationElement  which records a specific piece of  information detailing tradeoffs to mitigate possible undesired or dangerous outcomes caused by any aspects of :AI_Sytem." ;
           rdfs:label "TradeOff" .
+
+
+###  https://w3id.org/rains#TrainUser
+:TrainUser rdf:type owl:Class ;
+           rdfs:subClassOf <https://w3id.org/sao#AccountableAction> .
 
 
 ###  https://w3id.org/rains#TrainingDataset
 :TrainingDataset rdf:type owl:Class ;
                  rdfs:subClassOf :DatasetComponent ,
                                  [ rdf:type owl:Restriction ;
-                                   owl:onProperty ep-plan:isElementOfPlan ;
+                                   owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                    owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                  ] ,
                                  [ rdf:type owl:Restriction ;
-                                   owl:onProperty ep-plan:isOutputVariableOf ;
+                                   owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                    owl:allValuesFrom [ rdf:type owl:Class ;
                                                        owl:unionOf ( :MergeAndSplitDataset
                                                                      :RealizeComponent
@@ -1685,7 +2038,7 @@ It is advisable that the information realization corresponding to SystemPurposeS
                                                      ]
                                  ] ,
                                  [ rdf:type owl:Restriction ;
-                                   owl:onProperty ep-plan:isVariableOfPlan ;
+                                   owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                    owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                  ] ;
                  rdfs:comment "A specific type of a Dataset Component  which represents a subset of the whole collected and pre-processed datasets after they were merged then split to be fed into the ML Model. This specific type represents the data used to train the ML Model. The other subsets are used to validate and evaluate the model." ;
@@ -1694,20 +2047,61 @@ It is advisable that the information realization corresponding to SystemPurposeS
 
 ###  https://w3id.org/rains#UseCase
 :UseCase rdf:type owl:Class ;
-         rdfs:subClassOf sao:InformationElement ;
+         rdfs:subClassOf <https://w3id.org/sao#InformationElement> ;
          rdfs:comment "A sao:InformationElement which records a specific piece of information detailing a situation in which any component of :AI_System or the system as whole could potentially be used." ;
          rdfs:label "Use Case" .
+
+
+###  https://w3id.org/rains#UserConsent
+:UserConsent rdf:type owl:Class ;
+             rdfs:subClassOf :SystemData .
+
+
+###  https://w3id.org/rains#UserFeedbackOrReview
+:UserFeedbackOrReview rdf:type owl:Class ;
+                      rdfs:subClassOf :SystemData .
+
+
+###  https://w3id.org/rains#UserTrainingAccountabilityPlan
+:UserTrainingAccountabilityPlan rdf:type owl:Class ;
+                                rdfs:subClassOf :DeploymentStageAccountabilityPlan .
+
+
+###  https://w3id.org/rains#UserTrainingGuidance
+:UserTrainingGuidance rdf:type owl:Class ;
+                      rdfs:subClassOf :SystemDeploymentGuidance .
+
+
+###  https://w3id.org/rains#UserTrainingGuideline
+:UserTrainingGuideline rdf:type owl:Class ;
+                       rdfs:subClassOf :SystemDeploymentGuideline .
+
+
+###  https://w3id.org/rains#UserTrainingReport
+:UserTrainingReport rdf:type owl:Class ;
+                    rdfs:subClassOf <https://w3id.org/sao#AccountableResult> .
+
+
+###  https://w3id.org/rains#Validate
+:Validate rdf:type owl:Class ;
+          rdfs:subClassOf :SystemAction .
+
+
+###  https://w3id.org/rains#Validation
+:Validation rdf:type owl:Class ;
+            rdfs:subClassOf :SystemData ,
+                            <https://w3id.org/sao#InformationElement> .
 
 
 ###  https://w3id.org/rains#ValidationDataset
 :ValidationDataset rdf:type owl:Class ;
                    rdfs:subClassOf :DatasetComponent ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty ep-plan:isElementOfPlan ;
+                                     owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                      owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                    ] ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty ep-plan:isOutputVariableOf ;
+                                     owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                      owl:allValuesFrom [ rdf:type owl:Class ;
                                                          owl:unionOf ( :MergeAndSplitDataset
                                                                        :RealizeComponent
@@ -1715,41 +2109,43 @@ It is advisable that the information realization corresponding to SystemPurposeS
                                                        ]
                                    ] ,
                                    [ rdf:type owl:Restriction ;
-                                     owl:onProperty ep-plan:isVariableOfPlan ;
+                                     owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                      owl:allValuesFrom :ImplementationStageAccountabilityPlan
                                    ] ;
-                   rdfs:comment "A specific type of a Dataset Component  which represents a subset of the whole collected and pre-processed datasets after they were merged then split to be fed into the ML Model. This specific type represents the data used to validate the ML Model. The other subsets are used to train and evaluate the model." ;
+                   rdfs:comment "A specific type of a Dataset Component  which represents a subset of the whole collected and pre-processed datasets after they were merged then split to be fed into the ML Model. This specific type represents the data used to validate the ML Model. The dataset is typically used repeatedly during the hyperparameter tuning process. The other subsets are used to train and evaluate the model." ;
                    rdfs:label "Validation Dataset" .
 
 
 ###  https://w3id.org/sao#AccountabilityPlan
-sao:AccountabilityPlan rdf:type owl:Class .
+<https://w3id.org/sao#AccountabilityPlan> rdf:type owl:Class .
 
 
 ###  https://w3id.org/sao#AccountableAction
-sao:AccountableAction rdf:type owl:Class .
+<https://w3id.org/sao#AccountableAction> rdf:type owl:Class .
 
 
 ###  https://w3id.org/sao#AccountableAgent
-sao:AccountableAgent rdf:type owl:Class ;
-                     rdfs:subClassOf ep-plan:Agent ,
-                                     sao:InformationElement .
+<https://w3id.org/sao#AccountableAgent> rdf:type owl:Class ;
+                                        rdfs:subClassOf <https://w3id.org/ep-plan#Agent> ,
+                                                        <https://w3id.org/sao#InformationElement> ;
+                                        rdfs:comment "An agent (typically a human) that can be held accountable for his/her actions." ;
+                                        rdfs:label "Accountable Agent" .
 
 
 ###  https://w3id.org/sao#AccountableResult
-sao:AccountableResult rdf:type owl:Class .
+<https://w3id.org/sao#AccountableResult> rdf:type owl:Class .
 
 
 ###  https://w3id.org/sao#InformationElement
-sao:InformationElement rdf:type owl:Class .
+<https://w3id.org/sao#InformationElement> rdf:type owl:Class .
 
 
 ###  https://w3id.org/sao#InformationRealization
-sao:InformationRealization rdf:type owl:Class .
+<https://w3id.org/sao#InformationRealization> rdf:type owl:Class .
 
 
 ###  https://w3id.org/sao#System
-sao:System rdf:type owl:Class .
+<https://w3id.org/sao#System> rdf:type owl:Class .
 
 
 #################################################################
@@ -1757,9 +2153,9 @@ sao:System rdf:type owl:Class .
 #################################################################
 
 [ rdf:type owl:AllDisjointClasses ;
-  owl:members ( mls:Algorithm
-                mls:DatasetCharacteristic
-                mls:ModelCharacteristic
+  owl:members ( <http://www.w3.org/ns/mls#Algorithm>
+                <http://www.w3.org/ns/mls#DatasetCharacteristic>
+                <http://www.w3.org/ns/mls#ModelCharacteristic>
                 :SystemAuditMechanism
                 :SystemExplanationMechanism
                 :SystemHumanOversightMechanism
@@ -1769,8 +2165,8 @@ sao:System rdf:type owl:Class .
 
 
 [ rdf:type owl:AllDisjointClasses ;
-  owl:members ( mls:Dataset
-                mls:Model
+  owl:members ( <http://www.w3.org/ns/mls#Dataset>
+                <http://www.w3.org/ns/mls#Model>
                 :SupportingInfrastructure
               )
 ] .
@@ -1780,6 +2176,15 @@ sao:System rdf:type owl:Class .
   owl:members ( :ApprovalDecision
                 :ComplianceAssuranceDecision
                 :FitnessConfirmationDecision
+              )
+] .
+
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :DeploymentStageAccountabilityPlan
+                :DesignStageAccountabilityPlan
+                :ImplementationStageAccountabilityPlan
+                :OperationStageAccountabilityPlan
               )
 ] .
 

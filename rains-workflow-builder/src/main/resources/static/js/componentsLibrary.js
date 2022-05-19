@@ -195,13 +195,14 @@ function getStepComponents (targetElementId, emptystepLibraryMessage, draggable,
 
 	function constructComponentHerarchy (componentObject, topLevelClass,  draggable, dragEvent, rootStep, ignoreRootStep) {
 		let html = "";
-		
+	
 		if (componentObject[topLevelClass] !=null) {
 		 let childElementsArray = componentObject[topLevelClass];
 		 let dragProperty = "";
 	     if (draggable==true) {
 	    	 dragProperty = 'draggable="true" ondragstart="'+dragEvent+'"';	
 	     }
+		
 		 for (let i=0;i<childElementsArray.length;i++) {
 			 console.log("Comparing rootstep " + rootStep + " with "+childElementsArray[i]);
 			

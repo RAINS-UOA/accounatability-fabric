@@ -676,6 +676,11 @@ public HashMap <String,HashSet <String >> getStepComponentHierarchy (String plan
 		queryString = Constants.PREFIXES + "Select Distinct ?step ?parentStep FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.?step rdfs:subClassOf ?restriction. ?restriction owl:onProperty ep-plan:isStepOfPlan. { ?restriction owl:allValuesFrom rains:DesignStageAccountabilityPlan ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first rains:DesignStageAccountabilityPlan.} FILTER (!isBlank(?parentStep))}order  by  asc (?step) ";
 		
 	}
+
+	if (plantype.equals("operation")) {
+		queryString = Constants.PREFIXES + "Select Distinct ?step ?parentStep FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.?step rdfs:subClassOf ?restriction. ?restriction owl:onProperty ep-plan:isStepOfPlan. { ?restriction owl:allValuesFrom rains:OperationStageAccountabilityPlan ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first rains:OperationStageAccountabilityPlan.} FILTER (!isBlank(?parentStep))}order  by  asc (?step) ";
+		
+	}
 	
 	System.out.println ("Allowed types query" + queryString);
 	
@@ -700,6 +705,7 @@ public HashMap <String,HashSet <String >> getStepComponentHierarchy (String plan
 			         
 			      }			   
 		   }
+		 
 	return map;
 }
 

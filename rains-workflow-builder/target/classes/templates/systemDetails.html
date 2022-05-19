@@ -74,7 +74,9 @@
     
     <span id="implementation" class="loadingButton pull-right"> </span>
   </div>
-   <!-- 
+
+  <!-- Uncommented here -->
+   
   <div class="list-group-item list-group-item-action clearfix"   >
     Deployment
     
@@ -85,7 +87,9 @@
     <span id="operation" class="loadingButton pull-right">
   </span>
   </div>
-  -->
+ 
+<!-- To here -->
+
  <hr>
      <h5>System Accountability Audit</h5>
   
@@ -168,8 +172,8 @@ getplans.then(
 			return data.json();
 		}).then(plans => {
 		console.log(plans.length);
-		//let buttonsToCreate = ['design','implementation','deployment','operation'];
-		let buttonsToCreate = ['design','implementation'];
+		let buttonsToCreate = ['design','implementation','deployment','operation'];
+		// let buttonsToCreate = ['design','implementation'];
 
 		for (let i = 0; i < plans.length; i++) {
 			
@@ -190,17 +194,22 @@ getplans.then(
 			document.getElementById("implementation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=implementation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br> <!-- <a href="workflowBuilder?mode=open&stage=implementation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a> --></div>';
 			delete buttonsToCreate[1]; 
 		break; 
-		/*	
+		
+    // Uncommented here
+
 		case context.DeploymentStageAccountabilityPlan :
 			document.getElementById("deployment").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=deployment&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><a href="workflowBuilder?mode=open&stage=deployment&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
 			delete buttonsToCreate[2]; 
 		break; 
 		
-		case OperationStageAccountabilityPlan:
+		case context.OperationStageAccountabilityPlan:
 			document.getElementById("operation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=operation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><a href="workflowBuilder?mode=open&stage=operation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
 			 
 			delete buttonsToCreate[3]; 
-		break;*/ 
+		break;
+
+    // to here
+
 		}
 		}
 		

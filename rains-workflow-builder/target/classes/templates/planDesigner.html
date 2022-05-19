@@ -242,6 +242,8 @@ div.scroll {
        
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Deployment </button>
     <script>
+      // getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "deployment");
+
       getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
       </script>
        </div> 
@@ -251,7 +253,9 @@ div.scroll {
        
       <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Operation </button>
       <script>
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "operation");
+      // getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
+
       </script>
        </div> 
        <div id="stepsMessage"></div>

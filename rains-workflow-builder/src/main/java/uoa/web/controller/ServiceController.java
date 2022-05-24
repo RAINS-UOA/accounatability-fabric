@@ -574,6 +574,16 @@ public class ServiceController {
 		return gson.toJson(hashSet);
 	}
 	
+	@GetMapping("/getPreviousPlanVariables")
+	@ResponseBody
+	public String getPreviousPlanVariables (@RequestParam String systemIRI, @RequestParam String stage) throws NoSuchElementException, IllegalStateException, Exception  {
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList<HashMap> results = manager.getPreviousPlanVariables (systemIRI, stage);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		return gson.toJson(results);
+	}
+	
 	@GetMapping("/getAgentsParticipationDetailsInExecutionTraces")
 	@ResponseBody
 	public String getAgentsInExecutionTraces (@RequestParam String systemIRI,@RequestParam String agentIRI ) throws NoSuchElementException, IllegalStateException, Exception  {

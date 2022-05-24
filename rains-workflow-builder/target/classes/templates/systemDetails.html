@@ -190,8 +190,7 @@ getplans.then(
 
 		for (let i = 0; i < plans.length; i++) {
 			
-			console.log ("Comparing:"+ plans[i].planType);
-			console.log (context.DesigStep);
+		
 			
 		//switch (plans[i].topLevelStepType) {
 		switch (plans[i].planType) {
@@ -211,25 +210,27 @@ getplans.then(
     // Uncommented here
 
 		case context.InstallationAccountabilityPlan :
-			document.getElementById("deploymentInstallation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=deploymentInstallation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><a href="workflowBuilder?mode=open&stage=deploymentInstallation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
+			document.getElementById("deploymentInstallation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=deploymentInstallation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br> <!--<a href="workflowBuilder?mode=open&stage=deploymentInstallation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>--></div>';
 			delete buttonsToCreate[2]; 
+		break; 
+		
+		
+		
+		case context.UserTrainingAccountabilityPlan :
+			document.getElementById("deploymentUserTraining").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=deploymentUserTraining&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><!--<a href="workflowBuilder?mode=open&stage=deploymentUserTraining&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>--></div>';
+			delete buttonsToCreate[3]; 
 		break; 
 		
 		case context.ManualProductionAccountabilityPlan :
-			document.getElementById("deploymentUserTraining").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=deploymentManual&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><a href="workflowBuilder?mode=open&stage=deploymentManual&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
-			delete buttonsToCreate[2]; 
-		break; 
-		
-		case context.UserTrainingAccountabilityPlan :
-			document.getElementById("deploymentManual").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=deploymentUserTraining&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><a href="workflowBuilder?mode=open&stage=deploymentUserTraining&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
-			delete buttonsToCreate[2]; 
+			document.getElementById("deploymentManual").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=deploymentManual&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><!--<a href="workflowBuilder?mode=open&stage=deploymentManual&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Open Plan</a>--></div>';
+			delete buttonsToCreate[4]; 
 		break; 
 		
 		
 		case context.OperationStageAccountabilityPlan:
-			document.getElementById("operation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=operation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><a href="workflowBuilder?mode=open&stage=operation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a></div>';
+			document.getElementById("operation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=operation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><!--<a href="workflowBuilder?mode=open&stage=operation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a>--></div>';
 			 
-			delete buttonsToCreate[3]; 
+			delete buttonsToCreate[5]; 
 		break;
 
     // to here

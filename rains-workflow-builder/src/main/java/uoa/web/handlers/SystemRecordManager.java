@@ -1339,7 +1339,7 @@ public ArrayList <HashMap> getEntitiesOnInfluencePath(String systemIRI, String e
 public ArrayList <HashMap> getActivityDetailsInExecutionTraces(String systemIRI, String activityIRI) {
 	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
 	//String queryString = Constants.PREFIXES + "Select Distinct *  Where {  ?activity prov:endedAtTime ?end. ?activity prov:startedAtTime ?start; ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType.OPTIONAL {?step rdfs:comment ?stepComment.}FILTER(?planType = rains:DesignStageAccountabilityPlan)}Values (?activity) {(<"+activityIRI+">)}";
-	String queryString = Constants.PREFIXES + "Select Distinct *  Where {   ?agentEntity prov:value ?agent. ?activity  ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agentEntity.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType. ?step rdfs:comment ?stepComment. OPTIONAL {?activity prov:startedAtTime ?start; prov:endedAtTime ?end. } OPTIONAL {?activity ?constraintresult ?constraint. ?constraint a ep-plan:Constraint; a ?constraintType. ?constraint rdfs:label ?constraintLabel; rdfs:comment ?constraintComment. Filter (?constraintType = rains:HumanConstraint || ?constraintType = rains:AutoConstraint)} FILTER(?planType = rains:DesignStageAccountabilityPlan || ?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:OperationStageAccountabilityPlan || ?planType = rains:InstallationAccountabilityPlan || ?planType = rains:UserTrainingStageAccountabilityPlan || ?planType = rains:ManualProductionAccountabilityPlan ) }Values (?activity) {(<"+activityIRI+">)}";
+	String queryString = Constants.PREFIXES + "Select Distinct *  Where {   ?agentEntity prov:value ?agent. ?activity  ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agentEntity.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType. ?step rdfs:comment ?stepComment. OPTIONAL {?activity prov:startedAtTime ?start; prov:endedAtTime ?end. } OPTIONAL {?activity ?constraintresult ?constraint. ?constraint a ep-plan:Constraint; a ?constraintType. ?constraint rdfs:label ?constraintLabel; rdfs:comment ?constraintComment. Filter (?constraintType = rains:HumanConstraint || ?constraintType = rains:AutoConstraint)} FILTER(?planType = rains:DesignStageAccountabilityPlan || ?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:OperationStageAccountabilityPlan || ?planType = rains:InstallationAccountabilityPlan || ?planType = rains:UserTrainingAccountabilityPlan || ?planType = rains:ManualProductionAccountabilityPlan ) }Values (?activity) {(<"+activityIRI+">)}";
 	
 	
 	System.out.println("Get activity details execution trace query" +queryString);
@@ -1761,6 +1761,95 @@ private void replaceExecutionTraceBunlde (Model model, String executionTraceBund
 	}
     
     conn.commit();
+}
+
+public ArrayList<HashMap> getPreviousPlanVariables(String systemIRI, String stage) {
+	
+	// find named graphs for execution traces 
+	HashSet <String> namedGraphsToQuery = new HashSet <String> ();
+	
+	// find named graphs for plans
+	RepositoryResult<Statement> res= conn.getStatements(f.createIRI(systemIRI), f.createIRI(SystemComponentsIRI.hasPlansStoredInGraph), null, f.createIRI(Constants.SYSTEMS_NAMED_GRAPH_IRI));
+	namedGraphsToQuery.add(res.next().getObject().toString());
+	
+	String fromPart = "";
+	Iterator <String> it = namedGraphsToQuery.iterator();
+	while (it.hasNext()) {
+		fromPart = fromPart +  "FROM <" +it.next()+"> "; 
+	}
+	
+	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+	
+	String filter = "";
+	//only query plans that precede this one
+	
+	
+	if (stage.equals("design")) {
+		//exit early as nothing precedes this
+		return resultSet;
+	}
+	
+	if (stage.equals("implementation")) {
+		filter = "FILTER(?planType = rains:DesignStageAccountabilityPlan)";
+	}
+	
+	if (stage.equals("deploymentInstallation")) {
+		filter = "FILTER(?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:DesignStageAccountabilityPlan)";
+	}
+	
+	if (stage.equals("deploymentUserTraining")) {
+		filter = "FILTER(?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:DesignStageAccountabilityPlan)";
+	}
+	
+	
+	if (stage.equals("deploymentManual")) {
+		filter = "FILTER(?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:DesignStageAccountabilityPlan)";
+	}
+	
+
+	if (stage.equals("operationConfiguration")) {
+		filter = "FILTER(?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:DesignStageAccountabilityPlan || ?planType = rains:InstallationAccountabilityPlan || ?planType = rains:UserTrainingAccountabilityPlan || ?planType = rains:manualProductionAccountabilityPlan)";
+	}
+	
+	
+	if (stage.equals("operationMaintenance")) {
+		filter = "FILTER(?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:DesignStageAccountabilityPlan || ?planType = rains:InstallationAccountabilityPlan || ?planType = rains:UserTrainingAccountabilityPlan || ?planType = rains:manualProductionAccountabilityPlan)";
+	}
+	
+	
+	
+	if (stage.equals("operationRuntime")) {
+		filter = "FILTER(?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:DesignStageAccountabilityPlan || ?planType = rains:InstallationAccountabilityPlan || ?planType = rains:UserTrainingAccountabilityPlan || ?planType = rains:manualProductionAccountabilityPlan)";
+	}
+	
+	
+	
+	
+	
+	String queryString = Constants.PREFIXES + "Select Distinct ?variable ?label ?stage  "+fromPart+" Where { ?variable a ep-plan:Variable; rdfs:label ?label; ep-plan:isElementOfPlan ?stage.  ?stage a ?planType. "+filter+" }";
+	    System.out.println("Get previous plan variables" +queryString);
+	    TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+		   try (TupleQueryResult result = tupleQuery.evaluate()) {
+			   while (result.hasNext()) {  // iterate over the result
+			    	HashMap <String,String> row = new HashMap <String,String>(); 
+			        
+			    	
+			    	
+			    	BindingSet bindingSet = result.next();	
+			    	
+			    	Set <String> bindings = bindingSet.getBindingNames();  
+			    	
+			    	Iterator it2 = bindings.iterator();
+			    	while (it2.hasNext()) {
+			    		String key = (String) it2.next();
+			    		if (bindingSet.getValue(key)!=null)
+			    		row.put(key, bindingSet.getValue(key).toString()) ;
+			    	}
+			       
+			         resultSet.add(row);
+			      }	   
+		   }
+	return resultSet;
 }
 
 

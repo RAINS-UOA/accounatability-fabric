@@ -363,8 +363,13 @@ div.scroll {
         <!-- Modal body -->
         <div class="modal-body" >
         <div id="currentPlanVariablesList">
-         <h5 class="modal-title">Re-use Existing Plan Variables</h5>
-         <small  class="form-text text-muted">The list contains only variables that may be linked to this step.</small>
+          <h5 class="modal-title">Link Plan Variables from Previous Life Cycle Stages</h5>
+         <small  class="form-text text-muted">The plan the variable was defined in must precede the current plan.</small>
+         <div id="previousPlanExistingVariablesList">  </div>
+        
+            <hr>
+         <h5 class="modal-title">Link Existing Plan Variables</h5>
+         <small  class="form-text text-muted">The list contains only variables that were created as outputs before this step.</small>
          <div id="currentPlanExistingVariablesList">  </div>
         
             <hr>
@@ -519,6 +524,71 @@ function createOptionsAccountableObjects (accountableObjects, parentkey ) {
 }
 
 
+function displayPreviousPlanVariables (elementId,variableMode) {
+	//populate the new variable select option menu
+	//getAllowedVariablesForSelectedStep (variableMode);
+	
+	//Temparalily we are forcing to create outputs first before they are used as inputs and also we dont allow two steps to produce same variable so there will never be any existing variables that could be linked to
+	if (variableMode=="Output") {
+		$('#previousPlanVariablesList').hide();
+		
+		return 0;
+	}
+    
+	$('#previousPlanVariablesList').show();
+	
+	document.getElementById (elementId).innerHTML = "loading.."
+	
+	
+	let previousVariables = fetch("/getPreviousPlanVariables?systemIRI="+findGetParameter('systemIri')+"&stage="+findGetParameter('stage'));
+    
+    previousVariables.then(
+		(data) => {
+			return data.json();
+		}).then(variables => {
+		
+		console.log("VARIABLES PREVIOUS ->>>>>>>")
+		console.log(variables)
+          
+	// this need to change to be more specific based on teh step we are talking about
+	
+	
+	
+	if (variables.length === 0) {
+		document.getElementById(elementId).innerHTML = '<div class="alert alert-primary"> No existing variables are available for this step </div>';
+	} 
+	else {
+		document.getElementById (elementId).innerHTML = "";
+		
+		for (let i=0;i<variables.length;i++) {
+			document.getElementById (elementId).innerHTML += `<div class="form-check" >
+                <input type="checkbox" class="form-check-input" id="${variables[i]['variable']}">
+                <label class="form-check-label" for="random" data-toggle="tooltip" data-placement="top" }"> ${variables[i]['label']}  </label>
+           </div>`;
+		}
+		//document.getElementById(elementId).innerHTML = "list teh variables to do ";		
+	}
+           
+		
+		}
+	).catch(
+	        // Log the rejection reason
+		       (reason) => {
+		            console.log('Handle rejected promise ('+reason+') here.');		           
+		        });
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+	
+}
+
 function displayCurrentPlanVariables (elementId,variableMode) {
 	//populate the new variable select option menu
 	getAllowedVariablesForSelectedStep (variableMode);
@@ -610,6 +680,7 @@ function listVaribalesAvailableToStep (stepId,variableMode) {
 $('#linkVariables').on('show.bs.modal', function (event) {
 	document.getElementById ("currentPlanNewVariablesList").innerHTML ="";
 	  variableMode = $(event.relatedTarget).data('flag');
+	  displayPreviousPlanVariables ('previousPlanExistingVariablesList',variableMode);
 	  displayCurrentPlanVariables ('currentPlanExistingVariablesList',variableMode);
 	  $(this).find('#variablesTitle').html(variableMode);
 	  //hold teh info about temporary 
@@ -917,6 +988,42 @@ $('#addSelectedVarsBtn').click(
 				}
 				}
 			
+			let inputElementsPrevious = $('#previousPlanExistingVariablesList').find(':input');
+			
+			//these are already in plan and will be only created as input so only need to link to step and link to the plan 
+			//check if we have already added it to the list of variables 
+			for (let i = 0; i<inputElementsPrevious.length;i++ ) {
+			
+			let previousPlanVariableId  = inputElementsPrevious[i].id;
+			      found = false; 
+			      for (let i = 0; i< variablesArray.length;i++) {
+							 if (variablesArray[i]['@id']===previousPlanVariableId ) {
+								 variablesArray[i]['isInputVariableOf'].push(selectedStep["@id"]);
+							  found = true; 
+							 }
+						}
+						
+						
+				 //create variable here if seen for the first time 
+				 
+				if (found != true ) {
+							let variable = {}; 
+							variable['@id'] = previousPlanVariableId; 
+							variable['isInputVariableOf'] = [];
+							variable['isOutputVariableOf'] =[];
+							variable ['isElementOfPlan'] = document.getElementById('planIRI').value;
+							variable['isInputVariableOf'].push(selectedStep["@id"]);
+							variablesArray.push(variable)
+						}
+						
+				//add inverse link to step
+								 for (let x=0; x< stepsArray.length;x++ ) {
+						               if (stepsArray[x]['@id']===selectedStep["@id"]) {
+							           stepsArray[x]['hasInputVariable'].push(previousPlanVariableId);
+							           }
+							           }		
+			}
+			
 			let inputElementsExisting = $('#currentPlanExistingVariablesList').find(':input');
 			
 			console.log("-------->")
@@ -936,30 +1043,28 @@ $('#addSelectedVarsBtn').click(
 							 }
 						}
 				    }
+				    /*
 					if (variableMode == "Output") {
 						console.log ("here  :"+ variableid); 
 						for (let i = 0; i< variablesArray.length;i++) {
 							 if (variablesArray[i]['@id']===variableid ) {
-								 console.log ("here1");
+								
 							//	 variablesArray[i]['isOutputVariableOf'].push(selectedStep["@id"]);
 							 }
 						 }
-					}
+					}*/
 					
 					//add inverse relationships to steps as well
 					for (let i=0; i< stepsArray.length;i++ ) {
 						if (stepsArray[i]['@id']===selectedStep["@id"]) {
-							console.log("////////////////");
-							console.log(selectedStep["@id"]);
-							console.log(stepsArray[i]['hasOutputVariable']);
+							
 							
 							if (variableMode==="Input") {
 								stepsArray[i]['hasInputVariable'].push(variableid);
 							}
 							
 							if (variableMode==="Output") {
-								console.log("pushing var to step 614 plan designer" +stepsArray[i]['@id']);
-								console.log("pushing var id" +variableid);
+								
 								//stepsArray[i]['hasOutputVariable'].push(variableid);
 						    }	
 						}

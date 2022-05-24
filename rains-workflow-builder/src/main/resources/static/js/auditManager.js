@@ -1474,8 +1474,14 @@ function getActivityDetailsInExecutionTraces (systemIRI,activityIRI, stage) {
 				if (details[0].planType.includes('ImplementationStageAccountabilityPlan') ) {
 					lifeCycleStage = "Implementation";
 				}
-				if (details[0].planType.includes('DeploymentStageAccountabilityPlan') ) {
-					lifeCycleStage = "Deployment";
+				if (details[0].planType.includes('ManualProductionAccountabilityPlan') ) {
+					lifeCycleStage = "Manual Production";
+				}
+				if (details[0].planType.includes('UserTrainingAccountabilityPlan') ) {
+					lifeCycleStage = "User Training";
+				}
+				if (details[0].planType.includes('InstallationAccountabilityPlan') ) {
+					lifeCycleStage = "Installation";
 				}
 				if (details[0].planType.includes('OperationStageAccountabilityPlan') ) {
 					lifeCycleStage = "Operation";

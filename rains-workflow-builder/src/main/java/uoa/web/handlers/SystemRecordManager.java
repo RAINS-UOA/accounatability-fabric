@@ -231,11 +231,23 @@ public class SystemRecordManager {
 			conn.add(implementationPlan, f.createIRI(RainsOntologyComponents.specifiedForSystem),system, planNamedGraphContext);
 			
 			
-			Resource deploymentPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
-			conn.add(deploymentPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.DeploymentStageAccountabilityPlan), planNamedGraphContext);
-			conn.add(deploymentPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
-			conn.add(deploymentPlan, RDF.TYPE, f.createIRI(OwlOntologyComponents.NamedIndividual), planNamedGraphContext);
-			conn.add(deploymentPlan, f.createIRI(RainsOntologyComponents.specifiedForSystem),system, planNamedGraphContext);
+			Resource installationPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
+			conn.add(installationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.InstallationAccountabilityPlan), planNamedGraphContext);
+			conn.add(installationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			conn.add(installationPlan, RDF.TYPE, f.createIRI(OwlOntologyComponents.NamedIndividual), planNamedGraphContext);
+			conn.add(installationPlan, f.createIRI(RainsOntologyComponents.specifiedForSystem),system, planNamedGraphContext);
+			
+			Resource userTrainingPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
+			conn.add(userTrainingPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.UserTrainingAccountabilityPlan), planNamedGraphContext);
+			conn.add(userTrainingPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			conn.add(userTrainingPlan, RDF.TYPE, f.createIRI(OwlOntologyComponents.NamedIndividual), planNamedGraphContext);
+			conn.add(userTrainingPlan, f.createIRI(RainsOntologyComponents.specifiedForSystem),system, planNamedGraphContext);
+			
+			Resource manualCreationPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
+			conn.add(manualCreationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.ManualCreationStageAccountabilityPlan), planNamedGraphContext);
+			conn.add(manualCreationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.AccountabilityPlan), planNamedGraphContext);
+			conn.add(manualCreationPlan, RDF.TYPE, f.createIRI(OwlOntologyComponents.NamedIndividual), planNamedGraphContext);
+			conn.add(manualCreationPlan, f.createIRI(RainsOntologyComponents.specifiedForSystem),system, planNamedGraphContext);
 			
 			Resource operationPlan = f.createIRI(Constants.DEFAULT_INSTANCE_NAMESPACE+UUID.randomUUID());
 			conn.add(operationPlan, RDF.TYPE, f.createIRI(RainsOntologyComponents.OperationStageAccountabilityPlan), planNamedGraphContext);
@@ -430,9 +442,17 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 			stageIRI = RainsOntologyComponents.ImplementationStageAccountabilityPlan;
 		break; 
 		
-		case "deployment":
-			stageIRI = RainsOntologyComponents.DeploymentStageAccountabilityPlan;
+		case "deploymentInstallation":
+			stageIRI = RainsOntologyComponents.InstallationAccountabilityPlan;
 		break; 
+		
+		case "deploymentUserTraining":
+			stageIRI = RainsOntologyComponents.UserTrainingAccountabilityPlan;
+		break;
+		
+		case "deploymentManual":
+			stageIRI = RainsOntologyComponents.ManualCreationStageAccountabilityPlan;
+		break;
 		
 		case "operation":
 			stageIRI =  RainsOntologyComponents.OperationStageAccountabilityPlan;
@@ -459,7 +479,7 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
   ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
 		//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
 		//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
-       String queryString = Constants.PREFIXES + "Select Distinct ?plan ?planType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan a ?planType; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  Filter (?planType = <"+RainsOntologyComponents.DesignStageAccountabilityPlan+"> || ?planType = <"+RainsOntologyComponents.ImplementationStageAccountabilityPlan+"> || ?planType = <"+RainsOntologyComponents.DeploymentStageAccountabilityPlan+"> || ?planType = <"+RainsOntologyComponents.OperationStageAccountabilityPlan+">)}";
+       String queryString = Constants.PREFIXES + "Select Distinct ?plan ?planType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan a ?planType; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  Filter (?planType = <"+RainsOntologyComponents.DesignStageAccountabilityPlan+"> || ?planType = <"+RainsOntologyComponents.ImplementationStageAccountabilityPlan+"> || ?planType = <"+RainsOntologyComponents.InstallationAccountabilityPlan+"> || ?planType = <"+RainsOntologyComponents.UserTrainingAccountabilityPlan+"> || ?planType = <"+RainsOntologyComponents.ManualCreationStageAccountabilityPlan+"> || ?planType = <"+RainsOntologyComponents.OperationStageAccountabilityPlan+">)}";
        System.out.println(queryString);
 		TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 			   try (TupleQueryResult result = tupleQuery.evaluate()) {
@@ -497,8 +517,16 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 			  planType = RainsOntologyComponents.ImplementationStageAccountabilityPlan;
 		  }
 		  
-		  if (stage.toLowerCase().equals("deployment")) {
-			  planType = RainsOntologyComponents.DeploymentStageAccountabilityPlan;
+		  if (stage.toLowerCase().equals("deploymentinstallation")) {
+			  planType = RainsOntologyComponents.InstallationAccountabilityPlan;
+		  }
+		  
+		  if (stage.toLowerCase().equals("deploymentusertraining")) {
+			  planType = RainsOntologyComponents.UserTrainingAccountabilityPlan;
+		  }
+		  
+		  if (stage.toLowerCase().equals("deploymentmanual")) {
+			  planType = RainsOntologyComponents.ManualCreationStageAccountabilityPlan;
 		  }
 		  
 		  if (stage.toLowerCase().equals("operation")) {
@@ -628,8 +656,16 @@ public String getSavedPlan (String stage, String systemIri)  {
 			stageIRI = RainsOntologyComponents.ImplementationStageAccountabilityPlan;
 		break; 
 		
-		case "deployment":
-			stageIRI = RainsOntologyComponents.DeploymentStageAccountabilityPlan;
+		case "deploymentInstallation":
+			stageIRI = RainsOntologyComponents.InstallationAccountabilityPlan;
+		break; 
+		
+		case "deploymentUserTraining":
+			stageIRI = RainsOntologyComponents.UserTrainingAccountabilityPlan;
+		break; 
+		
+		case "deploymentManual":
+			stageIRI = RainsOntologyComponents.ManualCreationStageAccountabilityPlan;
 		break; 
 		
 		case "operation":
@@ -637,7 +673,7 @@ public String getSavedPlan (String stage, String systemIri)  {
 		break; 
 		
 		}
-			
+		System.out.println("Getting Saved Plan");
 		//String query =  Constants.PREFIXES + "Construct FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep  ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.} Values (?topLevelStep) { (<"+topLevelStepIri+">)}"   ;
 		String query =  Constants.PREFIXES + "Construct FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan  a <"+stageIRI+">; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.   ?element ?p ?o . ?plan ?c ?x.}"   ;
 			
@@ -676,6 +712,23 @@ public HashMap <String,HashSet <String >> getStepComponentHierarchy (String plan
 		queryString = Constants.PREFIXES + "Select Distinct ?step ?parentStep FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.?step rdfs:subClassOf ?restriction. ?restriction owl:onProperty ep-plan:isStepOfPlan. { ?restriction owl:allValuesFrom rains:DesignStageAccountabilityPlan ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first rains:DesignStageAccountabilityPlan.} FILTER (!isBlank(?parentStep))}order  by  asc (?step) ";
 		
 	}
+	
+	if (plantype.equals("deploymentInstallation")) {
+		queryString = Constants.PREFIXES + "Select Distinct ?step ?parentStep FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.?step rdfs:subClassOf ?restriction. ?restriction owl:onProperty ep-plan:isStepOfPlan. { ?restriction owl:allValuesFrom rains:InstallationAccountabilityPlan ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first rains:InstallationAccountabilityPlan.} FILTER (!isBlank(?parentStep))}order  by  asc (?step) ";
+		
+	}
+	
+	if (plantype.equals("deploymentUserTraining")) {
+		queryString = Constants.PREFIXES + "Select Distinct ?step ?parentStep FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.?step rdfs:subClassOf ?restriction. ?restriction owl:onProperty ep-plan:isStepOfPlan. { ?restriction owl:allValuesFrom rains:UserTrainingAccountabilityPlan ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first rains:UserTrainingAccountabilityPlan.} FILTER (!isBlank(?parentStep))}order  by  asc (?step) ";
+		
+	}
+	
+	if (plantype.equals("deploymentManual")) {
+		queryString = Constants.PREFIXES + "Select Distinct ?step ?parentStep FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.?step rdfs:subClassOf ?restriction. ?restriction owl:onProperty ep-plan:isStepOfPlan. { ?restriction owl:allValuesFrom rains:ManualProductionAccountabilityPlan ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first rains:ManualProductionAccountabilityPlan.} FILTER (!isBlank(?parentStep))}order  by  asc (?step) ";
+		
+	}
+	
+	
 
 	if (plantype.equals("operation")) {
 		queryString = Constants.PREFIXES + "Select Distinct ?step ?parentStep FROM <"+Constants.WORKFLOW_COMPONENTS_NAMED_GRAPH_IRI+"> { ?step rdfs:subClassOf* ep-plan:MultiStep. ?step rdfs:subClassOf ?parentStep.?step rdfs:subClassOf ?restriction. ?restriction owl:onProperty ep-plan:isStepOfPlan. { ?restriction owl:allValuesFrom rains:OperationStageAccountabilityPlan ;  } UNION { ?restriction owl:allValuesFrom/owl:unionOf/rdf:rest*/rdf:first rains:OperationStageAccountabilityPlan.} FILTER (!isBlank(?parentStep))}order  by  asc (?step) ";
@@ -1286,7 +1339,7 @@ public ArrayList <HashMap> getEntitiesOnInfluencePath(String systemIRI, String e
 public ArrayList <HashMap> getActivityDetailsInExecutionTraces(String systemIRI, String activityIRI) {
 	ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
 	//String queryString = Constants.PREFIXES + "Select Distinct *  Where {  ?activity prov:endedAtTime ?end. ?activity prov:startedAtTime ?start; ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agent.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType.OPTIONAL {?step rdfs:comment ?stepComment.}FILTER(?planType = rains:DesignStageAccountabilityPlan)}Values (?activity) {(<"+activityIRI+">)}";
-	String queryString = Constants.PREFIXES + "Select Distinct *  Where {   ?agentEntity prov:value ?agent. ?activity  ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agentEntity.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType. ?step rdfs:comment ?stepComment. OPTIONAL {?activity prov:startedAtTime ?start; prov:endedAtTime ?end. } OPTIONAL {?activity ?constraintresult ?constraint. ?constraint a ep-plan:Constraint; a ?constraintType. ?constraint rdfs:label ?constraintLabel; rdfs:comment ?constraintComment. Filter (?constraintType = rains:HumanConstraint || ?constraintType = rains:AutoConstraint)} FILTER(?planType = rains:DesignStageAccountabilityPlan || ?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:OperationStageAccountabilityPlan || ?planType = rains:DeploymentStageAccountabilityPlan ) }Values (?activity) {(<"+activityIRI+">)}";
+	String queryString = Constants.PREFIXES + "Select Distinct *  Where {   ?agentEntity prov:value ?agent. ?activity  ep-plan:correspondsToStep ?step;prov:wasAssociatedWith ?agentEntity.?step ep-plan:isElementOfPlan ?plan.?plan a ?planType. ?step rdfs:comment ?stepComment. OPTIONAL {?activity prov:startedAtTime ?start; prov:endedAtTime ?end. } OPTIONAL {?activity ?constraintresult ?constraint. ?constraint a ep-plan:Constraint; a ?constraintType. ?constraint rdfs:label ?constraintLabel; rdfs:comment ?constraintComment. Filter (?constraintType = rains:HumanConstraint || ?constraintType = rains:AutoConstraint)} FILTER(?planType = rains:DesignStageAccountabilityPlan || ?planType = rains:ImplementationStageAccountabilityPlan || ?planType = rains:OperationStageAccountabilityPlan || ?planType = rains:InstallationAccountabilityPlan || ?planType = rains:UserTrainingStageAccountabilityPlan || ?planType = rains:ManualProductionAccountabilityPlan ) }Values (?activity) {(<"+activityIRI+">)}";
 	
 	
 	System.out.println("Get activity details execution trace query" +queryString);

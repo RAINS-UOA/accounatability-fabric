@@ -39,7 +39,13 @@ context.SupportingInfrastructure   = "https://w3id.org/rains#SupportingInfrastru
 context.RealizableObject   = "https://w3id.org/rains#RealizableObject";
 context.DesignStageAccountabilityPlan   = "https://w3id.org/rains#DesignStageAccountabilityPlan";
 context.ImplementationStageAccountabilityPlan   = "https://w3id.org/rains#ImplementationStageAccountabilityPlan";
-context.DeploymentStageAccountabilityPlan   = "https://w3id.org/rains#DeploymentStageAccountabilityPlan";
+//subclasses are used instead
+//context.DeploymentStageAccountabilityPlan   = "https://w3id.org/rains#DeploymentStageAccountabilityPlan";
+context.InstallationAccountabilityPlan   = "https://w3id.org/rains#InstallationAccountabilityPlan";
+context.ManualProductionAccountabilityPlan   = "https://w3id.org/rains#ManualProductionAccountabilityPlan";
+context.UserTrainingAccountabilityPlan   = "https://w3id.org/rains#UserTrainingAccountabilityPlan";
+
+
 context.OperationStageAccountabilityPlan   = "https://w3id.org/rains#OperationStageAccountabilityPlan";
 context.isReusedObject   ={"@id":"https://w3id.org/rains#isReusedObject","@type": "http://www.w3.org/2001/XMLSchema#boolean"}; 
 

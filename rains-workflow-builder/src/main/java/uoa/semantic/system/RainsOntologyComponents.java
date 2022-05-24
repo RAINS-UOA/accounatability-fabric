@@ -15,6 +15,9 @@ public class RainsOntologyComponents {
 	public static final String DesignStageAccountabilityPlan = Constants.RAINS_PLAN_NAMESPACE + "DesignStageAccountabilityPlan";
 	public static final String ImplementationStageAccountabilityPlan = Constants.RAINS_PLAN_NAMESPACE + "ImplementationStageAccountabilityPlan";
 	public static final String DeploymentStageAccountabilityPlan = Constants.RAINS_PLAN_NAMESPACE + "DeploymentStageAccountabilityPlan";
+	public static final String InstallationAccountabilityPlan = Constants.RAINS_PLAN_NAMESPACE + "InstallationAccountabilityPlan";
+	public static final String UserTrainingAccountabilityPlan = Constants.RAINS_PLAN_NAMESPACE + "UserTrainingAccountabilityPlan";
+	public static final String ManualCreationStageAccountabilityPlan = Constants.RAINS_PLAN_NAMESPACE + "ManualCreationStageAccountabilityPlan";
 	public static final String OperationStageAccountabilityPlan = Constants.RAINS_PLAN_NAMESPACE + "OperationStageAccountabilityPlan";
 	
 	public static final String specifiedForSystem = Constants.RAINS_PLAN_NAMESPACE + "specifiedForSystem";

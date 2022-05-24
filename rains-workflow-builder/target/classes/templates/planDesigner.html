@@ -237,16 +237,39 @@ div.scroll {
       </script>
        </div> 
        
-            <div th:if="${#httpServletRequest.getParameter('stage') == 'deployment'}">
+            <div th:if="${#httpServletRequest.getParameter('stage') == 'deploymentInstallation'}">
        
        
-      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Deployment </button>
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Installation </button>
     <script>
-      // getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "deployment");
+       getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "deploymentInstallation");
 
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
+   //   getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
       </script>
        </div> 
+       
+        <div th:if="${#httpServletRequest.getParameter('stage') == 'deploymentUserTraining'}">
+       
+       
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >User Training </button>
+    <script>
+       getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "deploymentUserTraining");
+
+   //   getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
+      </script>
+       </div> 
+       
+        <div th:if="${#httpServletRequest.getParameter('stage') == 'deploymentManual'}">
+       
+       
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Manual Creation</button>
+    <script>
+       getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "deploymentManual");
+
+   //   getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
+      </script>
+       </div> 
+       
        
             <div th:if="${#httpServletRequest.getParameter('stage') == 'operation'}">
        

@@ -15,6 +15,8 @@ context.wasMemberOf = {"@id":"http://www.w3.org/ns/prov#wasMemberOf","@type": "@
 context.wasGeneratedBy = {"@id":"http://www.w3.org/ns/prov#wasGeneratedBy","@type": "@id"}
 context.wasDerivedFrom = {"@id":"http://www.w3.org/ns/prov#wasDerivedFrom","@type": "@id"}
 context.used = {"@id":"http://www.w3.org/ns/prov#used","@type": "@id"}
+context.value = {"@id":"http://www.w3.org/ns/prov#value","@type": "http://www.w3.org/2001/XMLSchema#string"}
+
 
 ///SAO context
 context.AccountableAction   = "https://w3id.org/sao#AccountableAction";

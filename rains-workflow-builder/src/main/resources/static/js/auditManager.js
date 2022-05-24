@@ -941,9 +941,7 @@ function replaceDataInstancePrefix (string) {
 }
 
 function  createInfoElementDetails (index, stage, detailsInfoElementElementArray) {
-	console.log("clicked");
-	console.log(index);
-	console.log(stage);
+	
 	
 	for (let i=0;i<detailsInfoElementElementArray.length;i++) {
 		if (document.getElementById (stage+'link'+i)!=null) {

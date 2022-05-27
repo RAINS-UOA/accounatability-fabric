@@ -46,7 +46,10 @@ context.ManualProductionAccountabilityPlan   = "https://w3id.org/rains#ManualPro
 context.UserTrainingAccountabilityPlan   = "https://w3id.org/rains#UserTrainingAccountabilityPlan";
 
 
-context.OperationStageAccountabilityPlan   = "https://w3id.org/rains#OperationStageAccountabilityPlan";
+context.ConfigurationAccountabilityPlan   = "https://w3id.org/rains#ConfigurationAccountabilityPlan";
+context.MaintenanceAccountabilityPlan   = "https://w3id.org/rains#MaintenanceAccountabilityPlan";
+context.RuntimeAccountabilityPlan   = "https://w3id.org/rains#RuntimeAccountabilityPlan";
+
 context.isReusedObject   ={"@id":"https://w3id.org/rains#isReusedObject","@type": "http://www.w3.org/2001/XMLSchema#boolean"}; 
 
 //context.DesigStep   = "https://w3id.org/rains#Design";/

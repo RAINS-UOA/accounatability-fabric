@@ -240,7 +240,7 @@ div.scroll {
             <div th:if="${#httpServletRequest.getParameter('stage') == 'deploymentInstallation'}">
        
        
-      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Installation </button>
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Deployment (Installation) </button>
     <script>
        getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "deploymentInstallation");
 
@@ -251,7 +251,7 @@ div.scroll {
         <div th:if="${#httpServletRequest.getParameter('stage') == 'deploymentUserTraining'}">
        
        
-      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >User Training </button>
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Deployment (User Training) </button>
     <script>
        getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "deploymentUserTraining");
 
@@ -262,7 +262,7 @@ div.scroll {
         <div th:if="${#httpServletRequest.getParameter('stage') == 'deploymentManual'}">
        
        
-      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Manual Creation</button>
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Deployment (Manual Creation)</button>
     <script>
        getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "deploymentManual");
 
@@ -271,16 +271,39 @@ div.scroll {
        </div> 
        
        
-            <div th:if="${#httpServletRequest.getParameter('stage') == 'operation'}">
+            <div th:if="${#httpServletRequest.getParameter('stage') == 'operationConfiguration'}">
        
        
-      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Operation </button>
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Operation (Configuration)</button>
       <script>
-      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "operation");
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "operationConfiguration");
       // getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
 
       </script>
        </div> 
+       
+       <div th:if="${#httpServletRequest.getParameter('stage') == 'operationMaintenance'}">
+       
+       
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Operation (Maintenance)</button>
+      <script>
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "operationMaintenance");
+      // getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
+
+      </script>
+       </div> 
+       
+       <div th:if="${#httpServletRequest.getParameter('stage') == 'operationRuntime'}">
+       
+       
+      <button type="button" class="btn btn-info libraryStep wrapTextButton"  >Operation (Runtime)</button>
+      <script>
+      getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, "operationRuntime");
+      // getStepComponents ('stepsUL', 'stepsMessage', true, 'drag(event)', context.AccountableAction, true);
+
+      </script>
+       </div> 
+       
        <div id="stepsMessage"></div>
        <div class="scroll">
       <ul id="stepsUL"></ul></div>

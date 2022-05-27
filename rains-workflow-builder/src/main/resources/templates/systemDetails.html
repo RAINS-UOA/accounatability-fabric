@@ -97,7 +97,22 @@
   </div>
   <div class="list-group-item list-group-item-action clearfix"     >
     Operation
-    <span id="operation" class="loadingButton pull-right">
+   <br><br>
+  <div class="row list-group-item list-group-item-action clearfix">
+     Configuration
+     <span id="operationConfiguration" class="loadingButton pull-right"> </span>
+     </div>
+       
+     <div class="row list-group-item list-group-item-action clearfix">
+     Maintenance
+     <span id="operationMaintenance" class="loadingButton pull-right"> </span>
+     </div>
+     
+       <div class="row list-group-item list-group-item-action clearfix">
+     
+     Runtime
+     <span id="operationRuntime" class="loadingButton pull-right"> </span>
+     </div>
   </span>
   </div>
  
@@ -185,7 +200,7 @@ getplans.then(
 			return data.json();
 		}).then(plans => {
 		console.log(plans.length);
-		let buttonsToCreate = ['design','implementation','deploymentInstallation','deploymentUserTraining','deploymentManual','operation'];
+		let buttonsToCreate = ['design','implementation','deploymentInstallation','deploymentUserTraining','deploymentManual','operationConfiguration', 'operationMaintenance','operationRuntime'];
 		// let buttonsToCreate = ['design','implementation'];
 
 		for (let i = 0; i < plans.length; i++) {
@@ -227,10 +242,22 @@ getplans.then(
 		break; 
 		
 		
-		case context.OperationStageAccountabilityPlan:
-			document.getElementById("operation").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=operation&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><!--<a href="workflowBuilder?mode=open&stage=operation&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a>--></div>';
+		case context.ConfigurationAccountabilityPlan:
+			document.getElementById("operationConfiguration").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=operationConfiguration&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><!--<a href="workflowBuilder?mode=open&stage=operationConfiguration&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a>--></div>';
 			 
 			delete buttonsToCreate[5]; 
+		break;
+		
+		case context.MaintenanceAccountabilityPlan:
+			document.getElementById("operationMaintenance").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=operationMaintenance&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><!--<a href="workflowBuilder?mode=open&stage=operationMaintenance&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a>--></div>';
+			 
+			delete buttonsToCreate[6]; 
+		break;
+		
+		case context.RuntimeAccountabilityPlan:
+			document.getElementById("operationRuntime").innerHTML = '<div class="btn-group-vertical"><a href="provenanceCollector?mode=manage&stage=operationRuntime&planIri='+encodeURIComponent(btoa(plans[i].plan))+'&systemIri='+encodeURIComponent(btoa(document.getElementById("systemIRI").value))+'" target="_blank" role="button" class="btn btn-primary pull-right"  > Accountability Trace Collector</a>   <br><!--<a href="workflowBuilder?mode=open&stage=operationRuntime&topLevelStepIri='+encodeURIComponent(btoa(plans[i].topLevelStep))+'&systemIri='+document.getElementById("systemIRI").value+'" target="_blank"  role="button" class="btn btn-primary pull-right"  > Open Plan</a>--></div>';
+			 
+			delete buttonsToCreate[7]; 
 		break;
 
     // to here

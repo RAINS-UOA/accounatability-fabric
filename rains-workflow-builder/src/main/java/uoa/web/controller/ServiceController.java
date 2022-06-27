@@ -261,7 +261,91 @@ public class ServiceController {
 		System.out.println(gson.toJson(list));
 		return gson.toJson(list);
 	}
+
+	@GetMapping("/getPlanElementsForRuntimeAccountabilityPlan")
+	@ResponseBody
+	public String getPlanElementsForRuntimeAccountabilityPlan (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap > list = manager.getPlanElementsForRuntimeAccountabilityPlan(systemIri);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		System.out.println(gson.toJson(list));
+		return gson.toJson(list);
+	}
 	
+	@GetMapping("/getPlanElementsForConfigurationAccountabilityPlan")
+	@ResponseBody
+	public String getPlanElementsForConfigurationAccountabilityPlan (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap > list = manager.getPlanElementsForConfigurationAccountabilityPlan(systemIri);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		System.out.println(gson.toJson(list));
+		return gson.toJson(list);
+	}
+
+	@GetMapping("/getPlanElementsForMaintenanceAccountabilityPlan")
+	@ResponseBody
+	public String getPlanElementsForMaintenanceAccountabilityPlan (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap > list = manager.getPlanElementsForMaintenanceAccountabilityPlan(systemIri);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		System.out.println(gson.toJson(list));
+		return gson.toJson(list);
+	}
+
+	@GetMapping("/getPlanElementsForDesignStageAccountabilityPlan")
+	@ResponseBody
+	public String getPlanElementsForDesignStageAccountabilityPlan (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap > list = manager.getPlanElementsForDesignStageAccountabilityPlan(systemIri);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		System.out.println(gson.toJson(list));
+		return gson.toJson(list);
+	}
+
+	@GetMapping("/getPlanElementsForInstallationAccountabilityPlan")
+	@ResponseBody
+	public String getPlanElementsForInstallationAccountabilityPlan (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap > list = manager.getPlanElementsForInstallationAccountabilityPlan(systemIri);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		System.out.println(gson.toJson(list));
+		return gson.toJson(list);
+	}
+
+	@GetMapping("/getPlanElementsForUserTrainingAccountabilityPlan")
+	@ResponseBody
+	public String getPlanElementsForUserTrainingAccountabilityPlan (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap > list = manager.getPlanElementsForUserTrainingAccountabilityPlan(systemIri);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		System.out.println(gson.toJson(list));
+		return gson.toJson(list);
+	}
+
+	@GetMapping("/getPlanElementsForManualProductionAccountabilityPlan")
+	@ResponseBody
+	public String getPlanElementsForManualProductionAccountabilityPlan (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {
+		
+		SystemRecordManager manager = new SystemRecordManager(connectionPool);
+		ArrayList <HashMap > list = manager.getPlanElementsForManualProductionAccountabilityPlan(systemIri);
+		manager.shutdown();
+		Gson gson = new Gson(); 
+		System.out.println(gson.toJson(list));
+		return gson.toJson(list);
+	}
+
 	@GetMapping("/getAfModelCard")
 	@ResponseBody
 	public String getAfModelCard (@RequestParam String systemIri) throws NoSuchElementException, IllegalStateException, Exception  {

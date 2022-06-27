@@ -619,14 +619,16 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 			}
 	
 	
-	public ArrayList <HashMap>  getPlanElementsForImplementationStage(String systemIri) {
+	public ArrayList <HashMap>  getPlanElementsForRuntimeAccountabilityPlan(String systemIri) {
 		  ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
 				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
 				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
 		       
 		  ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
-		  String queryString = Constants.PREFIXES + "Select Distinct ?element ?elementType ?input ?inputType ?output ?outputType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan a ?planType; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  ?element a ?elementType. OPTIONAL {?element ep-plan:hasInputVariable ?input. ?input a ?inputType. FILTER (regex(str(?inputType), \"https://w3id.org/rains#\" ))} OPTIONAL {?element ep-plan:hasOutputVariable ?output. ?output a ?outputType. FILTER (regex(str(?outputType), \"https://w3id.org/rains#\" ))} FILTER (regex(str(?elementType), \"https://w3id.org/rains#\" ))}";
-		       System.out.println(queryString);
+			String queryString = Constants.PREFIXES + "Select Distinct ?element ?elementType ?input ?inputType ?output ?outputType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan rdf:type rains:RuntimeAccountabilityPlan; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  ?element a ?elementType. OPTIONAL {?element ep-plan:hasInputVariable ?input. ?input a ?inputType. FILTER (regex(str(?inputType), \"https://w3id.org/rains#\" ))} OPTIONAL {?element ep-plan:hasOutputVariable ?output. ?output a ?outputType. FILTER (regex(str(?outputType), \"https://w3id.org/rains#\" ))} FILTER (regex(str(?elementType), \"https://w3id.org/rains#\" ))}";
+
+
+			System.out.println(queryString);
 				TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
 					   try (TupleQueryResult result = tupleQuery.evaluate()) {
 						   while (result.hasNext()) {  // iterate over the result
@@ -648,6 +650,278 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 						         resultSet.add(row);
 						      }	   
 					   }
+				return resultSet;
+			}
+
+	public ArrayList <HashMap>  getPlanElementsForConfigurationAccountabilityPlan(String systemIri) {
+		ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+				
+		ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+			String queryString = Constants.PREFIXES + "Select Distinct ?element ?elementType ?input ?inputType ?output ?outputType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan rdf:type rains:ConfigurationAccountabilityPlan; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  ?element a ?elementType. OPTIONAL {?element ep-plan:hasInputVariable ?input. ?input a ?inputType. FILTER (regex(str(?inputType), \"https://w3id.org/rains#\" ))} OPTIONAL {?element ep-plan:hasOutputVariable ?output. ?output a ?outputType. FILTER (regex(str(?outputType), \"https://w3id.org/rains#\" ))} FILTER (regex(str(?elementType), \"https://w3id.org/rains#\" ))}";
+
+
+			System.out.println(queryString);
+				TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+						try (TupleQueryResult result = tupleQuery.evaluate()) {
+							while (result.hasNext()) {  // iterate over the result
+								HashMap <String,String> row = new HashMap <String,String>(); 
+								
+								
+								
+								BindingSet bindingSet = result.next();	
+								
+								Set <String> bindings = bindingSet.getBindingNames();  
+								
+								Iterator it2 = bindings.iterator();
+								while (it2.hasNext()) {
+									String key = (String) it2.next();
+									if (bindingSet.getValue(key)!=null)
+									row.put(key, bindingSet.getValue(key).toString()) ;
+								}
+								
+								resultSet.add(row);
+							}	   
+						}
+				return resultSet;
+			}
+		
+	public ArrayList <HashMap>  getPlanElementsForMaintenanceAccountabilityPlan(String systemIri) {
+		ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+				
+		ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+			String queryString = Constants.PREFIXES + "Select Distinct ?element ?elementType ?input ?inputType ?output ?outputType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan rdf:type rains:MaintenanceAccountabilityPlan; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  ?element a ?elementType. OPTIONAL {?element ep-plan:hasInputVariable ?input. ?input a ?inputType. FILTER (regex(str(?inputType), \"https://w3id.org/rains#\" ))} OPTIONAL {?element ep-plan:hasOutputVariable ?output. ?output a ?outputType. FILTER (regex(str(?outputType), \"https://w3id.org/rains#\" ))} FILTER (regex(str(?elementType), \"https://w3id.org/rains#\" ))}";
+
+
+			System.out.println(queryString);
+				TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+						try (TupleQueryResult result = tupleQuery.evaluate()) {
+							while (result.hasNext()) {  // iterate over the result
+								HashMap <String,String> row = new HashMap <String,String>(); 
+								
+								
+								
+								BindingSet bindingSet = result.next();	
+								
+								Set <String> bindings = bindingSet.getBindingNames();  
+								
+								Iterator it2 = bindings.iterator();
+								while (it2.hasNext()) {
+									String key = (String) it2.next();
+									if (bindingSet.getValue(key)!=null)
+									row.put(key, bindingSet.getValue(key).toString()) ;
+								}
+								
+								resultSet.add(row);
+							}	   
+						}
+				return resultSet;
+			}
+
+	public ArrayList <HashMap>  getPlanElementsForImplementationStageAccountabilityPlan(String systemIri) {
+		ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+				
+		ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+			String queryString = Constants.PREFIXES + "Select Distinct ?element ?elementType ?input ?inputType ?output ?outputType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan rdf:type rains:ImplementationStageAccountabilityPlan; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  ?element a ?elementType. OPTIONAL {?element ep-plan:hasInputVariable ?input. ?input a ?inputType. FILTER (regex(str(?inputType), \"https://w3id.org/rains#\" ))} OPTIONAL {?element ep-plan:hasOutputVariable ?output. ?output a ?outputType. FILTER (regex(str(?outputType), \"https://w3id.org/rains#\" ))} FILTER (regex(str(?elementType), \"https://w3id.org/rains#\" ))}";
+
+
+			System.out.println(queryString);
+				TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+						try (TupleQueryResult result = tupleQuery.evaluate()) {
+							while (result.hasNext()) {  // iterate over the result
+								HashMap <String,String> row = new HashMap <String,String>(); 
+								
+								
+								
+								BindingSet bindingSet = result.next();	
+								
+								Set <String> bindings = bindingSet.getBindingNames();  
+								
+								Iterator it2 = bindings.iterator();
+								while (it2.hasNext()) {
+									String key = (String) it2.next();
+									if (bindingSet.getValue(key)!=null)
+									row.put(key, bindingSet.getValue(key).toString()) ;
+								}
+								
+								resultSet.add(row);
+							}	   
+						}
+				return resultSet;
+			}
+
+	public ArrayList <HashMap>  getPlanElementsForDesignStageAccountabilityPlan(String systemIri) {
+		ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+				
+		ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+			String queryString = Constants.PREFIXES + "Select Distinct ?element ?elementType ?input ?inputType ?output ?outputType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan rdf:type rains:DesignStageAccountabilityPlan; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  ?element a ?elementType. OPTIONAL {?element ep-plan:hasInputVariable ?input. ?input a ?inputType. FILTER (regex(str(?inputType), \"https://w3id.org/rains#\" ))} OPTIONAL {?element ep-plan:hasOutputVariable ?output. ?output a ?outputType. FILTER (regex(str(?outputType), \"https://w3id.org/rains#\" ))} FILTER (regex(str(?elementType), \"https://w3id.org/rains#\" ))}";
+
+
+			System.out.println(queryString);
+				TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+						try (TupleQueryResult result = tupleQuery.evaluate()) {
+							while (result.hasNext()) {  // iterate over the result
+								HashMap <String,String> row = new HashMap <String,String>(); 
+								
+								
+								
+								BindingSet bindingSet = result.next();	
+								
+								Set <String> bindings = bindingSet.getBindingNames();  
+								
+								Iterator it2 = bindings.iterator();
+								while (it2.hasNext()) {
+									String key = (String) it2.next();
+									if (bindingSet.getValue(key)!=null)
+									row.put(key, bindingSet.getValue(key).toString()) ;
+								}
+								
+								resultSet.add(row);
+							}	   
+						}
+				return resultSet;
+			}
+
+	public ArrayList <HashMap>  getPlanElementsForInstallationAccountabilityPlan(String systemIri) {
+		ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+				
+		ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+			String queryString = Constants.PREFIXES + "Select Distinct ?element ?elementType ?input ?inputType ?output ?outputType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan rdf:type rains:InstallationAccountabilityPlan; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  ?element a ?elementType. OPTIONAL {?element ep-plan:hasInputVariable ?input. ?input a ?inputType. FILTER (regex(str(?inputType), \"https://w3id.org/rains#\" ))} OPTIONAL {?element ep-plan:hasOutputVariable ?output. ?output a ?outputType. FILTER (regex(str(?outputType), \"https://w3id.org/rains#\" ))} FILTER (regex(str(?elementType), \"https://w3id.org/rains#\" ))}";
+
+
+			System.out.println(queryString);
+				TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+						try (TupleQueryResult result = tupleQuery.evaluate()) {
+							while (result.hasNext()) {  // iterate over the result
+								HashMap <String,String> row = new HashMap <String,String>(); 
+								
+								
+								
+								BindingSet bindingSet = result.next();	
+								
+								Set <String> bindings = bindingSet.getBindingNames();  
+								
+								Iterator it2 = bindings.iterator();
+								while (it2.hasNext()) {
+									String key = (String) it2.next();
+									if (bindingSet.getValue(key)!=null)
+									row.put(key, bindingSet.getValue(key).toString()) ;
+								}
+								
+								resultSet.add(row);
+							}	   
+						}
+				return resultSet;
+			}
+
+	public ArrayList <HashMap>  getPlanElementsForUserTrainingAccountabilityPlan(String systemIri) {
+		ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+				
+		ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+			String queryString = Constants.PREFIXES + "Select Distinct ?element ?elementType ?input ?inputType ?output ?outputType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan rdf:type rains:UserTrainingAccountabilityPlan; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  ?element a ?elementType. OPTIONAL {?element ep-plan:hasInputVariable ?input. ?input a ?inputType. FILTER (regex(str(?inputType), \"https://w3id.org/rains#\" ))} OPTIONAL {?element ep-plan:hasOutputVariable ?output. ?output a ?outputType. FILTER (regex(str(?outputType), \"https://w3id.org/rains#\" ))} FILTER (regex(str(?elementType), \"https://w3id.org/rains#\" ))}";
+
+
+			System.out.println(queryString);
+				TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+						try (TupleQueryResult result = tupleQuery.evaluate()) {
+							while (result.hasNext()) {  // iterate over the result
+								HashMap <String,String> row = new HashMap <String,String>(); 
+								
+								
+								
+								BindingSet bindingSet = result.next();	
+								
+								Set <String> bindings = bindingSet.getBindingNames();  
+								
+								Iterator it2 = bindings.iterator();
+								while (it2.hasNext()) {
+									String key = (String) it2.next();
+									if (bindingSet.getValue(key)!=null)
+									row.put(key, bindingSet.getValue(key).toString()) ;
+								}
+								
+								resultSet.add(row);
+							}	   
+						}
+				return resultSet;
+			}
+
+	public ArrayList <HashMap>  getPlanElementsForManualProductionAccountabilityPlan(String systemIri) {
+		ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+				
+		ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+			String queryString = Constants.PREFIXES + "Select Distinct ?element ?elementType ?input ?inputType ?output ?outputType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan rdf:type rains:ManualProductionAccountabilityPlan; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  ?element a ?elementType. OPTIONAL {?element ep-plan:hasInputVariable ?input. ?input a ?inputType. FILTER (regex(str(?inputType), \"https://w3id.org/rains#\" ))} OPTIONAL {?element ep-plan:hasOutputVariable ?output. ?output a ?outputType. FILTER (regex(str(?outputType), \"https://w3id.org/rains#\" ))} FILTER (regex(str(?elementType), \"https://w3id.org/rains#\" ))}";
+
+
+			System.out.println(queryString);
+				TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+						try (TupleQueryResult result = tupleQuery.evaluate()) {
+							while (result.hasNext()) {  // iterate over the result
+								HashMap <String,String> row = new HashMap <String,String>(); 
+								
+								
+								
+								BindingSet bindingSet = result.next();	
+								
+								Set <String> bindings = bindingSet.getBindingNames();  
+								
+								Iterator it2 = bindings.iterator();
+								while (it2.hasNext()) {
+									String key = (String) it2.next();
+									if (bindingSet.getValue(key)!=null)
+									row.put(key, bindingSet.getValue(key).toString()) ;
+								}
+								
+								resultSet.add(row);
+							}	   
+						}
+				return resultSet;
+			}
+
+	public ArrayList <HashMap>  getPlanElementsForDeploymentStageAccountabilityPlan(String systemIri) {
+		ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
+				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
+				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";
+				
+		ArrayList <HashMap> resultSet = new ArrayList <HashMap> ();
+			String queryString = Constants.PREFIXES + "Select Distinct ?element ?elementType ?input ?inputType ?output ?outputType FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?plan rdf:type rains:DeploymentStageAccountabilityPlan; <"+RainsOntologyComponents.specifiedForSystem+"> <"+systemIri+">. ?element ep-plan:isElementOfPlan ?plan.  ?element a ?elementType. OPTIONAL {?element ep-plan:hasInputVariable ?input. ?input a ?inputType. FILTER (regex(str(?inputType), \"https://w3id.org/rains#\" ))} OPTIONAL {?element ep-plan:hasOutputVariable ?output. ?output a ?outputType. FILTER (regex(str(?outputType), \"https://w3id.org/rains#\" ))} FILTER (regex(str(?elementType), \"https://w3id.org/rains#\" ))}";
+
+
+			System.out.println(queryString);
+				TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+						try (TupleQueryResult result = tupleQuery.evaluate()) {
+							while (result.hasNext()) {  // iterate over the result
+								HashMap <String,String> row = new HashMap <String,String>(); 
+								
+								
+								
+								BindingSet bindingSet = result.next();	
+								
+								Set <String> bindings = bindingSet.getBindingNames();  
+								
+								Iterator it2 = bindings.iterator();
+								while (it2.hasNext()) {
+									String key = (String) it2.next();
+									if (bindingSet.getValue(key)!=null)
+									row.put(key, bindingSet.getValue(key).toString()) ;
+								}
+								
+								resultSet.add(row);
+							}	   
+						}
 				return resultSet;
 			}
 	

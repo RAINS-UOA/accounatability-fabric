@@ -651,12 +651,17 @@ function displayCurrentPlanVariables (elementId,variableMode) {
 
  const findRainsVariable = (types) => {
 	 let variableType = ''
+	 if (types) {
 	 for (let i =0;i<types.length;i++ ) {
 		 if (types[i].includes(rainsPlanPrefix)) {
 			 variableType = types[i];
 		 }
 	 }
 	 return removeRainsURIPart(fromCamelCase(variableType," "))
+	 }
+	 else {
+		return "undefined";
+	}
  }
 
 function listVaribalesAvailableToStep (stepId,variableMode) {
@@ -675,8 +680,11 @@ function listVaribalesAvailableToStep (stepId,variableMode) {
 		}
 		//skip those that don't yet exist
 		//if (variable["belongsToRow"] > selectedStep['belongsToRow']) {
+			
+			if (variable["belongsToRow"]) { //variables from previous plans won't have the belongs to row property'
 	    if (parseInt(variable["belongsToRow"].replaceAll("step_row_",""),10) >  parseInt(selectedStep["belongsToRow"].replaceAll("step_row_",""),10)) {
 			continue;
+		}
 		}
 		//don't allow two steps to produce same variable 
 		if (variableMode=="Output"&&variable["isOutputVariableOf"]&&(variable["isOutputVariableOf"].length>0)) {
@@ -1016,12 +1024,12 @@ $('#addSelectedVarsBtn').click(
 			//these are already in plan and will be only created as input so only need to link to step and link to the plan 
 			//check if we have already added it to the list of variables 
 			for (let i = 0; i<inputElementsPrevious.length;i++ ) {
-			
+			if(inputElementsPrevious[i].checked == true){
 			let previousPlanVariableId  = inputElementsPrevious[i].id;
 			      found = false; 
-			      for (let i = 0; i< variablesArray.length;i++) {
-							 if (variablesArray[i]['@id']===previousPlanVariableId ) {
-								 variablesArray[i]['isInputVariableOf'].push(selectedStep["@id"]);
+			      for (let j = 0; j< variablesArray.length;j++) {
+							 if (variablesArray[j]['@id']===previousPlanVariableId ) {
+								 variablesArray[j]['isInputVariableOf'].push(selectedStep["@id"]);
 							  found = true; 
 							 }
 						}
@@ -1029,7 +1037,7 @@ $('#addSelectedVarsBtn').click(
 						
 				 //create variable here if seen for the first time 
 				 
-				if (found != true ) {
+				if (found === false ) {
 							let variable = {}; 
 							variable['@id'] = previousPlanVariableId; 
 							variable['isInputVariableOf'] = [];
@@ -1044,7 +1052,9 @@ $('#addSelectedVarsBtn').click(
 						               if (stepsArray[x]['@id']===selectedStep["@id"]) {
 							           stepsArray[x]['hasInputVariable'].push(previousPlanVariableId);
 							           }
-							           }		
+							           }	
+							           
+				}	
 			}
 			
 			let inputElementsExisting = $('#currentPlanExistingVariablesList').find(':input');

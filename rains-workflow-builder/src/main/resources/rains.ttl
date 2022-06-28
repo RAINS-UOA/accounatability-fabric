@@ -1182,11 +1182,11 @@ It is advisable that the information realization corresponding to DatasetSpecifi
 1. Dataset 
 2. DataItem
 3. DatasetCharacteristic
-3. DataCollectionProcedure
-4. DataPreprocesingProcedure
+3. DataCollectionProcedure and and if applicable DataCollectionSoftware
+4. DataPreprocesingProcedure and if applicable DataPreprocessingSoftware
 5. Funding
 6. Limitation
-7. Risk and its subclass Bias
+7. Risk and its subclass Bias, and if applicable FairnessOrBiasDetectionSoftware
 8. Tradeoff
 9. IntendedUserGroup
 10. The subclasses of Use Case, namely IncorrectUseCase and IntendedUseCase
@@ -1517,7 +1517,7 @@ It is discouraged that the information realization corresponding to the Evaluati
                                                                        :ImplementationStageAccountabilityPlan
                                                                        :InstallationAccountabilityPlan
                                                                        :MaintenanceAccountabilityPlan
-                                                                       :RuntimeAccountabilityPlan
+                                                                       :OperationStageAccountabilityPlan
                                                                      )
                                                        ]
                                    ] ,
@@ -1536,7 +1536,7 @@ It is discouraged that the information realization corresponding to the Evaluati
                                                                        :ImplementationStageAccountabilityPlan
                                                                        :InstallationAccountabilityPlan
                                                                        :MaintenanceAccountabilityPlan
-                                                                       :RuntimeAccountabilityPlan
+                                                                       :OperationStageAccountabilityPlan
                                                                      )
                                                        ]
                                    ] ;
@@ -1627,7 +1627,8 @@ For example, assume the dataset design specification specifies that dataset foob
                          [ rdf:type owl:Restriction ;
                            owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                            owl:allValuesFrom [ rdf:type owl:Class ;
-                                               owl:unionOf ( :OperationStageAccountabilityPlan
+                                               owl:unionOf ( :ConfigurationAccountabilityPlan
+                                                             :OperationStageAccountabilityPlan
                                                              :RuntimeAccountabilityPlan
                                                            )
                                              ]
@@ -1635,7 +1636,8 @@ For example, assume the dataset design specification specifies that dataset foob
                          [ rdf:type owl:Restriction ;
                            owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
                            owl:allValuesFrom [ rdf:type owl:Class ;
-                                               owl:unionOf ( :OperationStageAccountabilityPlan
+                                               owl:unionOf ( :ConfigurationAccountabilityPlan
+                                                             :OperationStageAccountabilityPlan
                                                              :RuntimeAccountabilityPlan
                                                            )
                                              ]
@@ -1657,19 +1659,25 @@ For example, assume the dataset design specification specifies that dataset foob
                              [ rdf:type owl:Restriction ;
                                owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                owl:allValuesFrom [ rdf:type owl:Class ;
-                                                   owl:unionOf ( :OperationStageAccountabilityPlan
+                                                   owl:unionOf ( :ConfigurationAccountabilityPlan
+                                                                 :OperationStageAccountabilityPlan
                                                                  :RuntimeAccountabilityPlan
                                                                )
                                                  ]
                              ] ,
                              [ rdf:type owl:Restriction ;
                                owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
-                               owl:allValuesFrom :Explain
+                               owl:allValuesFrom [ rdf:type owl:Class ;
+                                                   owl:unionOf ( :Explain
+                                                                 :GenerateModelOutput
+                                                               )
+                                                 ]
                              ] ,
                              [ rdf:type owl:Restriction ;
                                owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                owl:allValuesFrom [ rdf:type owl:Class ;
-                                                   owl:unionOf ( :OperationStageAccountabilityPlan
+                                                   owl:unionOf ( :ConfigurationAccountabilityPlan
+                                                                 :OperationStageAccountabilityPlan
                                                                  :RuntimeAccountabilityPlan
                                                                )
                                                  ]
@@ -1691,7 +1699,8 @@ If the AI System is involved in making decisions/recommendations/actions affecti
                                          [ rdf:type owl:Restriction ;
                                            owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                                            owl:allValuesFrom [ rdf:type owl:Class ;
-                                                               owl:unionOf ( :OperationStageAccountabilityPlan
+                                                               owl:unionOf ( :ConfigurationAccountabilityPlan
+                                                                             :OperationStageAccountabilityPlan
                                                                              :RuntimeAccountabilityPlan
                                                                            )
                                                              ]
@@ -1703,7 +1712,8 @@ If the AI System is involved in making decisions/recommendations/actions affecti
                                          [ rdf:type owl:Restriction ;
                                            owl:onProperty <https://w3id.org/ep-plan#isVariableOfPlan> ;
                                            owl:allValuesFrom [ rdf:type owl:Class ;
-                                                               owl:unionOf ( :OperationStageAccountabilityPlan
+                                                               owl:unionOf ( :ConfigurationAccountabilityPlan
+                                                                             :OperationStageAccountabilityPlan
                                                                              :RuntimeAccountabilityPlan
                                                                            )
                                                              ]
@@ -1819,7 +1829,11 @@ Similar to Notification, it is advisable that the information realization corres
                      rdfs:subClassOf :GenerateOutput ,
                                      [ rdf:type owl:Restriction ;
                                        owl:onProperty <https://w3id.org/ep-plan#hasOutputVariable> ;
-                                       owl:allValuesFrom :ModelOutput
+                                       owl:allValuesFrom [ rdf:type owl:Class ;
+                                                           owl:unionOf ( :Explanation
+                                                                         :ModelOutput
+                                                                       )
+                                                         ]
                                      ] ,
                                      [ rdf:type owl:Restriction ;
                                        owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
@@ -2428,7 +2442,7 @@ It is advisable that the information realization corresponding to ModelSpecifica
 2. ModelCharacteristic
 3. Algorithm
 4. Limitation
-5. Risk and its subclass Bias
+5. Risk and its subclass Bias, and if applicable FairnessOrBiasDetectionSoftware
 6.Tradeoff
 7. IntendedUserGroup
 8. Parameter and its subclass Hyperparameter
@@ -2510,7 +2524,8 @@ It is advisable that the information realization corresponding to the Notificati
                             [ rdf:type owl:Restriction ;
                               owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
                               owl:allValuesFrom [ rdf:type owl:Class ;
-                                                  owl:unionOf ( :OperationStageAccountabilityPlan
+                                                  owl:unionOf ( :ConfigurationAccountabilityPlan
+                                                                :OperationStageAccountabilityPlan
                                                                 :RuntimeAccountabilityPlan
                                                               )
                                                 ]
@@ -2518,7 +2533,8 @@ It is advisable that the information realization corresponding to the Notificati
                             [ rdf:type owl:Restriction ;
                               owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
                               owl:allValuesFrom [ rdf:type owl:Class ;
-                                                  owl:unionOf ( :OperationStageAccountabilityPlan
+                                                  owl:unionOf ( :ConfigurationAccountabilityPlan
+                                                                :OperationStageAccountabilityPlan
                                                                 :RuntimeAccountabilityPlan
                                                               )
                                                 ]
@@ -2659,16 +2675,32 @@ If the AI System is involved in making decisions/recommendations/actions affecti
                                       ] ,
                                       [ rdf:type owl:Restriction ;
                                         owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
-                                        owl:allValuesFrom :DesignStageAccountabilityPlan
+                                        owl:allValuesFrom [ rdf:type owl:Class ;
+                                                            owl:unionOf ( :DeploymentStageAccountabilityPlan
+                                                                          :DesignStageAccountabilityPlan
+                                                                          :ImplementationStageAccountabilityPlan
+                                                                          :InstallationAccountabilityPlan
+                                                                          :MaintenanceAccountabilityPlan
+                                                                          :OperationStageAccountabilityPlan
+                                                                        )
+                                                          ]
                                       ] ,
                                       [ rdf:type owl:Restriction ;
                                         owl:onProperty <https://w3id.org/ep-plan#isStepOfPlan> ;
-                                        owl:allValuesFrom :DesignStageAccountabilityPlan
+                                        owl:allValuesFrom [ rdf:type owl:Class ;
+                                                            owl:unionOf ( :DeploymentStageAccountabilityPlan
+                                                                          :DesignStageAccountabilityPlan
+                                                                          :ImplementationStageAccountabilityPlan
+                                                                          :InstallationAccountabilityPlan
+                                                                          :MaintenanceAccountabilityPlan
+                                                                          :OperationStageAccountabilityPlan
+                                                                        )
+                                                          ]
                                       ] ;
                       owl:disjointWith :RealizeComponent ,
                                        :SystemAction ,
                                        :TrainUser ;
-                      rdfs:comment "A planned step describing the creation of a specification that has some impact on the AI System, e.g. the production of the design specification describing the training dataset to be used. This step is typically part of the Design stage of an AI System's life cycle and has members of the subclasses of Design Specification as its expected output(s)." ;
+                      rdfs:comment "A planned step describing the creation of a specification that has some impact on the AI System, e.g. the production of the design specification describing the training dataset to be used. This step is typically part of the Design stage of an AI System's life cycle and has members of the subclasses of Design Specification as its expected output(s). It can also be part of the Implementation and Deployment (Installation) Stages as as to allow the creation of specifications related to evaluating the AI system." ;
                       rdfs:label "Produce Specification" .
 
 
@@ -2915,7 +2947,7 @@ When used as part of an information realization corresponding to a design specif
 It is advisable that the information realization corresponding to the SupportingInfrastructureComponent variable contains the following information elements:
 1. SupportingInfrastructure, the realized supporting infrastructure should be an instance of RealizedObject. If the implementation deviates from the design, then an additional upporting infrastructure should be indicated as an instance of ExcludedObject.
 2. Limitation
-3. Risk its subclass Bias
+3. Risk its subclass Bias and FairnessOrBiasDetectionSoftware if applicable
 4. Tradeoff
 5. SystemAuditMechanism
 6. SystemExplanationMechanims

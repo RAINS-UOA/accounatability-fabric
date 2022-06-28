@@ -721,7 +721,7 @@ HashMap <String,String > map = new  HashMap <String,String >  ();
 				return resultSet;
 			}
 
-	public ArrayList <HashMap>  getPlanElementsForImplementationStageAccountabilityPlan(String systemIri) {
+	public ArrayList <HashMap>  getPlanElementsForImplementationStage(String systemIri) {
 		ArrayList <HashMap <String,String >> list = new  ArrayList  <HashMap <String,String >>   ();
 				//NOTE - to DO -> this could potentially be run as a single nested query and tehn the burden of performance optinmisation is on the graph store but I don't think it will matter that much in this case as we are using the same connection
 				//String queryString = Constants.PREFIXES + "Select Distinct ?plan ?topLevelStepType ?topLevelStep FROM <"+getPlansNamedGraph(systemIri)+"> WHERE {?topLevelStep a ?topLevelStepType; ep-plan:isElementOfPlan ?topLevelPlan. ?plan ep-plan:isSubPlanOfPlan ?topLevelPlan; ep-plan:decomposesMultiStep ?topLevelStep. ?element ep-plan:isElementOfPlan ?plan. Filter (?topLevelStepType = <"+RainsOntologyComponents.DesignStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.ImplementationStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.DeploymentStep+"> || ?topLevelStepType = <"+RainsOntologyComponents.OperationStep+">)}";

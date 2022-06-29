@@ -16,7 +16,7 @@
                                      <https://www.abdn.ac.uk/ncs/profiles/milan.markovic/> ;
                           dc:description "An ontology to model accountability of AI systems which use machine learning."@en ;
                           dc:issued "2020-12-18"^^xsd:date ;
-                          dc:modified "2022-05-04"@en ;
+                          dc:modified "2022-06-29"@en ;
                           dc:rights "Copyright 2020 University of Aberdeen" ;
                           dc:title "The RAInS Ontology"@en ;
                           vann:preferredNamespacePrefix "rains" ;
@@ -493,7 +493,11 @@ Imported Definition from ML-Schema: ModelEvaluation is a setting of a value of t
            rdfs:subClassOf :GenerateOutput ,
                            [ rdf:type owl:Restriction ;
                              owl:onProperty <https://w3id.org/ep-plan#hasOutputVariable> ;
-                             owl:allValuesFrom :AggregationResult
+                             owl:allValuesFrom [ rdf:type owl:Class ;
+                                                 owl:unionOf ( :AggregationResult
+                                                               :Explanation
+                                                             )
+                                               ]
                            ] ,
                            [ rdf:type owl:Restriction ;
                              owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;
@@ -1668,8 +1672,10 @@ For example, assume the dataset design specification specifies that dataset foob
                              [ rdf:type owl:Restriction ;
                                owl:onProperty <https://w3id.org/ep-plan#isOutputVariableOf> ;
                                owl:allValuesFrom [ rdf:type owl:Class ;
-                                                   owl:unionOf ( :Explain
+                                                   owl:unionOf ( :Aggregate
+                                                                 :Explain
                                                                  :GenerateModelOutput
+                                                                 :GenerateOutput
                                                                )
                                                  ]
                              ] ,
@@ -1867,7 +1873,11 @@ Similar to Notification, it is advisable that the information realization corres
                 rdfs:subClassOf :SystemAction ,
                                 [ rdf:type owl:Restriction ;
                                   owl:onProperty <https://w3id.org/ep-plan#hasOutputVariable> ;
-                                  owl:allValuesFrom :SystemOutput
+                                  owl:allValuesFrom [ rdf:type owl:Class ;
+                                                      owl:unionOf ( :Explanation
+                                                                    :SystemOutput
+                                                                  )
+                                                    ]
                                 ] ,
                                 [ rdf:type owl:Restriction ;
                                   owl:onProperty <https://w3id.org/ep-plan#isElementOfPlan> ;

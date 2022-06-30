@@ -523,7 +523,7 @@ Imported Definition from ML-Schema: ModelEvaluation is a setting of a value of t
                            ] ;
            owl:disjointWith :GenerateModelOutput ,
                             :Override ;
-           rdfs:comment "A planned step that has some impact on the output of AI System where a user or a system component aggregates some outputs to generate a new (aggregated) output. This step is typically part of the Deplpoyment or Operation Stages (specifically Intallation or Configuration or Runtime Stages) and has a member of the class Aggregation Result as its expected output." ;
+           rdfs:comment "A planned step that has some impact on the output of AI System where a user or a system component aggregates some outputs to generate a new (aggregated) output. This step is typically part of the Deplpoyment or Operation Stages (specifically Intallation or Configuration or Runtime Stages) and has a member of the class Aggregation Result as its expected output. It may also generate a member of the class Explanation as its output if it produces an explanation along with the output." ;
            rdfs:label "Aggregate" .
 
 
@@ -1653,7 +1653,7 @@ For example, assume the dataset design specification specifies that dataset foob
                           :ProvideSystemInputData ,
                           :ReturnOutput ,
                           :Validate ;
-         rdfs:comment "A planned step that has some impact on the output of AI System where a Supporting Infrastrcuture component explains an output produced either by a Model Component or a Supporting Infrastructure Component. This step is typically part of the Operation stage (specifically Configuration or Runtime stages) and has a member of the class Explanation as its expected output. This steps  is not needed for models which can produce their own explanation." ;
+         rdfs:comment "A planned step that has some impact on the output of AI System where a Supporting Infrastrcuture component explains an output produced either by a Model Component or a Supporting Infrastructure Component. This step is typically part of the Operation stage (specifically Configuration or Runtime stages) and has a member of the class Explanation as its expected output. This steps  is not needed for model or supporting infrastructure components which can produce their own explanation. If a model or supporting infrastructure component can generate its own explanation, then they do by generating an explanation along with their outputs." ;
          rdfs:label "Explain" .
 
 
@@ -1864,7 +1864,7 @@ Similar to Notification, it is advisable that the information realization corres
                                                          ]
                                      ] ;
                      owl:disjointWith :Override ;
-                     rdfs:comment "A planned step that  describes the generation of an output by a Model component of the AI System. This step is typically part of the Deployment or Operation Stages (specifically Installation or Configuration or Runtime stages) and has a member of the class Model Output as its expected output." ;
+                     rdfs:comment "A planned step that  describes the generation of an output by a Model component of the AI System. This step is typically part of the Deployment or Operation Stages (specifically Installation or Configuration or Runtime stages) and has a member of the class Model Output as its expected output. It may also generate a member of the class Explanation as its output if it produces an explanation along with the output." ;
                      rdfs:label "Generate Model Output" .
 
 
@@ -1907,7 +1907,7 @@ Similar to Notification, it is advisable that the information realization corres
                                  :ProvideSystemInputData ,
                                  :ReturnOutput ,
                                  :Validate ;
-                rdfs:comment "A planned step that  describes the generation of an output by the user or a component of the AI System, specifically a Supporting Infrastructure Component. While the Model Component may perform this step, it is advisable that it would perform its subclass Generate Model Component. This step is typically part of the Deployment or Operation Stages (specifically Installation or Configuration or Runtime stages) and has a member of the class System Output as its expected output." ;
+                rdfs:comment "A planned step that  describes the generation of an output or its explanation by the user or a component of the AI System, specifically a Supporting Infrastructure Component. While the Model Component may perform this step, it is advisable that it would perform its subclass Generate Model Component. This step is typically part of the Deployment or Operation Stages (specifically Installation or Configuration or Runtime stages) and has members of the class System Output or Explanation as its expected output." ;
                 rdfs:label "Generate Output" .
 
 

@@ -40,5 +40,5 @@ Naja, I., Markovic, M., Edwards, P. and Cottrill, C., 2021. A semantic framework
 Naja, I., Markovic, M., Edwards, P., Pang, W., Cottrill, C. and Williams, R., 2022. Using Knowledge Graphs to Unlock Practical Collection, Integration, and Audit of AI Accountability Information. IEEE Access, 10, pp.74383-74411.
 
 ---
-The work presented here is licensed under a Creative Commons Attribution NonCommercial ShareAlike 4.0 International License (CC BY-NC-SA 4.0) https://creativecommons.org/licenses/by-nc-sa/4.0/
+The work presented here is licensed under Attribution 4.0 International (CC BY 4.0) https://creativecommons.org/licenses/by/4.0/ 
 =======

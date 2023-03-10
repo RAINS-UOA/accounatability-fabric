@@ -27,7 +27,7 @@ mvn spring-boot:run
 Go to localhost:8080 and you should see the landing page of the Accounatbility Fabric
 
 
-For more details see related publications: 
+## For more details see related publications: 
 
 Markovic, M., Naja, I., Edwards, P. and Pang, W., 2021. The Accountability Fabric: A Suite of Semantic Tools For Managing AI System Accountability and Audit.
 
